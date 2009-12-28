@@ -33,15 +33,15 @@ Gearman::Driver::Worker - Base class for workers
 
 =head2 Job
 
-TODO: Add POD
+This will register the method on gearmand.
 
 =head2 MinProcs
 
-TODO: Add POD
+Minimum number of childs working parallel on this job/method.
 
 =head2 MaxProcs
 
-TODO: Add POD
+Maximum number of childs working parallel on this job/method.
 
 =head1 METHODS
 
