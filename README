@@ -1,0 +1,109 @@
+NAME
+    Gearman::Driver - Manage Gearman workers
+
+SYNOPSIS
+        package My::Workers::One;
+
+        use base qw(Gearman::Driver::Worker);
+        use Moose;
+
+        # this method will be registered at gearmand as 'My::Workers::One::scale_image'
+        sub scale_image : Job {}
+
+        # this method will be registered at gearmand as 'My::Workers::One::do_something_else'
+        sub do_something_else : Job : MinProcs(2) : MaxProcs(15) {}
+
+        # this method wont be registered at gearmand at all
+        sub do_something_internal {}
+
+        package My::Workers::Two;
+
+        use base qw(Gearman::Driver::Worker);
+        use Moose;
+
+        # this method will be registered at gearmand as 'My::Workers::Two::scale_image'
+        sub scale_image : Job {}
+
+        package main;
+
+        use Gearman::Driver;
+
+        my $driver = Gearman::Driver->new(
+            namespaces => [qw(My::Workers)],
+            server     => 'localhost:4730,otherhost:4731',
+            interval   => 60,
+        );
+
+        $driver->run;
+
+DESCRIPTION
+ATTRIBUTES
+  namespaces
+    Will be passed to Module::Find "useall" method to load worker modules.
+    Each one of those modules has to be inherited from
+    Gearman::Driver::Worker or a subclass of it. It's also possible to use
+    the full module name to load a single module.
+
+    * isa: ArrayRef
+    * required: True
+
+  modules
+    Every worker module loaded by Module::Find will be added to this list.
+
+    * isa: ArrayRef
+    * readonly: True
+
+  wheels
+    Stores all Gearman::Driver::Wheel instances. The key is the name the job
+    gets registered on Gearman.
+
+    * isa: HashRef
+    * readonly: True
+
+  server
+    A list of Gearman servers the workers should connect to. The format for
+    the server list is: "SERVER[:PORT][,SERVER[:PORT]]"
+
+    * default: localhost:4730
+    * isa: Str
+
+  interval
+    Each n seconds Net::Telnet::Gearman is used in Gearman::Driver::Observer
+    to check status of free/running/busy workers on Gearman. This is used to
+    fork more workers depending on the queue size and the MinProcs/MaxProcs
+    attribute of the job method. See also: Gearman::Driver::Worker
+
+    * default: 5
+    * isa: Int
+
+  observer
+    Instance of Gearman::Driver::Observer.
+
+    * isa: Gearman::Driver::Observer
+    * readonly: True
+
+METHODS
+  run
+    This must be called after the Gearman::Driver object is instantiated.
+
+AUTHOR
+    Johannes Plunien <plu@cpan.org>
+
+COPYRIGHT AND LICENSE
+    Copyright 2009 by Johannes Plunien
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    * Gearman::XS
+    * Module::Find
+    * Moose
+    * MooseX::MethodAttributes
+    * Net::Telnet::Gearman
+    * POE
+    * <http://www.gearman.org/>
+
+REPOSITORY
+    <http://github.com/plu/gearman-driver/>
+
