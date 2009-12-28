@@ -1,2 +1,4 @@
-* implement MinProcs/MaxProcs forking/killing of more childs
-  depending on what Gearman::Driver::Observer returns
+* write more tests
+* write more docs
+* add more examples
+* add encoding/decoding hook
