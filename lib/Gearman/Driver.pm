@@ -4,7 +4,10 @@ use Moose;
 use Carp qw(croak);
 use Gearman::Driver::Observer;
 use Gearman::Driver::Wheel;
+use Log::Log4perl qw(:easy);
 use Module::Find;
+use MooseX::Types::Path::Class;
+with qw(MooseX::Log::Log4perl MooseX::Getopt);
 
 our $VERSION = '0.01000';
 
@@ -40,7 +43,7 @@ Gearman::Driver - Manage Gearman workers
 
     use Gearman::Driver;
 
-    my $driver = Gearman::Driver->new(
+    my $driver = Gearman::Driver->new_with_options(
         namespaces => [qw(My::Workers)],
         server     => 'localhost:4730,otherhost:4731',
         interval   => 60,
@@ -77,7 +80,7 @@ has 'namespaces' => (
     is       => 'rw',
     isa      => 'ArrayRef[Str]',
     required => 1,
-    traits   => ['Array'],
+    traits   => [qw(Array)],
 );
 
 =head2 modules
@@ -104,7 +107,7 @@ has 'modules' => (
     },
     is     => 'ro',
     isa    => 'ArrayRef[Str]',
-    traits => ['Array'],
+    traits => [qw(Array NoGetopt)],
 );
 
 =head2 wheels
@@ -131,13 +134,13 @@ has 'wheels' => (
     },
     is     => 'ro',
     isa    => 'HashRef',
-    traits => ['Hash'],
+    traits => [qw(Hash NoGetopt)],
 );
 
 =head2 server
 
 A list of Gearman servers the workers should connect to. The format
-for the server list is: C<SERVER[:PORT][,SERVER[:PORT]]>
+for the server list is: C<host[:port][,host[:port]]>
 
 =over 4
 
@@ -150,10 +153,11 @@ for the server list is: C<SERVER[:PORT][,SERVER[:PORT]]>
 =cut
 
 has 'server' => (
-    default  => 'localhost:4730',
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
+    default       => 'localhost:4730',
+    documentation => 'Gearman host[:port][,host[:port]]',
+    is            => 'rw',
+    isa           => 'Str',
+    required      => 1,
 );
 
 =head2 interval
@@ -175,10 +179,11 @@ job method. See also: L<Gearman::Driver::Worker>
 =cut
 
 has 'interval' => (
-    default  => '5',
-    is       => 'rw',
-    isa      => 'Int',
-    required => 1,
+    default       => '5',
+    documentation => 'Interval in seconds (see Gearman::Driver::Observer)',
+    is            => 'rw',
+    isa           => 'Int',
+    required      => 1,
 );
 
 =head2 observer
@@ -196,9 +201,30 @@ Instance of L<Gearman::Driver::Observer>.
 =cut
 
 has 'observer' => (
-    is  => 'ro',
-    isa => 'Gearman::Driver::Observer',
+    is     => 'ro',
+    isa    => 'Gearman::Driver::Observer',
+    traits => [qw(NoGetopt)],
 );
+
+=head2 logfile
+
+=over 4
+
+=item * isa: Str
+
+=item * default: gearman_driver.log
+
+=cut
+
+has 'logfile' => (
+    coerce        => 1,
+    default       => 'gearman_driver.log',
+    documentation => 'Path to logfile (default: gearman_driver.log)',
+    is            => 'ro',
+    isa           => 'Path::Class::File',
+);
+
+has '+logger' => ( traits => [qw(NoGetopt)] );
 
 =head1 METHODS
 
@@ -214,6 +240,15 @@ sub run {
 
 sub BUILD {
     my ($self) = @_;
+
+    Log::Log4perl->easy_init(
+        {
+            level  => $DEBUG,
+            file   => sprintf( '>>%s', $self->logfile ),
+            layout => '[%d] [%F{1}:%L] %m%n',
+        },
+    );
+
     $self->_load_namespaces;
     $self->_start_observer;
     $self->_start_wheels;
@@ -277,7 +312,8 @@ sub _observer_callback {
     my ( $self, $status ) = @_;
     foreach my $row (@$status) {
         if ( $self->has_wheel( $row->{name} ) ) {
-            warn "TODO: IMPLEMENT STATUS CALLBACK" . $row->{name};
+            warn "TODO: IMPLEMENT STATUS CALLBACK ... " . $row->{name};
+
             # E.g. if (queue_too_full) { $wheel->add_child() }
         }
         else {
@@ -328,6 +364,10 @@ it under the same terms as Perl itself.
 =item * L<Module::Find>
 
 =item * L<Moose>
+
+=item * L<MooseX::Getopt>
+
+=item * L<MooseX::Log::Log4perl>
 
 =item * L<MooseX::MethodAttributes>
 
