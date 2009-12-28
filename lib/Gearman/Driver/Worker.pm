@@ -2,6 +2,7 @@ package Gearman::Driver::Worker;
 
 use base qw(MooseX::MethodAttributes::Inheritable);
 use Moose;
+with qw(MooseX::Log::Log4perl);
 
 =head1 NAME
 
@@ -20,7 +21,9 @@ Gearman::Driver::Worker - Base class for workers
     }
 
     sub do_something : Job : MinProcs(2) : MaxProcs(15) {
-        my ( $self, $data ) = @_;
+        my ( $self, $driver, $job ) = @_;
+        # $driver => Gearman::Driver instance
+        # $job => Gearman::XS::Job instance
     }
 
     1;
