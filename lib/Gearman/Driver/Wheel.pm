@@ -7,17 +7,13 @@ use POE qw(Wheel::Run);
 
 =head1 NAME
 
-Gearman::Driver::Wheel - TBD
+Gearman::Driver::Wheel - Handles the POE magic
 
 =head1 SYNOPSIS
 
 =head1 DESCRIPTION
 
-=head1 ATTRIBUTES
-
-=head2 driver
-
-Reference to L<Gearman::Driver> instance.
+Currently there's no public interface.
 
 =cut
 
@@ -29,9 +25,11 @@ has 'driver' => (
     weak_ref => 1,
 );
 
-=head2 method
-
-=cut
+has 'name' => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+);
 
 has 'method' => (
     is       => 'rw',
@@ -39,29 +37,11 @@ has 'method' => (
     required => 1,
 );
 
-=head2 name
-
-=cut
-
-has 'name' => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-);
-
-=head2 worker
-
-=cut
-
 has 'worker' => (
     is       => 'rw',
     isa      => 'Any',
     required => 1,
 );
-
-=head2 server
-
-=cut
 
 has 'server' => (
     is       => 'rw',
@@ -69,38 +49,20 @@ has 'server' => (
     required => 1,
 );
 
-=head2 childs
-
-=cut
-
 has 'childs' => (
     is  => 'ro',
     isa => 'ArrayRef[POE::Wheel::Run]',
 );
-
-=head2 gearman
-
-=cut
 
 has 'gearman' => (
     is  => 'ro',
     isa => 'Gearman::XS::Worker',
 );
 
-=head2 session
-
-=cut
-
 has 'session' => (
     is  => 'ro',
     isa => 'POE::Session',
 );
-
-=head1 METHODS
-
-=head2 add_child
-
-=cut
 
 sub add_child {
     my ($self) = @_;

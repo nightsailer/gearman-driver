@@ -8,8 +8,6 @@ use POE;
 
 Gearman::Driver::Observer - Observes gearmand status interface
 
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
 
 Each n seconds L<Net::Telnet::Gearman> is used to fetch status of

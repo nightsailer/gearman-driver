@@ -23,13 +23,24 @@ Gearman::Driver - Manage Gearman workers
     use Moose;
 
     # this method will be registered at gearmand as 'My::Workers::One::scale_image'
-    sub scale_image : Job {}
+    sub scale_image : Job {
+        my ( $self, $driver, $job ) = @_;
+        # do something
+    }
 
     # this method will be registered at gearmand as 'My::Workers::One::do_something_else'
-    sub do_something_else : Job : MinProcs(2) : MaxProcs(15) {}
+    sub do_something_else : Job : MinProcs(2) : MaxProcs(15) {
+        my ( $self, $driver, $job ) = @_;
+        # do something
+    }
 
     # this method wont be registered at gearmand at all
-    sub do_something_internal {}
+    sub do_something_internal {
+        my ( $self, $driver, $job ) = @_;
+        # do something
+    }
+
+    1;
 
     package My::Workers::Two;
 
@@ -37,13 +48,18 @@ Gearman::Driver - Manage Gearman workers
     use Moose;
 
     # this method will be registered at gearmand as 'My::Workers::Two::scale_image'
-    sub scale_image : Job {}
+    sub scale_image : Job {
+        my ( $self, $driver, $job ) = @_;
+        # do something
+    }
+
+    1;
 
     package main;
 
     use Gearman::Driver;
 
-    my $driver = Gearman::Driver->new_with_options(
+    my $driver = Gearman::Driver->new(
         namespaces => [qw(My::Workers)],
         server     => 'localhost:4730,otherhost:4731',
         interval   => 60,
@@ -53,6 +69,70 @@ Gearman::Driver - Manage Gearman workers
 
 =head1 DESCRIPTION
 
+Having hundreds of Gearman workers running in separate processes can
+consume a lot of RAM. Often many of these workers share the same
+code, like the database layer using L<DBIx::Class> for example.
+This is where L<Gearman::Driver> comes in handy:
+
+You write some base class which inherits from
+L<Gearman::Driver::Worker>. Your base class loads your database layer
+for example. Each of your worker classes inherit from that base
+class. In the worker classes you can register single methods as jobs
+on your gearmand. It's even possible to set how many workers doing
+that job should be forked later. And this is the point where you'll
+save some RAM: Instead of staring each worker in a separate process
+L<Gearman::Driver> will fork each worker from the main process. This
+will take advantage of copy-on-write on Linux and save some RAM.
+
+There's only one mandatory parameter which has to be set when calling
+the constructor: namespaces
+
+    use Gearman::Driver;
+    my $driver = Gearman::Driver->new( namespaces => [qw(My::Workers)] );
+
+See also: L<Gearman::Driver/namespaces>. If you do not set
+L<Gearman::Driver/server> (gearmand) attribute the default will be
+used: C<localhost:4730>
+
+Each module found in your namespace will be loaded and introspected,
+looking for methods having the 'Job' attribute set:
+
+    package My::Worker::ONE;
+
+    sub scale_image : Job {
+        my ( $self, $driver, $job ) = @_;
+        # do something
+    }
+
+This method will be registered as a new job function on gearmand,
+verify it by doing:
+
+    plu@mbp ~[master]$ telnet localhost 4730
+    Trying ::1...
+    Connected to localhost.
+    Escape character is '^]'.
+    status
+    My::Worker::ONE::scale_image   0       0       1
+    .
+    ^]
+    telnet> Connection closed.
+
+If you dont like to use the full package name you can also specify
+a custom prefix:
+
+    package My::Worker::ONE;
+
+    sub prefix { 'foo_bar_' }
+
+    sub scale_image : Job {
+        my ( $self, $driver, $job ) = @_;
+        # do something
+    }
+
+This would register 'foo_bar_scale_image' on gearmand.
+
+See also: L<Gearman::Driver::Worker/prefix>
+
 =head1 ATTRIBUTES
 
 =head2 namespaces
@@ -60,7 +140,9 @@ Gearman::Driver - Manage Gearman workers
 Will be passed to L<Module::Find> C<useall> method to load worker
 modules. Each one of those modules has to be inherited from
 L<Gearman::Driver::Worker> or a subclass of it. It's also possible
-to use the full module name to load a single module.
+to use the full package name to load a single module/file. There's
+also a method L<Gearman::Driver/all_namespaces> which returns
+a sorted list of all namespaces.
 
 =over 4
 
@@ -74,20 +156,18 @@ to use the full module name to load a single module.
 
 has 'namespaces' => (
     documentation => 'Example: --namespaces My::Workers --namespaces My::OtherWorkers',
-    handles       => {
-        all_namespaces => 'sort',
-        has_namespaces => 'count',
-    },
-    is       => 'rw',
-    isa      => 'ArrayRef[Str]',
-    required => 1,
-    traits   => [qw(Array)],
+    handles       => { all_namespaces => 'sort' },
+    is            => 'rw',
+    isa           => 'ArrayRef[Str]',
+    required      => 1,
+    traits        => [qw(Array)],
 );
 
 =head2 modules
 
 Every worker module loaded by L<Module::Find> will be added to this
-list.
+list. There're also two methods: L<Gearman::Driver/all_modules> and
+L<Gearman::Driver/has_modules>.
 
 =over 4
 
@@ -102,7 +182,7 @@ list.
 has 'modules' => (
     default => sub { [] },
     handles => {
-        add_module  => 'push',
+        _add_module => 'push',
         all_modules => 'sort',
         has_modules => 'count',
     },
@@ -114,7 +194,16 @@ has 'modules' => (
 =head2 wheels
 
 Stores all L<Gearman::Driver::Wheel> instances. The key is the name
-the job gets registered on Gearman.
+the job gets registered on Gearman. There're also two methods:
+L<Gearman::Driver/get_wheel> and L<Gearman::Driver/has_wheel>.
+
+Example:
+
+    {
+        'My::Workers::ONE::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
+        'My::Workers::ONE::do_something_else' => bless( {...}, 'Gearman::Driver::Wheel' ),
+        'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
+    }
 
 =over 4
 
@@ -129,7 +218,7 @@ the job gets registered on Gearman.
 has 'wheels' => (
     default => sub { {} },
     handles => {
-        set_wheel => 'set',
+        _set_wheel => 'set',
         get_wheel => 'get',
         has_wheel => 'defined',
     },
@@ -142,6 +231,8 @@ has 'wheels' => (
 
 A list of Gearman servers the workers should connect to. The format
 for the server list is: C<host[:port][,host[:port]]>
+
+See also: L<Gearman::XS>
 
 =over 4
 
@@ -275,6 +366,30 @@ has '+logger' => ( traits => [qw(NoGetopt)] );
 
 =head1 METHODS
 
+=head2 all_namespaces
+
+Returns a sorted list of L<Gearman::Driver/namespaces>.
+
+=head2 all_modules
+
+Returns a sorted list of L<Gearman::Driver/modules>.
+
+=head2 has_modules
+
+Returns the count of L<Gearman::Driver/modules>.
+
+=head2 has_wheel
+
+Params: $name
+
+Returns true/false if the wheel exists.
+
+=head2 get_wheel
+
+Params: $name
+
+Returns the wheel instance.
+
 =head2 run
 
 This must be called after the L<Gearman::Driver> object is instantiated.
@@ -287,6 +402,14 @@ sub run {
 
 sub BUILD {
     my ($self) = @_;
+    $self->_setup_logger;
+    $self->_load_namespaces;
+    $self->_start_observer;
+    $self->_start_wheels;
+}
+
+sub _setup_logger {
+    my ($self) = @_;
 
     Log::Log4perl->easy_init(
         {
@@ -295,10 +418,6 @@ sub BUILD {
             level  => $self->loglevel,
         },
     );
-
-    $self->_load_namespaces;
-    $self->_start_observer;
-    $self->_start_wheels;
 }
 
 sub _load_namespaces {
@@ -317,7 +436,7 @@ sub _load_namespaces {
     foreach my $module (@modules) {
         next unless $self->_is_valid_worker_subclass($module);
         next unless $self->_has_job_method($module);
-        $self->add_module($module);
+        $self->_add_module($module);
     }
 
     unless ( $self->has_modules ) {
@@ -388,7 +507,7 @@ sub _start_wheels {
             for ( 1 .. $attr->{MinProcs} ) {
                 $wheel->add_child();
             }
-            $self->set_wheel( $name => $wheel );
+            $self->_set_wheel( $name => $wheel );
         }
     }
 }
@@ -409,6 +528,8 @@ it under the same terms as Perl itself.
 =over 4
 
 =item * L<Gearman::XS>
+
+=item * L<Log::Log4perl>
 
 =item * L<Module::Find>
 
