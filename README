@@ -28,7 +28,7 @@ SYNOPSIS
 
         use Gearman::Driver;
 
-        my $driver = Gearman::Driver->new(
+        my $driver = Gearman::Driver->new_with_options(
             namespaces => [qw(My::Workers)],
             server     => 'localhost:4730,otherhost:4731',
             interval   => 60,
@@ -62,7 +62,7 @@ ATTRIBUTES
 
   server
     A list of Gearman servers the workers should connect to. The format for
-    the server list is: "SERVER[:PORT][,SERVER[:PORT]]"
+    the server list is: "host[:port][,host[:port]]"
 
     * default: localhost:4730
     * isa: Str
@@ -82,28 +82,35 @@ ATTRIBUTES
     * isa: Gearman::Driver::Observer
     * readonly: True
 
+  logfile
+    * isa: Str
+    * default: gearman_driver.log
+
 METHODS
   run
-    This must be called after the Gearman::Driver object is instantiated.
+        This must be called after the Gearman::Driver object is
+        instantiated.
 
 AUTHOR
-    Johannes Plunien <plu@cpan.org>
+        Johannes Plunien <plu@cpan.org>
 
 COPYRIGHT AND LICENSE
-    Copyright 2009 by Johannes Plunien
+        Copyright 2009 by Johannes Plunien
 
-    This library is free software; you can redistribute it and/or modify it
-    under the same terms as Perl itself.
+        This library is free software; you can redistribute it and/or modify
+        it under the same terms as Perl itself.
 
 SEE ALSO
-    * Gearman::XS
-    * Module::Find
-    * Moose
-    * MooseX::MethodAttributes
-    * Net::Telnet::Gearman
-    * POE
-    * <http://www.gearman.org/>
+        * Gearman::XS
+        * Module::Find
+        * Moose
+        * MooseX::Getopt
+        * MooseX::Log::Log4perl
+        * MooseX::MethodAttributes
+        * Net::Telnet::Gearman
+        * POE
+        * <http://www.gearman.org/>
 
 REPOSITORY
-    <http://github.com/plu/gearman-driver/>
+        <http://github.com/plu/gearman-driver/>
 
