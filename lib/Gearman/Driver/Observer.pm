@@ -41,9 +41,10 @@ has 'server' => (
 );
 
 has 'gearman' => (
-    default => sub { [] },
-    is      => 'ro',
-    isa     => 'ArrayRef[Net::Telnet::Gearman]',
+    auto_deref => 1,
+    default    => sub { [] },
+    is         => 'ro',
+    isa        => 'ArrayRef[Net::Telnet::Gearman]',
 );
 
 has 'session' => (
@@ -75,15 +76,15 @@ sub BUILD {
 }
 
 sub _start {
-    my ( $self, $kernel ) = @_[ OBJECT, KERNEL ];
-    $kernel->yield('fetch_status');
+    $_[KERNEL]->yield('fetch_status');
 }
 
 sub _fetch_status {
-    my ( $self, $kernel ) = @_[ OBJECT, KERNEL ];
     my %data = ();
-    foreach my $gearman ( @{ $self->{gearman} } ) {
+
+    foreach my $gearman ( $_[OBJECT]->gearman ) {
         my $status = $gearman->status;
+
         foreach my $row (@$status) {
             $data{ $row->name } ||= {
                 name    => $row->name,
@@ -98,8 +99,10 @@ sub _fetch_status {
             $data{ $row->name }{running} += $row->running;
         }
     }
-    $self->callback->( [ values %data ], $self->server );
-    $kernel->delay( fetch_status => $self->interval );
+
+    $_[OBJECT]->callback->( [ values %data ], $_[OBJECT]->server );
+
+    $_[KERNEL]->delay( fetch_status => $_[OBJECT]->interval );
 }
 
 =head1 AUTHOR
