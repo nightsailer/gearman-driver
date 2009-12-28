@@ -29,7 +29,7 @@ Gearman::Driver - Manage Gearman workers
     }
 
     # this method will be registered at gearmand as 'My::Workers::One::do_something_else'
-    sub do_something_else : Job : MinProcs(2) : MaxProcs(15) {
+    sub do_something_else : Job : MinChilds(2) : MaxChilds(15) {
         my ( $self, $driver, $job ) = @_;
         # do something
     }
@@ -219,8 +219,8 @@ has 'wheels' => (
     default => sub { {} },
     handles => {
         _set_wheel => 'set',
-        get_wheel => 'get',
-        has_wheel => 'defined',
+        get_wheel  => 'get',
+        has_wheel  => 'defined',
     },
     is     => 'ro',
     isa    => 'HashRef',
@@ -257,7 +257,7 @@ has 'server' => (
 Each n seconds L<Net::Telnet::Gearman> is used in
 L<Gearman::Driver::Observer> to check status of free/running/busy
 workers on Gearman. This is used to fork more workers depending
-on the queue size and the MinProcs/MaxProcs attribute of the
+on the queue size and the MinChilds/MaxChilds attribute of the
 job method. See also: L<Gearman::Driver::Worker>
 
 =over 4
@@ -477,10 +477,19 @@ sub _start_observer {
 sub _observer_callback {
     my ( $self, $status ) = @_;
     foreach my $row (@$status) {
-        if ( $self->has_wheel( $row->{name} ) ) {
-
-            # warn "TODO: IMPLEMENT STATUS CALLBACK ... " . $row->{name};
-            # E.g. if (queue_too_full) { $wheel->add_child() }
+        if ( my $wheel = $self->get_wheel( $row->{name} ) ) {
+            if ( $wheel->count_childs && $wheel->count_childs == $row->{busy} && $row->{queue} ) {
+                my $diff = $row->{queue} - $row->{busy};
+                my $free = $wheel->max_childs - $wheel->count_childs;
+                if ($free) {
+                    my $start = $diff > $free ? $free : $diff;
+                    $wheel->add_child for 1 .. $start;
+                }
+            }
+            elsif ( $wheel->count_childs && $wheel->count_childs > $wheel->min_childs && $row->{queue} == 0 ) {
+                my $stop = $wheel->count_childs - $wheel->min_childs;
+                $wheel->remove_child for 1 .. $stop;
+            }
         }
         else {
 
@@ -498,13 +507,15 @@ sub _start_wheels {
             my $attr  = $worker->_parse_attributes( $method->attributes );
             my $name  = $worker->prefix . $method->name;
             my $wheel = Gearman::Driver::Wheel->new(
-                driver => $self,
-                method => $method,
-                name   => $name,
-                worker => $worker,
-                server => $self->server,
+                driver     => $self,
+                method     => $method,
+                name       => $name,
+                worker     => $worker,
+                server     => $self->server,
+                min_childs => $attr->{MinChilds},
+                max_childs => $attr->{MaxChilds},
             );
-            for ( 1 .. $attr->{MinProcs} ) {
+            for ( 1 .. $attr->{MinChilds} ) {
                 $wheel->add_child();
             }
             $self->_set_wheel( $name => $wheel );

@@ -8,6 +8,6 @@ use Gearman::Driver;
 my $driver = Gearman::Driver->new_with_options(
     namespaces => [qw(GDExamples)],
     server     => 'localhost:4730,localhost:4731',
-    interval   => 3,
+    interval   => 1,
 );
 $driver->run;

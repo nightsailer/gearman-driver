@@ -49,9 +49,31 @@ has 'server' => (
     required => 1,
 );
 
+has 'max_childs' => (
+    default  => 1,
+    is       => 'rw',
+    isa      => 'Int',
+    required => 1,
+);
+
+has 'min_childs' => (
+    default  => 1,
+    is       => 'rw',
+    isa      => 'Int',
+    required => 1,
+);
+
 has 'childs' => (
-    is  => 'ro',
-    isa => 'ArrayRef[POE::Wheel::Run]',
+    default => sub { [] },
+    handles => {
+        __add_child    => 'push',
+        __remove_child => 'pop',
+        all_childs     => 'sort',
+        count_childs   => 'count',
+    },
+    is     => 'ro',
+    isa    => 'ArrayRef[POE::Wheel::Run]',
+    traits => [qw(Array)],
 );
 
 has 'gearman' => (
@@ -67,6 +89,11 @@ has 'session' => (
 sub add_child {
     my ($self) = @_;
     POE::Kernel->post( $self->session => 'add_child' );
+}
+
+sub remove_child {
+    my ($self) = @_;
+    POE::Kernel->post( $self->session => 'remove_child' );
 }
 
 sub BUILD {
@@ -94,6 +121,7 @@ sub BUILD {
                 got_child_signal => '_on_child_signal',
                 got_sig_int      => '_on_sig_int',
                 add_child        => '_add_child',
+                remove_child     => '_remove_child',
             }
         ]
     );
@@ -126,7 +154,15 @@ sub _add_child {
 
     $self->log->info( sprintf '(%d) [%s] Child started', $child->PID, $self->name );
 
-    push @{ $self->{childs} }, $child;
+    $self->__add_child($child);
+}
+
+sub _remove_child {
+    my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
+    my $child = $self->__remove_child;
+    delete $heap->{children_by_pid}{ $child->PID };
+    $child->kill();
+    $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $self->name );
 }
 
 sub _start {

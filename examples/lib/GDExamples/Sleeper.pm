@@ -4,9 +4,9 @@ package    # hide from PAUSE
 use base qw(Gearman::Driver::Worker);
 use Moose;
 
-sub ZzZzZzzz : Job : MinProcs(5) : MaxProcs(10) {
+sub ZzZzZzzz : Job : MinChilds(5) : MaxChilds(10) {
     my ( $self, $driver, $job ) = @_;
-    my $time = 5;
+    my $time = 2;
     sleep($time);
     $self->output( $job->workload );
 }

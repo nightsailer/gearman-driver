@@ -19,7 +19,7 @@ Gearman::Driver::Worker - Base class for workers
         return join '_', split /::/, __PACKAGE__;
     }
 
-    sub do_something : Job : MinProcs(2) : MaxProcs(15) {
+    sub do_something : Job : MinChilds(2) : MaxChilds(15) {
         my ( $self, $driver, $job ) = @_;
         # $driver => Gearman::Driver instance
         # $job => Gearman::XS::Job instance
@@ -35,11 +35,11 @@ Gearman::Driver::Worker - Base class for workers
 
 This will register the method on gearmand.
 
-=head2 MinProcs
+=head2 MinChilds
 
 Minimum number of childs working parallel on this job/method.
 
-=head2 MaxProcs
+=head2 MaxChilds
 
 Maximum number of childs working parallel on this job/method.
 
@@ -63,11 +63,11 @@ sub prefix {
 sub _parse_attributes {
     my ( $self, $attributes ) = @_;
 
-    my @valid_attributes = qw(MinProcs MaxProcs Job);
+    my @valid_attributes = qw(MinChilds MaxChilds Job);
 
     my $result = {
-        MinProcs => 1,
-        MaxProcs => 1,
+        MinChilds => 1,
+        MaxChilds => 1,
     };
 
     foreach my $attr (@$attributes) {
