@@ -217,6 +217,8 @@ Path to logfile.
 
 =item * default: gearman_driver.log
 
+=back
+
 =cut
 
 has 'logfile' => (
@@ -237,6 +239,8 @@ See also L<Log::Log4perl>.
 
 =item * default: C<[%d] %m%n>
 
+=back
+
 =cut
 
 has 'loglayout' => (
@@ -255,6 +259,8 @@ See also L<Log::Log4perl>.
 =item * isa: Str
 
 =item * default: INFO
+
+=back
 
 =cut
 
