@@ -29,6 +29,20 @@ Gearman::Driver::Worker - Base class for workers
 
 =head1 DESCRIPTION
 
+=head1 METHODATTRIBUTES
+
+=head2 Job
+
+TODO: Add POD
+
+=head2 MinProcs
+
+TODO: Add POD
+
+=head2 MaxProcs
+
+TODO: Add POD
+
 =head1 METHODS
 
 =head2 prefix
@@ -58,6 +72,7 @@ sub _parse_attributes {
 
     foreach my $attr (@$attributes) {
         my ( $type, $value ) = $attr =~ / (\w+) (?: \( (\d+) \) )*/x;
+        $value ||= 1;
         unless ( grep $type eq $_, @valid_attributes ) {
             warn "Invalid attribute '$attr' in " . ref($self);
             next;
