@@ -12,9 +12,13 @@ Gearman::Driver::Observer - Observes gearmand status interface
 
 =head1 DESCRIPTION
 
-=head1 ATTRIBUTES
+Each n seconds L<Net::Telnet::Gearman> is used to fetch status of
+free/running/busy workers from the Gearman server. L<Gearman::Driver>
+decides to fork more workers depending on the queue size and the
+MinProcs/MaxProcs attribute of the job methods.
+See also: L<Gearman::Driver::Worker>
 
-=head2 callback
+Currently there's no public interface.
 
 =cut
 
@@ -24,19 +28,11 @@ has 'callback' => (
     required => 1,
 );
 
-=head2 interval
-
-=cut
-
 has 'interval' => (
     is       => 'rw',
     isa      => 'Int',
     required => 1,
 );
-
-=head2 server
-
-=cut
 
 has 'server' => (
     is       => 'rw',
@@ -44,28 +40,16 @@ has 'server' => (
     required => 1,
 );
 
-=head2 gearman
-
-=cut
-
 has 'gearman' => (
     default => sub { [] },
     is      => 'ro',
     isa     => 'ArrayRef[Net::Telnet::Gearman]',
 );
 
-=head2 session
-
-=cut
-
 has 'session' => (
     is  => 'ro',
     isa => 'POE::Session',
 );
-
-=head1 METHODS
-
-=cut
 
 sub BUILD {
     my ($self) = @_;
