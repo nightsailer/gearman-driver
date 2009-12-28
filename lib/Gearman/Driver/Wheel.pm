@@ -4,7 +4,6 @@ use Moose;
 use Gearman::XS::Worker;
 use Gearman::XS qw(:constants);
 use POE qw(Wheel::Run);
-with qw(MooseX::Log::Log4perl);
 
 =head1 NAME
 
@@ -18,9 +17,12 @@ Gearman::Driver::Wheel - TBD
 
 =head2 driver
 
+Reference to L<Gearman::Driver> instance.
+
 =cut
 
 has 'driver' => (
+    handles  => { log => 'log' },
     is       => 'rw',
     isa      => 'Gearman::Driver',
     required => 1,
