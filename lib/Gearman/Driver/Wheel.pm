@@ -4,6 +4,7 @@ use Moose;
 use Gearman::XS::Worker;
 use Gearman::XS qw(:constants);
 use POE qw(Wheel::Run);
+with qw(MooseX::Log::Log4perl);
 
 =head1 NAME
 
@@ -14,6 +15,17 @@ Gearman::Driver::Wheel - TBD
 =head1 DESCRIPTION
 
 =head1 ATTRIBUTES
+
+=head2 driver
+
+=cut
+
+has 'driver' => (
+    is       => 'rw',
+    isa      => 'Gearman::Driver',
+    required => 1,
+    weak_ref => 1,
+);
 
 =head2 method
 
@@ -100,7 +112,7 @@ sub BUILD {
     $self->gearman->add_servers( $self->server );
 
     my $wrapper = sub {
-        $self->method->body->( $self->worker, @_ );
+        $self->method->body->( $self->worker, $self->driver, @_ );
     };
 
     my $ret = $self->gearman->add_function( $self->name, 0, $wrapper, '' );
@@ -148,7 +160,7 @@ sub _add_child {
     # Signal events include the process ID.
     $heap->{children_by_pid}{ $child->PID } = $child;
 
-    print( "Child pid ", $child->PID, " started as wheel ", $child->ID, ".\n" );
+    $self->log->info( sprintf '(%d) [%s] Child started', $child->PID, $self->name );
 
     push @{ $self->{childs} }, $child;
 }
@@ -158,48 +170,57 @@ sub _start {
 }
 
 sub _on_child_stdout {
-    my ( $stdout_line, $wheel_id ) = @_[ ARG0, ARG1 ];
-    my $child = $_[HEAP]{children_by_wid}{$wheel_id};
-    print "pid ", $child->PID, " STDOUT: $stdout_line\n";
+    my ( $self, $heap, $stdout, $wid ) = @_[ OBJECT, HEAP, ARG0, ARG1 ];
+    my $child = $heap->{children_by_wid}{$wid};
+    $self->log->info( sprintf '(%d) [%s] STDOUT: %s', $child->PID, $self->name, $stdout );
 }
 
 sub _on_child_stderr {
-    my ( $stderr_line, $wheel_id ) = @_[ ARG0, ARG1 ];
-    my $child = $_[HEAP]{children_by_wid}{$wheel_id};
-    print "pid ", $child->PID, " STDERR: $stderr_line\n";
+    my ( $self, $heap, $stderr, $wid ) = @_[ OBJECT, HEAP, ARG0, ARG1 ];
+    my $child = $heap->{children_by_wid}{$wid};
+    $self->log->info( sprintf '(%d) [%s] STDERR: %s', $child->PID, $self->name, $stderr );
 }
 
 sub _on_child_close {
-    my $wheel_id = $_[ARG0];
-    my $child    = delete $_[HEAP]{children_by_wid}{$wheel_id};
+    my ( $self, $heap, $wid ) = @_[ OBJECT, HEAP, ARG0 ];
+
+    my $child = delete $heap->{children_by_wid}{$wid};
 
     # May have been reaped by on_child_signal().
     unless ( defined $child ) {
-        print "wid $wheel_id closed all pipes.\n";
+        $self->log->info( sprintf '[%s] Closed all pipes', $self->name );
         return;
     }
 
-    print "pid ", $child->PID, " closed all pipes.\n";
-    delete $_[HEAP]{children_by_pid}{ $child->PID };
+    $self->log->info( sprintf '(%d) [%s] Closed all pipes', $child->PID, $self->name );
+
+    delete $heap->{children_by_pid}{ $child->PID };
 }
 
 sub _on_child_signal {
-    print "pid $_[ARG1] exited with status $_[ARG2].\n";
-    my $child = delete $_[HEAP]{children_by_pid}{ $_[ARG1] };
+    my ( $self, $heap, $pid, $status ) = @_[ OBJECT, HEAP, ARG1 .. ARG2 ];
+
+    my $child = delete $heap->{children_by_pid}{$pid};
+
+    $self->log->info( sprintf '(%d) [%s] Exited with status %s', $pid, $self->name, $status );
 
     # May have been reaped by on_child_close().
     return unless defined $child;
 
-    delete $_[HEAP]{children_by_wid}{ $child->ID };
+    delete $heap->{children_by_wid}{ $child->ID };
 }
 
 sub _on_sig_int {
-    foreach my $pid ( keys %{ $_[HEAP]{children_by_pid} } ) {
-        my $child = $_[HEAP]{children_by_pid}{$pid};
-        warn "Killing child PID: $pid";
+    my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
+
+    foreach my $pid ( keys %{ $heap->{children_by_pid} } ) {
+        my $child = delete $heap->{children_by_pid}{$pid};
         $child->kill();
+        $self->log->info( sprintf '(%d) [%s] Child killed', $pid, $self->name );
     }
-    $_[KERNEL]->sig_handled();
+
+    $kernel->sig_handled();
+
     exit(0);
 }
 
