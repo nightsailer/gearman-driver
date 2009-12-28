@@ -2,7 +2,6 @@ package Gearman::Driver::Worker;
 
 use base qw(MooseX::MethodAttributes::Inheritable);
 use Moose;
-with qw(MooseX::Log::Log4perl);
 
 =head1 NAME
 
@@ -37,9 +36,9 @@ Gearman::Driver::Worker - Base class for workers
 Having the same method name in two different classes would result
 in a clash when registering it on the Gearman server. To avoid this,
 all jobs are registered with the full package/class and method name
-(e.g. C<My::Worker::some_job>). The default prefix is C<__PACKAGE__>,
-but it can be overridden by overriding the C<job_prefix> method in
-the subclass.
+(e.g. C<My::Worker::some_job>). The default prefix is
+C<ref(shift . '::')>, but it can be overridden by overriding the
+C<prefix> method in the subclass.
 
 =cut
 
