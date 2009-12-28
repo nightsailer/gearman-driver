@@ -83,34 +83,48 @@ ATTRIBUTES
     * readonly: True
 
   logfile
+    Path to logfile.
+
     * isa: Str
     * default: gearman_driver.log
 
+  loglayout
+        See also Log::Log4perl.
+
+        * isa: Str
+        * default: "[%d] %m%n"
+
+  loglevel
+            See also Log::Log4perl.
+
+            * isa: Str
+            * default: INFO
+
 METHODS
   run
-        This must be called after the Gearman::Driver object is
-        instantiated.
+                This must be called after the Gearman::Driver object is
+                instantiated.
 
 AUTHOR
-        Johannes Plunien <plu@cpan.org>
+                Johannes Plunien <plu@cpan.org>
 
 COPYRIGHT AND LICENSE
-        Copyright 2009 by Johannes Plunien
+                Copyright 2009 by Johannes Plunien
 
-        This library is free software; you can redistribute it and/or modify
-        it under the same terms as Perl itself.
+                This library is free software; you can redistribute it
+                and/or modify it under the same terms as Perl itself.
 
 SEE ALSO
-        * Gearman::XS
-        * Module::Find
-        * Moose
-        * MooseX::Getopt
-        * MooseX::Log::Log4perl
-        * MooseX::MethodAttributes
-        * Net::Telnet::Gearman
-        * POE
-        * <http://www.gearman.org/>
+                * Gearman::XS
+                * Module::Find
+                * Moose
+                * MooseX::Getopt
+                * MooseX::Log::Log4perl
+                * MooseX::MethodAttributes
+                * Net::Telnet::Gearman
+                * POE
+                * <http://www.gearman.org/>
 
 REPOSITORY
-        <http://github.com/plu/gearman-driver/>
+                <http://github.com/plu/gearman-driver/>
 
