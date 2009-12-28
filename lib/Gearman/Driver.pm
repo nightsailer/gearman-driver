@@ -73,7 +73,8 @@ to use the full module name to load a single module.
 =cut
 
 has 'namespaces' => (
-    handles => {
+    documentation => 'Example: --namespaces My::Workers --namespaces My::OtherWorkers',
+    handles       => {
         all_namespaces => 'sort',
         has_namespaces => 'count',
     },
@@ -208,6 +209,8 @@ has 'observer' => (
 
 =head2 logfile
 
+Path to logfile.
+
 =over 4
 
 =item * isa: Str
@@ -222,6 +225,44 @@ has 'logfile' => (
     documentation => 'Path to logfile (default: gearman_driver.log)',
     is            => 'ro',
     isa           => 'Path::Class::File',
+);
+
+=head2 loglayout
+
+See also L<Log::Log4perl>.
+
+=over 4
+
+=item * isa: Str
+
+=item * default: C<[%d] %m%n>
+
+=cut
+
+has 'loglayout' => (
+    default       => '[%d] %m%n',
+    documentation => 'Log message layout (default: [%d] %m%n)',
+    is            => 'ro',
+    isa           => 'Str',
+);
+
+=head2 loglevel
+
+See also L<Log::Log4perl>.
+
+=over 4
+
+=item * isa: Str
+
+=item * default: INFO
+
+=cut
+
+has 'loglevel' => (
+    default       => 'INFO',
+    documentation => 'Log level (default: INFO)',
+    is            => 'ro',
+    isa           => 'Str',
 );
 
 has '+logger' => ( traits => [qw(NoGetopt)] );
@@ -243,9 +284,9 @@ sub BUILD {
 
     Log::Log4perl->easy_init(
         {
-            level  => $DEBUG,
             file   => sprintf( '>>%s', $self->logfile ),
-            layout => '[%d] [%F{1}:%L] %m%n',
+            layout => $self->loglayout,
+            level  => $self->loglevel,
         },
     );
 
@@ -312,12 +353,13 @@ sub _observer_callback {
     my ( $self, $status ) = @_;
     foreach my $row (@$status) {
         if ( $self->has_wheel( $row->{name} ) ) {
-            warn "TODO: IMPLEMENT STATUS CALLBACK ... " . $row->{name};
 
+            # warn "TODO: IMPLEMENT STATUS CALLBACK ... " . $row->{name};
             # E.g. if (queue_too_full) { $wheel->add_child() }
         }
         else {
-            warn "UNKNOWN JOB: " . $row->{name};
+
+            # warn "UNKNOWN JOB: " . $row->{name};
         }
     }
 }
@@ -331,6 +373,7 @@ sub _start_wheels {
             my $attr  = $worker->_parse_attributes( $method->attributes );
             my $name  = $worker->prefix . $method->name;
             my $wheel = Gearman::Driver::Wheel->new(
+                driver => $self,
                 method => $method,
                 name   => $name,
                 worker => $worker,
