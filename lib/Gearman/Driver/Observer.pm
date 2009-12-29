@@ -14,7 +14,6 @@ Each n seconds L<Net::Telnet::Gearman> is used to fetch status of
 free/running/busy workers from the Gearman server. L<Gearman::Driver>
 decides to fork more workers depending on the queue size and the
 MinChilds/MaxChilds attribute of the job methods.
-See also: L<Gearman::Driver::Worker>
 
 Currently there's no public interface.
 
@@ -38,7 +37,7 @@ has 'server' => (
     required => 1,
 );
 
-has 'gearman' => (
+has 'telnet' => (
     auto_deref => 1,
     default    => sub { [] },
     is         => 'ro',
@@ -56,7 +55,7 @@ sub BUILD {
     foreach my $server ( split /,/, $self->server ) {
         my ( $host, $port ) = split /:/, $server;
 
-        push @{ $self->{gearman} },
+        push @{ $self->{telnet} },
           Net::Telnet::Gearman->new(
             Host => $host || 'localhost',
             Port => $port || 4730,
@@ -80,8 +79,8 @@ sub _start {
 sub _fetch_status {
     my %data = ();
 
-    foreach my $gearman ( $_[OBJECT]->gearman ) {
-        my $status = $gearman->status;
+    foreach my $telnet ( $_[OBJECT]->telnet ) {
+        my $status = $telnet->status;
 
         foreach my $row (@$status) {
             $data{ $row->name } ||= {
@@ -119,6 +118,10 @@ it under the same terms as Perl itself.
 =over 4
 
 =item * L<Gearman::Driver>
+
+=item * L<Gearman::Driver::Wheel>
+
+=item * L<Gearman::Driver::Worker>
 
 =back
 

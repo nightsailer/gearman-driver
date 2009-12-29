@@ -33,7 +33,7 @@ Gearman::Driver::Worker - Base class for workers
 
 =head2 Job
 
-This will register the method on gearmand.
+This will register the method with gearmand.
 
 =head2 MinChilds
 
@@ -48,11 +48,11 @@ Maximum number of childs working parallel on this job/method.
 =head2 prefix
 
 Having the same method name in two different classes would result
-in a clash when registering it on the Gearman server. To avoid this,
-all jobs are registered with the full package/class and method name
+in a clash when registering it with gearmand. To avoid this,
+all jobs are registered with the full package and method name
 (e.g. C<My::Worker::some_job>). The default prefix is
-C<ref(shift . '::')>, but it can be overridden by overriding the
-C<prefix> method in the subclass.
+C<ref(shift . '::')>, but this can be changed by overriding the
+C<prefix> method in the subclass, see L</SYNOPSIS> above.
 
 =cut
 
@@ -99,6 +99,10 @@ it under the same terms as Perl itself.
 =over 4
 
 =item * L<Gearman::Driver>
+
+=item * L<Gearman::Driver::Observer>
+
+=item * L<Gearman::Driver::Wheel>
 
 =back
 

@@ -9,9 +9,23 @@ use POE qw(Wheel::Run);
 
 Gearman::Driver::Wheel - Handles the POE magic
 
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
+
+This class is responsible for starting/stopping childs as well as
+handling all pipes (STDOUT/STDERR/STDIN) of the childs. All events
+are written to a logfile. Possible events are:
+
+=over 4
+
+=item * Starting childs
+
+=item * STDOUT of childs
+
+=item * STDERR of childs
+
+=item * Stopping childs
+
+=back
 
 Currently there's no public interface.
 
@@ -240,6 +254,10 @@ it under the same terms as Perl itself.
 =over 4
 
 =item * L<Gearman::Driver>
+
+=item * L<Gearman::Driver::Observer>
+
+=item * L<Gearman::Driver::Worker>
 
 =back
 

@@ -22,19 +22,19 @@ Gearman::Driver - Manage Gearman workers
     use base qw(Gearman::Driver::Worker);
     use Moose;
 
-    # this method will be registered at gearmand as 'My::Workers::One::scale_image'
+    # this method will be registered with gearmand as 'My::Workers::One::scale_image'
     sub scale_image : Job {
         my ( $self, $driver, $job ) = @_;
         # do something
     }
 
-    # this method will be registered at gearmand as 'My::Workers::One::do_something_else'
+    # this method will be registered with gearmand as 'My::Workers::One::do_something_else'
     sub do_something_else : Job : MinChilds(2) : MaxChilds(15) {
         my ( $self, $driver, $job ) = @_;
         # do something
     }
 
-    # this method wont be registered at gearmand at all
+    # this method wont be registered with gearmand at all
     sub do_something_internal {
         my ( $self, $driver, $job ) = @_;
         # do something
@@ -47,7 +47,7 @@ Gearman::Driver - Manage Gearman workers
     use base qw(Gearman::Driver::Worker);
     use Moose;
 
-    # this method will be registered at gearmand as 'My::Workers::Two::scale_image'
+    # this method will be registered with gearmand as 'My::Workers::Two::scale_image'
     sub scale_image : Job {
         my ( $self, $driver, $job ) = @_;
         # do something
@@ -71,16 +71,16 @@ Gearman::Driver - Manage Gearman workers
 
 Having hundreds of Gearman workers running in separate processes can
 consume a lot of RAM. Often many of these workers share the same
-code, like the database layer using L<DBIx::Class> for example.
-This is where L<Gearman::Driver> comes in handy:
+code/objects, like the database layer using L<DBIx::Class> for
+example. This is where L<Gearman::Driver> comes in handy:
 
 You write some base class which inherits from
 L<Gearman::Driver::Worker>. Your base class loads your database layer
 for example. Each of your worker classes inherit from that base
 class. In the worker classes you can register single methods as jobs
-on your gearmand. It's even possible to set how many workers doing
-that job should be forked later. And this is the point where you'll
-save some RAM: Instead of staring each worker in a separate process
+with gearmand. It's even possible to control how many workers doing
+that job/method in parallel. And this is the point where you'll
+save some RAM: Instead of starting each worker in a separate process
 L<Gearman::Driver> will fork each worker from the main process. This
 will take advantage of copy-on-write on Linux and save some RAM.
 
@@ -91,8 +91,8 @@ the constructor: namespaces
     my $driver = Gearman::Driver->new( namespaces => [qw(My::Workers)] );
 
 See also: L<Gearman::Driver/namespaces>. If you do not set
-L<Gearman::Driver/server> (gearmand) attribute the default will be
-used: C<localhost:4730>
+L</server> (gearmand) attribute the default will be used:
+C<localhost:4730>
 
 Each module found in your namespace will be loaded and introspected,
 looking for methods having the 'Job' attribute set:
@@ -104,10 +104,10 @@ looking for methods having the 'Job' attribute set:
         # do something
     }
 
-This method will be registered as a new job function on gearmand,
-verify it by doing:
+This method will be registered as job function with gearmand, verify
+it by doing:
 
-    plu@mbp ~[master]$ telnet localhost 4730
+    plu@mbp ~$ telnet localhost 4730
     Trying ::1...
     Connected to localhost.
     Escape character is '^]'.
@@ -129,7 +129,7 @@ a custom prefix:
         # do something
     }
 
-This would register 'foo_bar_scale_image' on gearmand.
+This would register 'foo_bar_scale_image' with gearmand.
 
 See also: L<Gearman::Driver::Worker/prefix>
 
@@ -140,7 +140,7 @@ See also: L<Gearman::Driver::Worker/prefix>
 Will be passed to L<Module::Find> C<useall> method to load worker
 modules. Each one of those modules has to be inherited from
 L<Gearman::Driver::Worker> or a subclass of it. It's also possible
-to use the full package name to load a single module/file. There's
+to use the full package name to load a single module/file. There is
 also a method L<Gearman::Driver/all_namespaces> which returns
 a sorted list of all namespaces.
 
@@ -166,7 +166,7 @@ has 'namespaces' => (
 =head2 modules
 
 Every worker module loaded by L<Module::Find> will be added to this
-list. There're also two methods: L<Gearman::Driver/all_modules> and
+list. There are also two methods: L<Gearman::Driver/all_modules> and
 L<Gearman::Driver/has_modules>.
 
 =over 4
@@ -194,7 +194,7 @@ has 'modules' => (
 =head2 wheels
 
 Stores all L<Gearman::Driver::Wheel> instances. The key is the name
-the job gets registered on Gearman. There're also two methods:
+the job gets registered with gearmand. There are also two methods:
 L<Gearman::Driver/get_wheel> and L<Gearman::Driver/has_wheel>.
 
 Example:
@@ -256,7 +256,7 @@ has 'server' => (
 
 Each n seconds L<Net::Telnet::Gearman> is used in
 L<Gearman::Driver::Observer> to check status of free/running/busy
-workers on Gearman. This is used to fork more workers depending
+workers on gearmand. This is used to fork more workers depending
 on the queue size and the MinChilds/MaxChilds attribute of the
 job method. See also: L<Gearman::Driver::Worker>
 
@@ -575,6 +575,12 @@ it under the same terms as Perl itself.
 =head1 SEE ALSO
 
 =over 4
+
+=item * L<Gearman::Driver::Observer>
+
+=item * L<Gearman::Driver::Wheel>
+
+=item * L<Gearman::Driver::Worker>
 
 =item * L<Gearman::XS>
 
