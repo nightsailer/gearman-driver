@@ -10,7 +10,7 @@ use MooseX::Types::Path::Class;
 use POE;
 with qw(MooseX::Log::Log4perl MooseX::Getopt);
 
-our $VERSION = '0.01000';
+our $VERSION = '0.01000_01';
 
 =head1 NAME
 
