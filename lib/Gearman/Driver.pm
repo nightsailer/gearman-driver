@@ -535,6 +535,10 @@ sub _observer_callback {
                 my $stop = $wheel->count_childs - $wheel->min_childs;
                 $wheel->remove_child for 1 .. $stop;
             }
+            elsif ( $wheel->count_childs < $wheel->min_childs ) {
+                my $start = $wheel->min_childs - $wheel->count_childs;
+                $wheel->add_child for 1 .. $start;
+            }
         }
         else {
             $self->unknown_job_callback->( $self, $row ) if $row->{queue} > 0;
@@ -557,8 +561,8 @@ sub _start_session {
 sub _on_sig_int {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
 
-    foreach my $wheel ($self->get_wheels) {
-        foreach my $child ($wheel->get_childs) {
+    foreach my $wheel ( $self->get_wheels ) {
+        foreach my $child ( $wheel->get_childs ) {
             $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $wheel->name );
             $child->kill();
         }

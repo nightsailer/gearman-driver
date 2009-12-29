@@ -3,5 +3,3 @@
 * add more examples
 * add encoding/decoding hook
 * add begin/end job hook
-* refactor wheel handling in ::Wheel
-* restart wheels when killed externally to at least MinChilds

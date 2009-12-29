@@ -73,7 +73,7 @@ sub BUILD {
 }
 
 sub _start {
-    $_[KERNEL]->yield('fetch_status');
+    $_[KERNEL]->delay( fetch_status => $_[OBJECT]->interval );
 }
 
 sub _fetch_status {

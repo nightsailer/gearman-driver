@@ -143,11 +143,11 @@ sub BUILD {
 }
 
 sub _start {
+    $_[KERNEL]->alias_set( $_[OBJECT]->name );
 }
 
 sub _add_child {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
-
     my $child = POE::Wheel::Run->new(
         Program => sub {
             while (1) {
