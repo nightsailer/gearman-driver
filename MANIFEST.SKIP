@@ -32,7 +32,9 @@
 
 # Skip maint stuff
 ^maint/
+^TODO$
 
 # Skip generated files
 ^junit_output\.xml$
 ^sloccount\.sc$
+^.*\.log$
