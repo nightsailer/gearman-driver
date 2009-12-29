@@ -6,21 +6,21 @@ use Moose;
 
 sub begin {
     my ( $self, $driver, $job ) = @_;
-    my $name = $job->function_name;
-    print "begin of $name called...\n";
+    my $workload = $job->workload;
+    print "$workload begin called...\n";
 }
 
 sub end {
     my ( $self, $driver, $job ) = @_;
-    my $name = $job->function_name;
-    print "end of $name called...\n";
+    my $workload = $job->workload;
+    print "$workload end called...\n";
 }
 
 sub ZzZzZzzz : Job : MinChilds(3) : MaxChilds(6) {
     my ( $self, $driver, $job ) = @_;
     my $time = 2;
     sleep($time);
-    $self->output( $job->workload );
+    $self->output( $job->workload ." job called..." );
 }
 
 sub output {
