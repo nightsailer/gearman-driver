@@ -60,6 +60,50 @@ sub prefix {
     return ref(shift) . '::';
 }
 
+=head2 begin
+
+This method is called before a job method is called. In this base
+class this methods just does nothing, but can be overridden in a
+subclass.
+
+The parameters are the same as in the job method:
+
+=over 4
+
+=item * $self
+
+=item * $driver
+
+=item * $job
+
+=back
+
+=cut
+
+sub begin {}
+
+=head2 end
+
+This method is called after a job method has been called. In this
+base class this methods just does nothing, but can be overridden
+in a subclass.
+
+The parameters are the same as in the job method:
+
+=over 4
+
+=item * $self
+
+=item * $driver
+
+=item * $job
+
+=back
+
+=cut
+
+sub end {}
+
 sub _parse_attributes {
     my ( $self, $attributes ) = @_;
 

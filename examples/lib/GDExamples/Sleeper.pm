@@ -4,6 +4,18 @@ package    # hide from PAUSE
 use base qw(Gearman::Driver::Worker);
 use Moose;
 
+sub begin {
+    my ( $self, $driver, $job ) = @_;
+    my $name = $job->function_name;
+    print "begin of $name called...\n";
+}
+
+sub end {
+    my ( $self, $driver, $job ) = @_;
+    my $name = $job->function_name;
+    print "end of $name called...\n";
+}
+
 sub ZzZzZzzz : Job : MinChilds(3) : MaxChilds(6) {
     my ( $self, $driver, $job ) = @_;
     my $time = 2;

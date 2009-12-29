@@ -119,7 +119,9 @@ sub BUILD {
     $self->gearman->add_servers( $self->server );
 
     my $wrapper = sub {
+        $self->worker->begin( $self->driver, @_ );
         $self->method->body->( $self->worker, $self->driver, @_ );
+        $self->worker->end( $self->driver, @_ );
     };
 
     my $ret = $self->gearman->add_function( $self->name, 0, $wrapper, '' );
