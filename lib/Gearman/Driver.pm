@@ -7,6 +7,7 @@ use Gearman::Driver::Wheel;
 use Log::Log4perl qw(:easy);
 use Module::Find;
 use MooseX::Types::Path::Class;
+use POE;
 with qw(MooseX::Log::Log4perl MooseX::Getopt);
 
 our $VERSION = '0.01000';
@@ -220,6 +221,7 @@ has 'wheels' => (
     handles => {
         _set_wheel => 'set',
         get_wheel  => 'get',
+        get_wheels => 'values',
         has_wheel  => 'defined',
     },
     is     => 'ro',
@@ -396,9 +398,11 @@ C<$status> might look like:
 =cut
 
 has 'unknown_job_callback' => (
-    default => sub { sub {} },
-    is      => 'rw',
-    isa     => 'CodeRef',
+    default => sub {
+        sub { }
+    },
+    is  => 'rw',
+    isa => 'CodeRef',
 );
 
 has '+logger' => ( traits => [qw(NoGetopt)] );
@@ -444,7 +448,9 @@ sub BUILD {
     $self->_setup_logger;
     $self->_load_namespaces;
     $self->_start_observer;
-    $self->_start_wheels;
+    $self->_start_session;
+
+    # $self->_start_wheels;
 }
 
 sub _setup_logger {
@@ -534,6 +540,38 @@ sub _observer_callback {
             $self->unknown_job_callback->( $self, $row ) if $row->{queue} > 0;
         }
     }
+}
+
+sub _start_session {
+    my ($self) = @_;
+    POE::Session->create(
+        object_states => [
+            $self => {
+                _start      => '_start',
+                got_sig_int => '_on_sig_int',
+            }
+        ]
+    );
+}
+
+sub _on_sig_int {
+    my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
+
+    foreach my $wheel ($self->get_wheels) {
+        foreach my $child ($wheel->all_childs) {
+            $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $wheel->name );
+            $child->kill();
+        }
+    }
+
+    $kernel->sig_handled();
+
+    exit(0);
+}
+
+sub _start {
+    $_[KERNEL]->sig( INT => 'got_sig_int' );
+    $_[OBJECT]->_start_wheels;
 }
 
 sub _start_wheels {

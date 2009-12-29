@@ -133,7 +133,6 @@ sub BUILD {
                 got_child_stderr => '_on_child_stderr',
                 got_child_close  => '_on_child_close',
                 got_child_signal => '_on_child_signal',
-                got_sig_int      => '_on_sig_int',
                 add_child        => '_add_child',
                 remove_child     => '_remove_child',
             }
@@ -180,7 +179,6 @@ sub _remove_child {
 }
 
 sub _start {
-    $_[KERNEL]->sig( INT => 'got_sig_int' );
 }
 
 sub _on_child_stdout {
@@ -222,20 +220,6 @@ sub _on_child_signal {
     return unless defined $child;
 
     delete $heap->{children_by_wid}{ $child->ID };
-}
-
-sub _on_sig_int {
-    my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
-
-    foreach my $pid ( keys %{ $heap->{children_by_pid} } ) {
-        my $child = delete $heap->{children_by_pid}{$pid};
-        $child->kill();
-        $self->log->info( sprintf '(%d) [%s] Child killed', $pid, $self->name );
-    }
-
-    $kernel->sig_handled();
-
-    exit(0);
 }
 
 =head1 AUTHOR
