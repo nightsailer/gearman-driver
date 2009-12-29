@@ -77,7 +77,7 @@ The parameters are the same as in the job method:
 
 =cut
 
-sub begin {}
+sub begin { }
 
 =head2 end
 
@@ -97,7 +97,7 @@ The parameters are the same as in the job method:
 
 =cut
 
-sub end {}
+sub end { }
 
 sub _parse_attributes {
     my ( $self, $attributes ) = @_;
