@@ -3,4 +3,5 @@
 * add more examples
 * add encoding/decoding hook
 * add begin/end job hook
-* fix broken SIGINT handling, not all childs get cleaned up
+* refactor wheel handling in ::Wheel
+* restart wheels when killed externally to at least MinChilds
