@@ -97,7 +97,7 @@ used: C<localhost:4730>
 Each module found in your namespace will be loaded and introspected,
 looking for methods having the 'Job' attribute set:
 
-    package My::Worker::ONE;
+    package My::Workers::ONE;
 
     sub scale_image : Job {
         my ( $self, $driver, $job ) = @_;
@@ -112,7 +112,7 @@ verify it by doing:
     Connected to localhost.
     Escape character is '^]'.
     status
-    My::Worker::ONE::scale_image   0       0       1
+    My::Workers::ONE::scale_image   0       0       1
     .
     ^]
     telnet> Connection closed.
@@ -120,7 +120,7 @@ verify it by doing:
 If you dont like to use the full package name you can also specify
 a custom prefix:
 
-    package My::Worker::ONE;
+    package My::Workers::ONE;
 
     sub prefix { 'foo_bar_' }
 
