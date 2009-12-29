@@ -142,7 +142,7 @@ Will be passed to L<Module::Find> C<useall> method to load worker
 modules. Each one of those modules has to be inherited from
 L<Gearman::Driver::Worker> or a subclass of it. It's also possible
 to use the full package name to load a single module/file. There is
-also a method L<Gearman::Driver/all_namespaces> which returns
+also a method L<Gearman::Driver/get_namespaces> which returns
 a sorted list of all namespaces.
 
 =over 4
@@ -157,7 +157,7 @@ a sorted list of all namespaces.
 
 has 'namespaces' => (
     documentation => 'Example: --namespaces My::Workers --namespaces My::OtherWorkers',
-    handles       => { all_namespaces => 'sort' },
+    handles       => { get_namespaces => 'sort' },
     is            => 'rw',
     isa           => 'ArrayRef[Str]',
     required      => 1,
@@ -167,7 +167,7 @@ has 'namespaces' => (
 =head2 modules
 
 Every worker module loaded by L<Module::Find> will be added to this
-list. There are also two methods: L<Gearman::Driver/all_modules> and
+list. There are also two methods: L<Gearman::Driver/get_modules> and
 L<Gearman::Driver/has_modules>.
 
 =over 4
@@ -184,7 +184,7 @@ has 'modules' => (
     default => sub { [] },
     handles => {
         _add_module => 'push',
-        all_modules => 'sort',
+        get_modules => 'sort',
         has_modules => 'count',
     },
     is     => 'ro',
@@ -409,11 +409,11 @@ has '+logger' => ( traits => [qw(NoGetopt)] );
 
 =head1 METHODS
 
-=head2 all_namespaces
+=head2 get_namespaces
 
 Returns a sorted list of L<Gearman::Driver/namespaces>.
 
-=head2 all_modules
+=head2 get_modules
 
 Returns a sorted list of L<Gearman::Driver/modules>.
 
@@ -469,12 +469,12 @@ sub _load_namespaces {
     my ($self) = @_;
 
     my @modules = ();
-    foreach my $ns ( $self->all_namespaces ) {
+    foreach my $ns ( $self->get_namespaces ) {
         push @modules, useall $ns;
     }
 
     unless (@modules) {
-        my $ns = join ', ', $self->all_namespaces;
+        my $ns = join ', ', $self->get_namespaces;
         croak "Could not find any modules in those namespaces: $ns";
     }
 
@@ -558,7 +558,7 @@ sub _on_sig_int {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
 
     foreach my $wheel ($self->get_wheels) {
-        foreach my $child ($wheel->all_childs) {
+        foreach my $child ($wheel->get_childs) {
             $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $wheel->name );
             $child->kill();
         }
@@ -577,7 +577,7 @@ sub _start {
 sub _start_wheels {
     my ($self) = @_;
 
-    foreach my $module ( $self->all_modules ) {
+    foreach my $module ( $self->get_modules ) {
         my $worker = $module->new();
         foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
             my $attr  = $worker->_parse_attributes( $method->attributes );

@@ -80,12 +80,12 @@ has 'min_childs' => (
 has 'childs' => (
     default => sub { {} },
     handles => {
-        __add_child    => 'set',
-        delete_child   => 'delete',
-        get_child      => 'get',
-        all_childs     => 'values',
-        all_child_pids => 'keys',
-        count_childs   => 'count',
+        count_childs => 'count',
+        delete_child => 'delete',
+        get_child    => 'get',
+        get_childs   => 'values',
+        get_pids     => 'keys',
+        set_child    => 'set',
     },
     is     => 'ro',
     isa    => 'HashRef',
@@ -169,12 +169,12 @@ sub _add_child {
 
     $self->log->info( sprintf '(%d) [%s] Child started', $child->PID, $self->name );
 
-    $self->__add_child( $child->PID => $child );
+    $self->set_child( $child->PID => $child );
 }
 
 sub _remove_child {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
-    my ($pid) = ( $self->all_child_pids )[0];
+    my ($pid) = ( $self->get_pids )[0];
     my $child = $self->delete_child($pid);
     $child->kill();
     $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $self->name );
@@ -197,10 +197,8 @@ sub _on_child_close {
 
     my $child = delete $heap->{wheels}{$wid};
 
-    # May have been reaped by on_child_signal().
-    unless ( defined $child ) {
-        return;
-    }
+    # May have been reaped by got_child_signal
+    return unless defined $child;
 
     $self->delete_child( $child->PID );
 }
@@ -212,7 +210,7 @@ sub _on_child_signal {
 
     $self->log->info( sprintf '(%d) [%s] Exited with status %s', $pid, $self->name, $status );
 
-    # May have been reaped by on_child_close().
+    # May have been reaped by got_child_close
     return unless defined $child;
 
     delete $heap->{wheels}{ $child->ID };

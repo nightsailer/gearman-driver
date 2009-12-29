@@ -42,4 +42,4 @@ my @expected_modules = qw(
   Validate::Valid::NS2::SubNS::Worker
   Validate::Valid::NS2::Worker
 );
-is_deeply( [ $driver->all_modules ], \@expected_modules, 'All expected modules were loaded' );
+is_deeply( [ $driver->get_modules ], \@expected_modules, 'All expected modules were loaded' );
