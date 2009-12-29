@@ -81,7 +81,7 @@ has 'childs' => (
     default => sub { {} },
     handles => {
         __add_child    => 'set',
-        __remove_child => 'delete',
+        delete_child   => 'delete',
         get_child      => 'get',
         all_childs     => 'values',
         all_child_pids => 'keys',
@@ -142,6 +142,9 @@ sub BUILD {
     );
 }
 
+sub _start {
+}
+
 sub _add_child {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
 
@@ -172,12 +175,9 @@ sub _add_child {
 sub _remove_child {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
     my ($pid) = ( $self->all_child_pids )[0];
-    my $child = $self->__remove_child($pid);
+    my $child = $self->delete_child($pid);
     $child->kill();
     $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $self->name );
-}
-
-sub _start {
 }
 
 sub _on_child_stdout {
@@ -199,20 +199,16 @@ sub _on_child_close {
 
     # May have been reaped by on_child_signal().
     unless ( defined $child ) {
-        $self->log->info( sprintf '[%s] Closed all pipes', $self->name );
         return;
     }
 
-    $self->log->info( sprintf '(%d) [%s] Closed all pipes', $child->PID, $self->name );
-
-    $self->__remove_child( $child->PID );
+    $self->delete_child( $child->PID );
 }
 
 sub _on_child_signal {
     my ( $self, $heap, $pid, $status ) = @_[ OBJECT, HEAP, ARG1 .. ARG2 ];
 
-    my $child = $self->get_child($pid);
-    $self->__remove_child($pid);
+    my $child = $self->delete_child($pid);
 
     $self->log->info( sprintf '(%d) [%s] Exited with status %s', $pid, $self->name, $status );
 
