@@ -2,3 +2,4 @@
 * write more docs
 * add more examples
 * add encoding/decoding hook
+* add possibility to change child process name
