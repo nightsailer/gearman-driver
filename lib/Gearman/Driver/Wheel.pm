@@ -78,16 +78,18 @@ has 'min_childs' => (
 );
 
 has 'childs' => (
-    default => sub { [] },
+    default => sub { {} },
     handles => {
-        __add_child    => 'push',
-        __remove_child => 'pop',
-        all_childs     => 'sort',
+        __add_child    => 'set',
+        __remove_child => 'delete',
+        get_child      => 'get',
+        all_childs     => 'values',
+        all_child_pids => 'keys',
         count_childs   => 'count',
     },
     is     => 'ro',
-    isa    => 'ArrayRef[POE::Wheel::Run]',
-    traits => [qw(Array)],
+    isa    => 'HashRef',
+    traits => [qw(Hash)],
 );
 
 has 'gearman' => (
@@ -160,20 +162,17 @@ sub _add_child {
     $kernel->sig_child( $child->PID, "got_child_signal" );
 
     # Wheel events include the wheel's ID.
-    $heap->{children_by_wid}{ $child->ID } = $child;
-
-    # Signal events include the process ID.
-    $heap->{children_by_pid}{ $child->PID } = $child;
+    $heap->{wheels}{ $child->ID } = $child;
 
     $self->log->info( sprintf '(%d) [%s] Child started', $child->PID, $self->name );
 
-    $self->__add_child($child);
+    $self->__add_child( $child->PID => $child );
 }
 
 sub _remove_child {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
-    my $child = $self->__remove_child;
-    delete $heap->{children_by_pid}{ $child->PID };
+    my ($pid) = ( $self->all_child_pids )[0];
+    my $child = $self->__remove_child($pid);
     $child->kill();
     $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $self->name );
 }
@@ -183,20 +182,20 @@ sub _start {
 
 sub _on_child_stdout {
     my ( $self, $heap, $stdout, $wid ) = @_[ OBJECT, HEAP, ARG0, ARG1 ];
-    my $child = $heap->{children_by_wid}{$wid};
+    my $child = $heap->{wheels}{$wid};
     $self->log->info( sprintf '(%d) [%s] STDOUT: %s', $child->PID, $self->name, $stdout );
 }
 
 sub _on_child_stderr {
     my ( $self, $heap, $stderr, $wid ) = @_[ OBJECT, HEAP, ARG0, ARG1 ];
-    my $child = $heap->{children_by_wid}{$wid};
+    my $child = $heap->{wheels}{$wid};
     $self->log->info( sprintf '(%d) [%s] STDERR: %s', $child->PID, $self->name, $stderr );
 }
 
 sub _on_child_close {
     my ( $self, $heap, $wid ) = @_[ OBJECT, HEAP, ARG0 ];
 
-    my $child = delete $heap->{children_by_wid}{$wid};
+    my $child = delete $heap->{wheels}{$wid};
 
     # May have been reaped by on_child_signal().
     unless ( defined $child ) {
@@ -206,20 +205,21 @@ sub _on_child_close {
 
     $self->log->info( sprintf '(%d) [%s] Closed all pipes', $child->PID, $self->name );
 
-    delete $heap->{children_by_pid}{ $child->PID };
+    $self->__remove_child( $child->PID );
 }
 
 sub _on_child_signal {
     my ( $self, $heap, $pid, $status ) = @_[ OBJECT, HEAP, ARG1 .. ARG2 ];
 
-    my $child = delete $heap->{children_by_pid}{$pid};
+    my $child = $self->get_child($pid);
+    $self->__remove_child($pid);
 
     $self->log->info( sprintf '(%d) [%s] Exited with status %s', $pid, $self->name, $status );
 
     # May have been reaped by on_child_close().
     return unless defined $child;
 
-    delete $heap->{children_by_wid}{ $child->ID };
+    delete $heap->{wheels}{ $child->ID };
 }
 
 =head1 AUTHOR
