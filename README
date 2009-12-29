@@ -14,7 +14,7 @@ SYNOPSIS
         }
 
         # this method will be registered at gearmand as 'My::Workers::One::do_something_else'
-        sub do_something_else : Job : MinProcs(2) : MaxProcs(15) {
+        sub do_something_else : Job : MinChilds(2) : MaxChilds(15) {
             my ( $self, $driver, $job ) = @_;
             # do something
         }
@@ -81,7 +81,7 @@ DESCRIPTION
     Each module found in your namespace will be loaded and introspected,
     looking for methods having the 'Job' attribute set:
 
-        package My::Worker::ONE;
+        package My::Workers::ONE;
 
         sub scale_image : Job {
             my ( $self, $driver, $job ) = @_;
@@ -96,7 +96,7 @@ DESCRIPTION
         Connected to localhost.
         Escape character is '^]'.
         status
-        My::Worker::ONE::scale_image   0       0       1
+        My::Workers::ONE::scale_image   0       0       1
         .
         ^]
         telnet> Connection closed.
@@ -104,7 +104,7 @@ DESCRIPTION
     If you dont like to use the full package name you can also specify a
     custom prefix:
 
-        package My::Worker::ONE;
+        package My::Workers::ONE;
 
         sub prefix { 'foo_bar_' }
 
@@ -165,8 +165,9 @@ ATTRIBUTES
   interval
     Each n seconds Net::Telnet::Gearman is used in Gearman::Driver::Observer
     to check status of free/running/busy workers on Gearman. This is used to
-    fork more workers depending on the queue size and the MinProcs/MaxProcs
-    attribute of the job method. See also: Gearman::Driver::Worker
+    fork more workers depending on the queue size and the
+    MinChilds/MaxChilds attribute of the job method. See also:
+    Gearman::Driver::Worker
 
     * default: 5
     * isa: Int
@@ -194,6 +195,31 @@ ATTRIBUTES
 
     * isa: Str
     * default: INFO
+
+  unknown_job_callback
+    Whenever Gearman::Driver::Observer sees a job that isnt handled it will
+    call this CodeRef, passing following arguments:
+
+    * $driver
+    * $status
+
+        my $driver = Gearman::Driver->new(
+            namespaces           => [qw(My::Workers)],
+            unknown_job_callback => sub {
+                my ( $driver, $status ) = @_;
+                # notify nagios here for example
+            }
+        );
+
+    $status might look like:
+
+        $VAR1 = {
+            'busy'    => 0,
+            'free'    => 0,
+            'name'    => 'GDExamples::Sleeper::unknown_job',
+            'queue'   => 6,
+            'running' => 0
+        };
 
 METHODS
   all_namespaces
