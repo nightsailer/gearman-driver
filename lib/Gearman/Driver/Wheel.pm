@@ -120,7 +120,7 @@ sub BUILD {
 
     my $wrapper = sub {
         $self->worker->begin( $self->driver, @_ );
-        my $result = $self->method->body->( $self->worker, $self->driver, @_ );
+        my $result = $self->method->body->( $self->worker, @_ );
         $self->worker->end( $self->driver, @_ );
         return $result;
     };
