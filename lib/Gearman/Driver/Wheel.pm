@@ -120,8 +120,9 @@ sub BUILD {
 
     my $wrapper = sub {
         $self->worker->begin( $self->driver, @_ );
-        $self->method->body->( $self->worker, $self->driver, @_ );
+        my $result = $self->method->body->( $self->worker, $self->driver, @_ );
         $self->worker->end( $self->driver, @_ );
+        return $result;
     };
 
     my $ret = $self->gearman->add_function( $self->name, 0, $wrapper, '' );

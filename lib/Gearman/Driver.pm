@@ -25,19 +25,19 @@ Gearman::Driver - Manage Gearman workers
 
     # this method will be registered with gearmand as 'My::Workers::One::scale_image'
     sub scale_image : Job {
-        my ( $self, $driver, $job ) = @_;
+        my ( $self, $job ) = @_;
         # do something
     }
 
     # this method will be registered with gearmand as 'My::Workers::One::do_something_else'
     sub do_something_else : Job : MinChilds(2) : MaxChilds(15) {
-        my ( $self, $driver, $job ) = @_;
+        my ( $self, $job ) = @_;
         # do something
     }
 
     # this method wont be registered with gearmand at all
     sub do_something_internal {
-        my ( $self, $driver, $job ) = @_;
+        my ( $self, $job ) = @_;
         # do something
     }
 
@@ -50,7 +50,7 @@ Gearman::Driver - Manage Gearman workers
 
     # this method will be registered with gearmand as 'My::Workers::Two::scale_image'
     sub scale_image : Job {
-        my ( $self, $driver, $job ) = @_;
+        my ( $self, $job ) = @_;
         # do something
     }
 
@@ -101,7 +101,7 @@ looking for methods having the 'Job' attribute set:
     package My::Workers::ONE;
 
     sub scale_image : Job {
-        my ( $self, $driver, $job ) = @_;
+        my ( $self, $job ) = @_;
         # do something
     }
 
@@ -126,7 +126,7 @@ a custom prefix:
     sub prefix { 'foo_bar_' }
 
     sub scale_image : Job {
-        my ( $self, $driver, $job ) = @_;
+        my ( $self, $job ) = @_;
         # do something
     }
 
@@ -551,14 +551,14 @@ sub _start_session {
     POE::Session->create(
         object_states => [
             $self => {
-                _start      => '_start',
-                got_sig_int => '_on_sig_int',
+                _start  => '_start',
+                got_sig => '_on_sig',
             }
         ]
     );
 }
 
-sub _on_sig_int {
+sub _on_sig {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
 
     foreach my $wheel ( $self->get_wheels ) {
@@ -574,7 +574,7 @@ sub _on_sig_int {
 }
 
 sub _start {
-    $_[KERNEL]->sig( INT => 'got_sig_int' );
+    $_[KERNEL]->sig( $_ => 'got_sig' ) for qw(INT QUIT ABRT KILL TERM);
     $_[OBJECT]->_start_wheels;
 }
 

@@ -20,8 +20,7 @@ Gearman::Driver::Worker - Base class for workers
     }
 
     sub do_something : Job : MinChilds(2) : MaxChilds(15) {
-        my ( $self, $driver, $job ) = @_;
-        # $driver => Gearman::Driver instance
+        my ( $self, $job ) = @_;
         # $job => Gearman::XS::Job instance
     }
 
@@ -72,8 +71,6 @@ The parameters are the same as in the job method:
 
 =item * $self
 
-=item * $driver
-
 =item * $job
 
 =back
@@ -93,8 +90,6 @@ The parameters are the same as in the job method:
 =over 4
 
 =item * $self
-
-=item * $driver
 
 =item * $job
 
