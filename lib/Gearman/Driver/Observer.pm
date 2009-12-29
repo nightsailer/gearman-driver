@@ -6,7 +6,7 @@ use POE;
 
 =head1 NAME
 
-Gearman::Driver::Observer - Observes gearmand status interface
+Gearman::Driver::Observer - Observes Gearman status interface
 
 =head1 DESCRIPTION
 

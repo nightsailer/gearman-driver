@@ -14,6 +14,10 @@ Gearman::Driver::Worker - Base class for workers
     use base qw(Gearman::Driver::Worker);
     use Moose;
 
+    sub begin {
+        # called before each job
+    }
+
     sub prefix {
         # default: return ref(shift) . '::';
         return join '_', split /::/, __PACKAGE__;
@@ -22,6 +26,10 @@ Gearman::Driver::Worker - Base class for workers
     sub do_something : Job : MinChilds(2) : MaxChilds(15) {
         my ( $self, $job ) = @_;
         # $job => Gearman::XS::Job instance
+    }
+
+    sub end {
+        # called after each job
     }
 
     1;
@@ -69,9 +77,9 @@ The parameters are the same as in the job method:
 
 =over 4
 
-=item * $self
+=item * C<$self>
 
-=item * $job
+=item * C<$job>
 
 =back
 
@@ -89,9 +97,9 @@ The parameters are the same as in the job method:
 
 =over 4
 
-=item * $self
+=item * C<$self>
 
-=item * $job
+=item * C<$job>
 
 =back
 

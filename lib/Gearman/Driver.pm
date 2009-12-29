@@ -91,8 +91,8 @@ the constructor: namespaces
     use Gearman::Driver;
     my $driver = Gearman::Driver->new( namespaces => [qw(My::Workers)] );
 
-See also: L<Gearman::Driver/namespaces>. If you do not set
-L</server> (gearmand) attribute the default will be used:
+See also: L<namespaces|/namespaces>. If you do not set
+L<server|/server> (gearmand) attribute the default will be used:
 C<localhost:4730>
 
 Each module found in your namespace will be loaded and introspected,
@@ -132,7 +132,7 @@ a custom prefix:
 
 This would register 'foo_bar_scale_image' with gearmand.
 
-See also: L<Gearman::Driver::Worker/prefix>
+See also: L<prefix|Gearman::Driver::Worker/prefix>
 
 =head1 ATTRIBUTES
 
@@ -142,14 +142,14 @@ Will be passed to L<Module::Find> C<useall> method to load worker
 modules. Each one of those modules has to be inherited from
 L<Gearman::Driver::Worker> or a subclass of it. It's also possible
 to use the full package name to load a single module/file. There is
-also a method L<Gearman::Driver/get_namespaces> which returns
-a sorted list of all namespaces.
+also a method L<get_namespaces|Gearman::Driver/get_namespaces> which
+returns a sorted list of all namespaces.
 
 =over 4
 
-=item * isa: ArrayRef
+=item * isa: C<ArrayRef>
 
-=item * required: True
+=item * required: C<True>
 
 =back
 
@@ -167,14 +167,15 @@ has 'namespaces' => (
 =head2 modules
 
 Every worker module loaded by L<Module::Find> will be added to this
-list. There are also two methods: L<Gearman::Driver/get_modules> and
-L<Gearman::Driver/has_modules>.
+list. There are also two methods:
+L<get_modules|Gearman::Driver/get_modules> and
+L<has_modules|Gearman::Driver/has_modules>.
 
 =over 4
 
-=item * isa: ArrayRef
+=item * isa: C<ArrayRef>
 
-=item * readonly: True
+=item * readonly: C<True>
 
 =back
 
@@ -196,7 +197,8 @@ has 'modules' => (
 
 Stores all L<Gearman::Driver::Wheel> instances. The key is the name
 the job gets registered with gearmand. There are also two methods:
-L<Gearman::Driver/get_wheel> and L<Gearman::Driver/has_wheel>.
+L<get_wheel|Gearman::Driver/get_wheel> and
+L<has_wheel|Gearman::Driver/has_wheel>.
 
 Example:
 
@@ -208,9 +210,9 @@ Example:
 
 =over 4
 
-=item * isa: HashRef
+=item * isa: C<HashRef>
 
-=item * readonly: True
+=item * readonly: C<True>
 
 =back
 
@@ -238,9 +240,9 @@ See also: L<Gearman::XS>
 
 =over 4
 
-=item * default: localhost:4730
+=item * default: C<localhost:4730>
 
-=item * isa: Str
+=item * isa: C<Str>
 
 =back
 
@@ -259,14 +261,15 @@ has 'server' => (
 Each n seconds L<Net::Telnet::Gearman> is used in
 L<Gearman::Driver::Observer> to check status of free/running/busy
 workers on gearmand. This is used to fork more workers depending
-on the queue size and the MinChilds/MaxChilds attribute of the
+on the queue size and the MinChilds/MaxChilds
+L<attribute|Gearman::Driver::Worker/METHODATTRIBUTES> of the
 job method. See also: L<Gearman::Driver::Worker>
 
 =over 4
 
-=item * default: 5
+=item * default: C<5>
 
-=item * isa: Int
+=item * isa: C<Int>
 
 =back
 
@@ -286,9 +289,9 @@ Instance of L<Gearman::Driver::Observer>.
 
 =over 4
 
-=item * isa: Gearman::Driver::Observer
+=item * isa: C<Gearman::Driver::Observer>
 
-=item * readonly: True
+=item * readonly: C<True>
 
 =back
 
@@ -306,9 +309,9 @@ Path to logfile.
 
 =over 4
 
-=item * isa: Str
+=item * isa: C<Str>
 
-=item * default: gearman_driver.log
+=item * default: C<gearman_driver.log>
 
 =back
 
@@ -328,7 +331,7 @@ See also L<Log::Log4perl>.
 
 =over 4
 
-=item * isa: Str
+=item * isa: C<Str>
 
 =item * default: C<[%d] %m%n>
 
@@ -349,9 +352,9 @@ See also L<Log::Log4perl>.
 
 =over 4
 
-=item * isa: Str
+=item * isa: C<Str>
 
-=item * default: INFO
+=item * default: C<INFO>
 
 =back
 
@@ -371,9 +374,9 @@ it will call this CodeRef, passing following arguments:
 
 =over 4
 
-=item * $driver
+=item * C<$driver>
 
-=item * $status
+=item * C<$status>
 
 =back
 
@@ -411,15 +414,15 @@ has '+logger' => ( traits => [qw(NoGetopt)] );
 
 =head2 get_namespaces
 
-Returns a sorted list of L<Gearman::Driver/namespaces>.
+Returns a sorted list of L<namespaces|Gearman::Driver/namespaces>.
 
 =head2 get_modules
 
-Returns a sorted list of L<Gearman::Driver/modules>.
+Returns a sorted list of L<modules|Gearman::Driver/modules>.
 
 =head2 has_modules
 
-Returns the count of L<Gearman::Driver/modules>.
+Returns the count of L<modules|Gearman::Driver/modules>.
 
 =head2 has_wheel
 
