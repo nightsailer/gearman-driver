@@ -37,3 +37,4 @@
 ^junit_output\.xml$
 ^sloccount\.sc$
 ^.*\.log$
+^Gearman-Driver-.*

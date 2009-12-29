@@ -6,7 +6,7 @@
 /pm_to_blib*
 /*.tar.gz
 /.lwpcookies
-/Gearman-ProcManager*
+/Gearman-Driver*
 /inc
 /META.yml
 /MANIFEST
