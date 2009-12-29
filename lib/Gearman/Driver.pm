@@ -362,6 +362,45 @@ has 'loglevel' => (
     isa           => 'Str',
 );
 
+=head2 unknown_job_callback
+
+Whenever L<Gearman::Driver::Observer> sees a job that isnt handled
+it will call this CodeRef, passing following arguments:
+
+=over 4
+
+=item * $driver
+
+=item * $status
+
+=back
+
+    my $driver = Gearman::Driver->new(
+        namespaces           => [qw(My::Workers)],
+        unknown_job_callback => sub {
+            my ( $driver, $status ) = @_;
+            # notify nagios here for example
+        }
+    );
+
+C<$status> might look like:
+
+    $VAR1 = {
+        'busy'    => 0,
+        'free'    => 0,
+        'name'    => 'GDExamples::Sleeper::unknown_job',
+        'queue'   => 6,
+        'running' => 0
+    };
+
+=cut
+
+has 'unknown_job_callback' => (
+    default => sub { sub {} },
+    is      => 'rw',
+    isa     => 'CodeRef',
+);
+
 has '+logger' => ( traits => [qw(NoGetopt)] );
 
 =head1 METHODS
@@ -492,8 +531,7 @@ sub _observer_callback {
             }
         }
         else {
-
-            # warn "UNKNOWN JOB: " . $row->{name};
+            $self->unknown_job_callback->( $self, $row ) if $row->{queue} > 0;
         }
     }
 }

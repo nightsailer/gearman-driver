@@ -98,7 +98,7 @@ sub _fetch_status {
         }
     }
 
-    $_[OBJECT]->callback->( [ values %data ], $_[OBJECT]->server );
+    $_[OBJECT]->callback->( [ values %data ] );
 
     $_[KERNEL]->delay( fetch_status => $_[OBJECT]->interval );
 }
