@@ -14,7 +14,7 @@ our $VERSION = '0.01000_01';
 
 =head1 NAME
 
-Gearman::Driver - Manage Gearman workers
+Gearman::Driver - Manages Gearman workers
 
 =head1 SYNOPSIS
 
