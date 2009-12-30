@@ -54,7 +54,7 @@ Gearman::Driver::Worker - Base class for workers
 =head2 server
 
 L<Gearman::Driver> connects to the L<server|Gearman::Driver/server>
-give to its constructor. This value is also stored in this class.
+passed to its constructor. This value is also stored in this class.
 This can be useful if a job uses L<Gearman::XS::Client> to add
 another jobs. See 'spread_work' method in L</SYNOPSIS> above.
 
