@@ -26,19 +26,19 @@ Gearman::Driver - Manages Gearman workers
 
     # this method will be registered with gearmand as 'My::Workers::One::scale_image'
     sub scale_image : Job {
-        my ( $self, $job ) = @_;
+        my ( $self, $job, $workload ) = @_;
         # do something
     }
 
     # this method will be registered with gearmand as 'My::Workers::One::do_something_else'
     sub do_something_else : Job : MinChilds(2) : MaxChilds(15) {
-        my ( $self, $job ) = @_;
+        my ( $self, $job, $workload ) = @_;
         # do something
     }
 
     # this method wont be registered with gearmand at all
     sub do_something_internal {
-        my ( $self, $job ) = @_;
+        my ( $self, $job, $workload ) = @_;
         # do something
     }
 
@@ -51,7 +51,7 @@ Gearman::Driver - Manages Gearman workers
 
     # this method will be registered with gearmand as 'My::Workers::Two::scale_image'
     sub scale_image : Job {
-        my ( $self, $job ) = @_;
+        my ( $self, $job, $workload ) = @_;
         # do something
     }
 
@@ -102,7 +102,7 @@ looking for methods having the 'Job' attribute set:
     package My::Workers::ONE;
 
     sub scale_image : Job {
-        my ( $self, $job ) = @_;
+        my ( $self, $job, $workload ) = @_;
         # do something
     }
 
@@ -127,7 +127,7 @@ a custom prefix:
     sub prefix { 'foo_bar_' }
 
     sub scale_image : Job {
-        my ( $self, $job ) = @_;
+        my ( $self, $job, $workload ) = @_;
         # do something
     }
 

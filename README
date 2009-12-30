@@ -9,19 +9,19 @@ SYNOPSIS
 
         # this method will be registered with gearmand as 'My::Workers::One::scale_image'
         sub scale_image : Job {
-            my ( $self, $job ) = @_;
+            my ( $self, $job, $workload ) = @_;
             # do something
         }
 
         # this method will be registered with gearmand as 'My::Workers::One::do_something_else'
         sub do_something_else : Job : MinChilds(2) : MaxChilds(15) {
-            my ( $self, $job ) = @_;
+            my ( $self, $job, $workload ) = @_;
             # do something
         }
 
         # this method wont be registered with gearmand at all
         sub do_something_internal {
-            my ( $self, $job ) = @_;
+            my ( $self, $job, $workload ) = @_;
             # do something
         }
 
@@ -34,7 +34,7 @@ SYNOPSIS
 
         # this method will be registered with gearmand as 'My::Workers::Two::scale_image'
         sub scale_image : Job {
-            my ( $self, $job ) = @_;
+            my ( $self, $job, $workload ) = @_;
             # do something
         }
 
@@ -83,7 +83,7 @@ DESCRIPTION
         package My::Workers::ONE;
 
         sub scale_image : Job {
-            my ( $self, $job ) = @_;
+            my ( $self, $job, $workload ) = @_;
             # do something
         }
 
@@ -108,7 +108,7 @@ DESCRIPTION
         sub prefix { 'foo_bar_' }
 
         sub scale_image : Job {
-            my ( $self, $job ) = @_;
+            my ( $self, $job, $workload ) = @_;
             # do something
         }
 

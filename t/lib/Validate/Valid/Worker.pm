@@ -5,7 +5,7 @@ use base qw(Gearman::Driver::Worker);
 use Moose;
 
 sub foo {
-    my ( $self, $data ) = @_;
+    my ( $self, $job, $workload ) = @_;
 }
 
 1;

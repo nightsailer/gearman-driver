@@ -5,12 +5,12 @@ use base qw(Gearman::Driver::Worker);
 use Moose;
 
 sub job1 : Job : Encode {
-    my ( $self, $job ) = @_;
+    my ( $self, $job, $workload ) = @_;
     return $job->workload;
 }
 
 sub job2 : Job : Encode(custom_encode) {
-    my ( $self, $job ) = @_;
+    my ( $self, $job, $workload ) = @_;
     return $job->workload;
 }
 

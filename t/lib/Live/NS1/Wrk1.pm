@@ -9,12 +9,12 @@ sub ping : Job {
 }
 
 sub get_pid : Job {
-    my ( $self, $job ) = @_;
+    my ( $self, $job, $workload ) = @_;
     return $self->pid;
 }
 
 sub sleeper : Job : MinChilds(2) : MaxChilds(6) {
-    my ( $self, $job ) = @_;
+    my ( $self, $job, $workload ) = @_;
     my ( $sleep, $time ) = split /:/, $job->workload;
     sleep($sleep) if $sleep;
     return time - $time;

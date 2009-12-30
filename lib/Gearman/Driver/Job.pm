@@ -121,9 +121,18 @@ sub BUILD {
     my $wrapper = sub {
         my ($job) = @_;
 
-        $self->worker->begin($job);
-        my $result = $self->method->body->( $self->worker, $job );
-        $self->worker->end($job);
+        my @args = ($job);
+
+        if ( my $decoder = $self->method->get_attribute('Decode') ) {
+            push @args, $self->worker->$decoder( $job->workload );
+        }
+        else {
+            push @args, $job->workload;
+        }
+
+        $self->worker->begin(@args);
+        my $result = $self->method->body->( $self->worker, @args );
+        $self->worker->end(@args);
 
         if ( my $encoder = $self->method->get_attribute('Encode') ) {
             $result = $self->worker->$encoder($result);

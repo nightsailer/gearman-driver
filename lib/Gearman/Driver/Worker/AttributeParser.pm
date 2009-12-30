@@ -18,9 +18,10 @@ sub _parse_attributes {
 
     my $attributes = $self->attributes;
 
-    my @valid_attributes = qw(MinChilds MaxChilds Job Encode);
+    my @valid_attributes = qw(MinChilds MaxChilds Job Encode Decode);
 
     my $result = {
+        Decode    => 0,
         Encode    => 0,
         Job       => 0,
         MinChilds => 1,
@@ -32,6 +33,7 @@ sub _parse_attributes {
 
         # Default values
         $value ||= 'encode' if $type eq 'Encode';
+        $value ||= 'decode' if $type eq 'Decode';
         $value ||= 1;
 
         unless ( grep $type eq $_, @valid_attributes ) {

@@ -15,6 +15,7 @@ Gearman::Driver::Worker - Base class for workers
     use Moose;
 
     sub begin {
+        my ( $self, $job, $workload ) = @_;
         # called before each job
     }
 
@@ -24,16 +25,17 @@ Gearman::Driver::Worker - Base class for workers
     }
 
     sub do_something : Job : MinChilds(2) : MaxChilds(15) {
-        my ( $self, $job ) = @_;
+        my ( $self, $job, $workload ) = @_;
         # $job => Gearman::XS::Job instance
     }
 
     sub end {
+        my ( $self, $job, $workload ) = @_;
         # called after each job
     }
 
     sub spread_work : Job {
-        my ( $self, $job ) = @_;
+        my ( $self, $job, $workload ) = @_;
 
         my $gc = Gearman::XS::Client->new;
         $gc->add_servers( $self->server );
@@ -43,31 +45,6 @@ Gearman::Driver::Worker - Base class for workers
         $gc->do_background( 'some_job_3' => $job->workload );
         $gc->do_background( 'some_job_4' => $job->workload );
         $gc->do_background( 'some_job_5' => $job->workload );
-    }
-
-    sub do_some_job : Job : Encode {
-        my ( $self, $job ) = @_;
-        return { message => 'OK', status => 1 };
-        # calls 'encode' and returns JSON string: {"status":1,"message":"OK"}
-    }
-
-    sub encode {
-        my ($self, $result) = @_;
-        return JSON::XS::encode_json($result);
-    }
-
-    sub custom_encoder : Job : Encode(enc_yaml) {
-        my ( $self, $job ) = @_;
-        return { message => 'OK', status => 1 };
-        # calls 'enc_yaml' and returns YAML string:
-        # ---
-        # message: OK
-        # status: 1
-    }
-
-    sub enc_yaml {
-        my ($self, $result) = @_;
-        return YAML::XS::Dump($result);
     }
 
     1;
@@ -113,6 +90,74 @@ method passing the return value from the job method. The return
 value of the C<encode> method will be returned to the Gearman
 client. This is useful to serialize Perl datastructures to JSON
 before sending them back to the client.
+
+    sub do_some_job : Job : Encode : Decode {
+        my ( $self, $job, $workload ) = @_;
+        return { message => 'OK', status => 1 };
+
+        # calls 'encode' and returns JSON string: {"status":1,"message":"OK"}
+    }
+
+    sub custom_encoder : Job : Encode(enc_yaml) : Decode(dec_yaml) {
+        my ( $self, $job, $workload ) = @_;
+        return { message => 'OK', status => 1 };
+
+        # calls 'enc_yaml' and returns YAML string:
+        # ---
+        # message: OK
+        # status: 1
+    }
+
+    sub encode {
+        my ( $self, $result ) = @_;
+        return JSON::XS::encode_json($result);
+    }
+
+    sub decode {
+        my ( $self, $workload ) = @_;
+        return JSON::XS::decode_json($workload);
+    }
+
+    sub enc_yaml {
+        my ( $self, $result ) = @_;
+        return YAML::XS::Dump($result);
+    }
+
+    sub dec_yaml {
+        my ( $self, $workload ) = @_;
+        return YAML::XS::Load($workload);
+    }
+
+
+=head2 Decode
+
+This will automatically look for a method C<decode> in this object
+which has to be defined in the subclass. It will call the C<decode>
+method passing the workload value (C<<$job->workload>>). The return
+value of the C<decode> method will be passed as 3rd argument to the
+job method. This is useful to deserialize JSON workload to Perl
+datastructures for example. If this attribute is not set,
+C<<$job->workload>> and C<$workload> is the same.
+
+Example, workload is this string: C<{"status":1,"message":"OK"}>
+
+    sub decode {
+        my ( $self, $workload ) = @_;
+        return JSON::XS::decode_json($workload);
+    }
+
+    sub job1 : Job {
+        my ( $self, $job, $workload ) = @_;
+        # $workload eq $job->workload eq '{"status":1,"message":"OK"}'
+    }
+
+    sub job2 : Job : Decode {
+        my ( $self, $job, $workload ) = @_;
+        # $workload ne $job->workload
+        # $job->workload eq '{"status":1,"message":"OK"}'
+        # $workload = { status => 1, message => 'OK' }
+    }
+
 
 =head1 METHODS
 

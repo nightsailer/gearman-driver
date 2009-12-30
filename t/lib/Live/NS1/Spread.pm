@@ -17,7 +17,7 @@ sub BUILD {
 }
 
 sub main : Job {
-    my ( $self, $job ) = @_;
+    my ( $self, $job, $workload ) = @_;
     my $result = '';
     for ( 1 .. 5 ) {
         my ( $ret, $res ) = $self->gc->do( "Live::NS1::Spread::some_job_$_" => '' );
