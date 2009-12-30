@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01001     Wed Dec 30 2009
+            - Added 'server' attribute to Gearman::Driver::Worker
+
 0.01000_02  Wed Dec 30 2009
             - Renamed Gearman::Driver::Wheel => Gearman::Driver::Job
             - Fixed wrong arguments passed to begin/end methods in

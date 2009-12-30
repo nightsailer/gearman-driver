@@ -32,9 +32,39 @@ Gearman::Driver::Worker - Base class for workers
         # called after each job
     }
 
+    sub spread_work : Job {
+        my ( $self, $job ) = @_;
+
+        my $gc = Gearman::XS::Client->new;
+        $gc->add_servers( $self->server );
+
+        $gc->do_background( 'some_job_1' => $job->workload );
+        $gc->do_background( 'some_job_2' => $job->workload );
+        $gc->do_background( 'some_job_3' => $job->workload );
+        $gc->do_background( 'some_job_4' => $job->workload );
+        $gc->do_background( 'some_job_5' => $job->workload );
+    }
+
     1;
 
 =head1 DESCRIPTION
+
+=head1 ATTRIBUTES
+
+=head2 server
+
+L<Gearman::Driver> connects to the L<server|Gearman::Driver/server>
+give to its constructor. This value is also stored in this class.
+This can be useful if a job uses L<Gearman::XS::Client> to add
+another jobs. See 'spread_work' method in L</SYNOPSIS> above.
+
+=cut
+
+has 'server' => (
+    is            => 'ro',
+    isa           => 'Str',
+    required      => 1,
+);
 
 =head1 METHODATTRIBUTES
 

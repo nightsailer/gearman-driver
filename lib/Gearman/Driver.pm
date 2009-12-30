@@ -595,7 +595,7 @@ sub _start_jobs {
     my ($self) = @_;
 
     foreach my $module ( $self->get_modules ) {
-        my $worker = $module->new();
+        my $worker = $module->new( server => $self->server );
         foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
             my $attr  = $worker->_parse_attributes( $method->attributes );
             my $name  = $worker->prefix . $method->name;

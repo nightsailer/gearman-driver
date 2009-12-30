@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 7;
+use Test::More tests => 8;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -54,4 +54,9 @@ for ( 1 .. 5 ) {
     my $text = read_file($filename);
     is( $text, "begin some workload ...\njob some workload ...\nend some workload ...\n", 'Begin/end blocks in worker have been run' );
     unlink $filename;
+}
+
+{
+    my ( $ret, $string ) = $gc->do( 'Live::NS1::Spread::main' => 'some workload ...' );
+    is( $string, '12345', 'Spreading works (tests $worker->server attribute)' );
 }
