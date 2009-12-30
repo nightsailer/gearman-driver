@@ -616,6 +616,10 @@ sub _start_jobs {
     }
 }
 
+no Moose;
+
+__PACKAGE__->meta->make_immutable;
+
 =head1 AUTHOR
 
 Johannes Plunien E<lt>plu@cpan.orgE<gt>

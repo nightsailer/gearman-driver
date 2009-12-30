@@ -102,6 +102,10 @@ sub _fetch_status {
     $_[KERNEL]->delay( fetch_status => $_[OBJECT]->interval );
 }
 
+no Moose;
+
+__PACKAGE__->meta->make_immutable;
+
 =head1 AUTHOR
 
 Johannes Plunien E<lt>plu@cpan.orgE<gt>
