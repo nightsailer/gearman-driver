@@ -50,8 +50,8 @@ for ( 1 .. 5 ) {
 }
 
 {
-    my ( $ret, $filename ) = $gc->do( 'Live::NS1::WrkBeginEnd::job' => '' );
+    my ( $ret, $filename ) = $gc->do( 'Live::NS1::WrkBeginEnd::job' => 'some workload ...' );
     my $text = read_file($filename);
-    is( $text, "begin\njob\nend\n", 'Begin/end blocks in worker have been run' );
+    is( $text, "begin some workload ...\njob some workload ...\nend some workload ...\n", 'Begin/end blocks in worker have been run' );
     unlink $filename;
 }

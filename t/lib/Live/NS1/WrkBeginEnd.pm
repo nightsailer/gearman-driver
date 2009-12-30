@@ -9,24 +9,27 @@ has 'filename' => ( is => 'ro' );
 has 'fh'       => ( is => 'ro' );
 
 sub begin {
-    my ($self) = @_;
+    my ($self, $job) = @_;
     my ( $fh, $filename ) = tempfile( CLEANUP => 0 );
-    print $fh "begin\n";
+    my $workload = $job->workload;
+    print $fh "begin $workload\n";
     $self->{fh}       = $fh;
     $self->{filename} = $filename;
 }
 
 sub job : Job {
-    my ($self) = @_;
+    my ($self, $job) = @_;
     my $fh = $self->{fh};
-    print $fh "job\n";
+    my $workload = $job->workload;
+    print $fh "job $workload\n";
     return $self->{filename};
 }
 
 sub end {
-    my ($self) = @_;
+    my ($self, $job) = @_;
     my $fh = $self->{fh};
-    print $fh "end\n";
+    my $workload = $job->workload;
+    print $fh "end $workload\n";
     close $fh;
 }
 
