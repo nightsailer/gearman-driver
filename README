@@ -199,17 +199,17 @@ INTERNAL ATTRIBUTES
     * isa: "ArrayRef"
     * readonly: "True"
 
-  wheels
-    Stores all Gearman::Driver::Wheel instances. The key is the name the job
-    gets registered with gearmand. There are also two methods: get_wheel and
-    has_wheel.
+  jobs
+    Stores all Gearman::Driver::Job instances. The key is the name the job
+    gets registered with gearmand. There are also two methods: get_job and
+    has_job.
 
     Example:
 
         {
-            'My::Workers::ONE::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
-            'My::Workers::ONE::do_something_else' => bless( {...}, 'Gearman::Driver::Wheel' ),
-            'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
+            'My::Workers::ONE::scale_image'       => bless( {...}, 'Gearman::Driver::Job' ),
+            'My::Workers::ONE::do_something_else' => bless( {...}, 'Gearman::Driver::Job' ),
+            'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Job' ),
         }
 
     * isa: "HashRef"
@@ -237,15 +237,15 @@ METHODS
   has_modules
     Returns the count of modules.
 
-  has_wheel
+  has_job
     Params: $name
 
-    Returns true/false if the wheel exists.
+    Returns true/false if the job exists.
 
-  get_wheel
+  get_job
     Params: $name
 
-    Returns the wheel instance.
+    Returns the job instance.
 
 AUTHOR
     Johannes Plunien <plu@cpan.org>
@@ -258,7 +258,7 @@ COPYRIGHT AND LICENSE
 
 SEE ALSO
     * Gearman::Driver::Observer
-    * Gearman::Driver::Wheel
+    * Gearman::Driver::Job
     * Gearman::Driver::Worker
     * Gearman::XS
     * Log::Log4perl

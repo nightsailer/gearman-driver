@@ -1,4 +1,4 @@
-package Gearman::Driver::Wheel;
+package Gearman::Driver::Job;
 
 use Moose;
 use Gearman::XS::Worker;
@@ -7,7 +7,7 @@ use POE qw(Wheel::Run);
 
 =head1 NAME
 
-Gearman::Driver::Wheel - Handles the POE magic
+Gearman::Driver::Job - Handles the POE magic
 
 =head1 DESCRIPTION
 

@@ -3,7 +3,7 @@ package Gearman::Driver;
 use Moose;
 use Carp qw(croak);
 use Gearman::Driver::Observer;
-use Gearman::Driver::Wheel;
+use Gearman::Driver::Job;
 use Log::Log4perl qw(:easy);
 use Module::Find;
 use MooseX::Types::Path::Class;
@@ -355,19 +355,19 @@ has 'modules' => (
     traits => [qw(Array NoGetopt)],
 );
 
-=head2 wheels
+=head2 jobs
 
-Stores all L<Gearman::Driver::Wheel> instances. The key is the name
+Stores all L<Gearman::Driver::Job> instances. The key is the name
 the job gets registered with gearmand. There are also two methods:
-L<get_wheel|Gearman::Driver/get_wheel> and
-L<has_wheel|Gearman::Driver/has_wheel>.
+L<get_job|Gearman::Driver/get_job> and
+L<has_job|Gearman::Driver/has_job>.
 
 Example:
 
     {
-        'My::Workers::ONE::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
-        'My::Workers::ONE::do_something_else' => bless( {...}, 'Gearman::Driver::Wheel' ),
-        'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
+        'My::Workers::ONE::scale_image'       => bless( {...}, 'Gearman::Driver::Job' ),
+        'My::Workers::ONE::do_something_else' => bless( {...}, 'Gearman::Driver::Job' ),
+        'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Job' ),
     }
 
 =over 4
@@ -380,13 +380,13 @@ Example:
 
 =cut
 
-has 'wheels' => (
+has 'jobs' => (
     default => sub { {} },
     handles => {
-        _set_wheel => 'set',
-        get_wheel  => 'get',
-        get_wheels => 'values',
-        has_wheel  => 'defined',
+        _set_job => 'set',
+        get_job  => 'get',
+        get_jobs => 'values',
+        has_job  => 'defined',
     },
     is     => 'ro',
     isa    => 'HashRef',
@@ -442,17 +442,17 @@ Returns a sorted list of L<modules|Gearman::Driver/modules>.
 
 Returns the count of L<modules|Gearman::Driver/modules>.
 
-=head2 has_wheel
+=head2 has_job
 
 Params: $name
 
-Returns true/false if the wheel exists.
+Returns true/false if the job exists.
 
-=head2 get_wheel
+=head2 get_job
 
 Params: $name
 
-Returns the wheel instance.
+Returns the job instance.
 
 =cut
 
@@ -463,7 +463,7 @@ sub BUILD {
     $self->_start_observer;
     $self->_start_session;
 
-    # $self->_start_wheels;
+    # $self->_start_jobs;
 }
 
 sub _setup_logger {
@@ -535,22 +535,22 @@ sub _start_observer {
 sub _observer_callback {
     my ( $self, $status ) = @_;
     foreach my $row (@$status) {
-        if ( my $wheel = $self->get_wheel( $row->{name} ) ) {
-            if ( $wheel->count_childs && $wheel->count_childs == $row->{busy} && $row->{queue} ) {
+        if ( my $job = $self->get_job( $row->{name} ) ) {
+            if ( $job->count_childs && $job->count_childs == $row->{busy} && $row->{queue} ) {
                 my $diff = $row->{queue} - $row->{busy};
-                my $free = $wheel->max_childs - $wheel->count_childs;
+                my $free = $job->max_childs - $job->count_childs;
                 if ($free) {
                     my $start = $diff > $free ? $free : $diff;
-                    $wheel->add_child for 1 .. $start;
+                    $job->add_child for 1 .. $start;
                 }
             }
-            elsif ( $wheel->count_childs && $wheel->count_childs > $wheel->min_childs && $row->{queue} == 0 ) {
-                my $stop = $wheel->count_childs - $wheel->min_childs;
-                $wheel->remove_child for 1 .. $stop;
+            elsif ( $job->count_childs && $job->count_childs > $job->min_childs && $row->{queue} == 0 ) {
+                my $stop = $job->count_childs - $job->min_childs;
+                $job->remove_child for 1 .. $stop;
             }
-            elsif ( $wheel->count_childs < $wheel->min_childs ) {
-                my $start = $wheel->min_childs - $wheel->count_childs;
-                $wheel->add_child for 1 .. $start;
+            elsif ( $job->count_childs < $job->min_childs ) {
+                my $start = $job->min_childs - $job->count_childs;
+                $job->add_child for 1 .. $start;
             }
         }
         else {
@@ -574,9 +574,9 @@ sub _start_session {
 sub _on_sig {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
 
-    foreach my $wheel ( $self->get_wheels ) {
-        foreach my $child ( $wheel->get_childs ) {
-            $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $wheel->name );
+    foreach my $job ( $self->get_jobs ) {
+        foreach my $child ( $job->get_childs ) {
+            $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $job->name );
             $child->kill();
         }
     }
@@ -588,10 +588,10 @@ sub _on_sig {
 
 sub _start {
     $_[KERNEL]->sig( $_ => 'got_sig' ) for qw(INT QUIT ABRT KILL TERM);
-    $_[OBJECT]->_start_wheels;
+    $_[OBJECT]->_start_jobs;
 }
 
-sub _start_wheels {
+sub _start_jobs {
     my ($self) = @_;
 
     foreach my $module ( $self->get_modules ) {
@@ -599,7 +599,7 @@ sub _start_wheels {
         foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
             my $attr  = $worker->_parse_attributes( $method->attributes );
             my $name  = $worker->prefix . $method->name;
-            my $wheel = Gearman::Driver::Wheel->new(
+            my $job = Gearman::Driver::Job->new(
                 driver     => $self,
                 method     => $method,
                 name       => $name,
@@ -609,9 +609,9 @@ sub _start_wheels {
                 max_childs => $attr->{MaxChilds},
             );
             for ( 1 .. $attr->{MinChilds} ) {
-                $wheel->add_child();
+                $job->add_child();
             }
-            $self->_set_wheel( $name => $wheel );
+            $self->_set_job( $name => $job );
         }
     }
 }
@@ -633,7 +633,7 @@ it under the same terms as Perl itself.
 
 =item * L<Gearman::Driver::Observer>
 
-=item * L<Gearman::Driver::Wheel>
+=item * L<Gearman::Driver::Job>
 
 =item * L<Gearman::Driver::Worker>
 

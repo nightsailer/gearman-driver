@@ -149,7 +149,7 @@ it under the same terms as Perl itself.
 
 =item * L<Gearman::Driver::Observer>
 
-=item * L<Gearman::Driver::Wheel>
+=item * L<Gearman::Driver::Job>
 
 =back
 
