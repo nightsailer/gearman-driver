@@ -1,6 +1,7 @@
 Revision history for Gearman-Driver
 
 0.01002     Wed Dec 30 2009
+            - Added Encoder attribute
             - Refactored parsing of method attributes
 
 0.01001     Wed Dec 30 2009

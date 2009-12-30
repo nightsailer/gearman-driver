@@ -45,6 +45,31 @@ Gearman::Driver::Worker - Base class for workers
         $gc->do_background( 'some_job_5' => $job->workload );
     }
 
+    sub do_some_job : Job : Encode {
+        my ( $self, $job ) = @_;
+        return { message => 'OK', status => 1 };
+        # calls 'encode' and returns JSON string: {"status":1,"message":"OK"}
+    }
+
+    sub encode {
+        my ($self, $result) = @_;
+        return JSON::XS::encode_json($result);
+    }
+
+    sub custom_encoder : Job : Encode(enc_yaml) {
+        my ( $self, $job ) = @_;
+        return { message => 'OK', status => 1 };
+        # calls 'enc_yaml' and returns YAML string:
+        # ---
+        # message: OK
+        # status: 1
+    }
+
+    sub enc_yaml {
+        my ($self, $result) = @_;
+        return YAML::XS::Dump($result);
+    }
+
     1;
 
 =head1 DESCRIPTION
@@ -61,9 +86,9 @@ another jobs. See 'spread_work' method in L</SYNOPSIS> above.
 =cut
 
 has 'server' => (
-    is            => 'ro',
-    isa           => 'Str',
-    required      => 1,
+    is       => 'ro',
+    isa      => 'Str',
+    required => 1,
 );
 
 =head1 METHODATTRIBUTES
@@ -79,6 +104,15 @@ Minimum number of childs working parallel on this job/method.
 =head2 MaxChilds
 
 Maximum number of childs working parallel on this job/method.
+
+=head2 Encode
+
+This will automatically look for a method C<encode> in this object
+which has to be defined in the subclass. It will call the C<encode>
+method passing the return value from the job method. The return
+value of the C<encode> method will be returned to the Gearman
+client. This is useful to serialize Perl datastructures to JSON
+before sending them back to the client.
 
 =head1 METHODS
 
@@ -136,6 +170,16 @@ The parameters are the same as in the job method:
 =cut
 
 sub end { }
+
+sub decode {
+    my ( $self, $result ) = @_;
+    return $result;
+}
+
+sub encode {
+    my ( $self, $result ) = @_;
+    return $result;
+}
 
 no Moose;
 

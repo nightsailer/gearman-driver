@@ -125,6 +125,10 @@ sub BUILD {
         my $result = $self->method->body->( $self->worker, $job );
         $self->worker->end($job);
 
+        if ( my $encoder = $self->method->get_attribute('Encode') ) {
+            $result = $self->worker->$encoder($result);
+        }
+
         return $result;
     };
 

@@ -18,21 +18,27 @@ sub _parse_attributes {
 
     my $attributes = $self->attributes;
 
-    my @valid_attributes = qw(MinChilds MaxChilds Job);
+    my @valid_attributes = qw(MinChilds MaxChilds Job Encode);
 
     my $result = {
+        Encode    => 0,
         Job       => 0,
         MinChilds => 1,
         MaxChilds => 1,
     };
 
     foreach my $attr (@$attributes) {
-        my ( $type, $value ) = $attr =~ / (\w+) (?: \( (\d+) \) )*/x;
+        my ( $type, $value ) = $attr =~ / (\w+) (?: \( (.*?) \) )*/x;
+
+        # Default values
+        $value ||= 'encode' if $type eq 'Encode';
         $value ||= 1;
+
         unless ( grep $type eq $_, @valid_attributes ) {
             warn "Invalid attribute '$attr' in " . ref($self);
             next;
         }
+
         $result->{$type} = $value if defined $result->{$type};
     }
 
