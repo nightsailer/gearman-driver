@@ -164,73 +164,6 @@ has 'namespaces' => (
     traits        => [qw(Array)],
 );
 
-=head2 modules
-
-Every worker module loaded by L<Module::Find> will be added to this
-list. There are also two methods:
-L<get_modules|Gearman::Driver/get_modules> and
-L<has_modules|Gearman::Driver/has_modules>.
-
-=over 4
-
-=item * isa: C<ArrayRef>
-
-=item * readonly: C<True>
-
-=back
-
-=cut
-
-has 'modules' => (
-    default => sub { [] },
-    handles => {
-        _add_module => 'push',
-        get_modules => 'sort',
-        has_modules => 'count',
-    },
-    is     => 'ro',
-    isa    => 'ArrayRef[Str]',
-    traits => [qw(Array NoGetopt)],
-);
-
-=head2 wheels
-
-Stores all L<Gearman::Driver::Wheel> instances. The key is the name
-the job gets registered with gearmand. There are also two methods:
-L<get_wheel|Gearman::Driver/get_wheel> and
-L<has_wheel|Gearman::Driver/has_wheel>.
-
-Example:
-
-    {
-        'My::Workers::ONE::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
-        'My::Workers::ONE::do_something_else' => bless( {...}, 'Gearman::Driver::Wheel' ),
-        'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
-    }
-
-=over 4
-
-=item * isa: C<HashRef>
-
-=item * readonly: C<True>
-
-=back
-
-=cut
-
-has 'wheels' => (
-    default => sub { {} },
-    handles => {
-        _set_wheel => 'set',
-        get_wheel  => 'get',
-        get_wheels => 'values',
-        has_wheel  => 'defined',
-    },
-    is     => 'ro',
-    isa    => 'HashRef',
-    traits => [qw(Hash NoGetopt)],
-);
-
 =head2 server
 
 A list of Gearman servers the workers should connect to. The format
@@ -281,26 +214,6 @@ has 'interval' => (
     is            => 'rw',
     isa           => 'Int',
     required      => 1,
-);
-
-=head2 observer
-
-Instance of L<Gearman::Driver::Observer>.
-
-=over 4
-
-=item * isa: C<Gearman::Driver::Observer>
-
-=item * readonly: C<True>
-
-=back
-
-=cut
-
-has 'observer' => (
-    is     => 'ro',
-    isa    => 'Gearman::Driver::Observer',
-    traits => [qw(NoGetopt)],
 );
 
 =head2 logfile
@@ -404,13 +317,118 @@ has 'unknown_job_callback' => (
     default => sub {
         sub { }
     },
-    is  => 'rw',
-    isa => 'CodeRef',
+    is     => 'rw',
+    isa    => 'CodeRef',
+    traits => [qw(NoGetopt)],
+);
+
+=head1 INTERNAL ATTRIBUTES
+
+This might be interesting for subclassing L<Gearman::Driver>.
+
+=head2 modules
+
+Every worker module loaded by L<Module::Find> will be added to this
+list. There are also two methods:
+L<get_modules|Gearman::Driver/get_modules> and
+L<has_modules|Gearman::Driver/has_modules>.
+
+=over 4
+
+=item * isa: C<ArrayRef>
+
+=item * readonly: C<True>
+
+=back
+
+=cut
+
+has 'modules' => (
+    default => sub { [] },
+    handles => {
+        _add_module => 'push',
+        get_modules => 'sort',
+        has_modules => 'count',
+    },
+    is     => 'ro',
+    isa    => 'ArrayRef[Str]',
+    traits => [qw(Array NoGetopt)],
+);
+
+=head2 wheels
+
+Stores all L<Gearman::Driver::Wheel> instances. The key is the name
+the job gets registered with gearmand. There are also two methods:
+L<get_wheel|Gearman::Driver/get_wheel> and
+L<has_wheel|Gearman::Driver/has_wheel>.
+
+Example:
+
+    {
+        'My::Workers::ONE::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
+        'My::Workers::ONE::do_something_else' => bless( {...}, 'Gearman::Driver::Wheel' ),
+        'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
+    }
+
+=over 4
+
+=item * isa: C<HashRef>
+
+=item * readonly: C<True>
+
+=back
+
+=cut
+
+has 'wheels' => (
+    default => sub { {} },
+    handles => {
+        _set_wheel => 'set',
+        get_wheel  => 'get',
+        get_wheels => 'values',
+        has_wheel  => 'defined',
+    },
+    is     => 'ro',
+    isa    => 'HashRef',
+    traits => [qw(Hash NoGetopt)],
+);
+
+=head2 observer
+
+Instance of L<Gearman::Driver::Observer>.
+
+=over 4
+
+=item * isa: C<Gearman::Driver::Observer>
+
+=item * readonly: C<True>
+
+=back
+
+=cut
+
+has 'observer' => (
+    is     => 'ro',
+    isa    => 'Gearman::Driver::Observer',
+    traits => [qw(NoGetopt)],
 );
 
 has '+logger' => ( traits => [qw(NoGetopt)] );
 
 =head1 METHODS
+
+Every method except L<run|/run> might only be interesting for
+people subclassing L<Gearman::Driver>.
+
+=head2 run
+
+This must be called after the L<Gearman::Driver> object is instantiated.
+
+=cut
+
+sub run {
+    POE::Kernel->run();
+}
 
 =head2 get_namespaces
 
@@ -436,15 +454,7 @@ Params: $name
 
 Returns the wheel instance.
 
-=head2 run
-
-This must be called after the L<Gearman::Driver> object is instantiated.
-
 =cut
-
-sub run {
-    POE::Kernel->run();
-}
 
 sub BUILD {
     my ($self) = @_;
