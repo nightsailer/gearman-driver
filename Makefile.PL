@@ -19,7 +19,11 @@ requires(
     'POE'                        => '1.280',
 );
 
-test_requires( 'Test::More' => 0 );
+test_requires(
+    'Test::More'  => 0,
+    'File::Temp'  => 0,
+    'File::Slurp' => 0,
+);
 
 auto_install;
 WriteAll;

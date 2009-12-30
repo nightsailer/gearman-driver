@@ -1,9 +1,10 @@
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
+use File::Slurp;
 
 my $test = TestLib->new();
 my $gc   = $test->gearman_client;
@@ -46,4 +47,11 @@ for ( 1 .. 5 ) {
 
     my ( $ret, $time ) = $gc->do( 'Live::NS1::Wrk1::sleeper' => '0:' . time );
     ok( $time >= 2, 'Job "sleeper" returned in more than 2 seconds' );
+}
+
+{
+    my ( $ret, $filename ) = $gc->do( 'Live::NS1::WrkBeginEnd::job' => '' );
+    my $text = read_file($filename);
+    is( $text, "begin\njob\nend\n", 'Begin/end blocks in worker have been run' );
+    unlink $filename;
 }

@@ -1,5 +1,5 @@
 NAME
-    Gearman::Driver - Manage Gearman workers
+    Gearman::Driver - Manages Gearman workers
 
 SYNOPSIS
         package My::Workers::One;
@@ -74,8 +74,8 @@ DESCRIPTION
         use Gearman::Driver;
         my $driver = Gearman::Driver->new( namespaces => [qw(My::Workers)] );
 
-    See also: "namespaces" in Gearman::Driver. If you do not set "server"
-    (gearmand) attribute the default will be used: "localhost:4730"
+    See also: namespaces. If you do not set server (gearmand) attribute the
+    default will be used: "localhost:4730"
 
     Each module found in your namespace will be loaded and introspected,
     looking for methods having the 'Job' attribute set:
@@ -114,7 +114,7 @@ DESCRIPTION
 
     This would register 'foo_bar_scale_image' with gearmand.
 
-    See also: "prefix" in Gearman::Driver::Worker
+    See also: prefix
 
 ATTRIBUTES
   namespaces
@@ -122,35 +122,10 @@ ATTRIBUTES
     Each one of those modules has to be inherited from
     Gearman::Driver::Worker or a subclass of it. It's also possible to use
     the full package name to load a single module/file. There is also a
-    method "get_namespaces" in Gearman::Driver which returns a sorted list
-    of all namespaces.
+    method get_namespaces which returns a sorted list of all namespaces.
 
-    * isa: ArrayRef
-    * required: True
-
-  modules
-    Every worker module loaded by Module::Find will be added to this list.
-    There are also two methods: "get_modules" in Gearman::Driver and
-    "has_modules" in Gearman::Driver.
-
-    * isa: ArrayRef
-    * readonly: True
-
-  wheels
-    Stores all Gearman::Driver::Wheel instances. The key is the name the job
-    gets registered with gearmand. There are also two methods: "get_wheel"
-    in Gearman::Driver and "has_wheel" in Gearman::Driver.
-
-    Example:
-
-        {
-            'My::Workers::ONE::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
-            'My::Workers::ONE::do_something_else' => bless( {...}, 'Gearman::Driver::Wheel' ),
-            'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
-        }
-
-    * isa: HashRef
-    * readonly: True
+    * isa: "ArrayRef"
+    * required: "True"
 
   server
     A list of Gearman servers the workers should connect to. The format for
@@ -158,8 +133,8 @@ ATTRIBUTES
 
     See also: Gearman::XS
 
-    * default: localhost:4730
-    * isa: Str
+    * default: "localhost:4730"
+    * isa: "Str"
 
   interval
     Each n seconds Net::Telnet::Gearman is used in Gearman::Driver::Observer
@@ -169,31 +144,25 @@ ATTRIBUTES
     Gearman::Driver::Worker
 
     * default: 5
-    * isa: Int
-
-  observer
-    Instance of Gearman::Driver::Observer.
-
-    * isa: Gearman::Driver::Observer
-    * readonly: True
+    * isa: "Int"
 
   logfile
     Path to logfile.
 
-    * isa: Str
-    * default: gearman_driver.log
+    * isa: "Str"
+    * default: "gearman_driver.log"
 
   loglayout
     See also Log::Log4perl.
 
-    * isa: Str
+    * isa: "Str"
     * default: "[%d] %m%n"
 
   loglevel
     See also Log::Log4perl.
 
-    * isa: Str
-    * default: INFO
+    * isa: "Str"
+    * default: "INFO"
 
   unknown_job_callback
     Whenever Gearman::Driver::Observer sees a job that isnt handled it will
@@ -220,15 +189,53 @@ ATTRIBUTES
             'running' => 0
         };
 
+INTERNAL ATTRIBUTES
+    This might be interesting for subclassing Gearman::Driver.
+
+  modules
+    Every worker module loaded by Module::Find will be added to this list.
+    There are also two methods: get_modules and has_modules.
+
+    * isa: "ArrayRef"
+    * readonly: "True"
+
+  wheels
+    Stores all Gearman::Driver::Wheel instances. The key is the name the job
+    gets registered with gearmand. There are also two methods: get_wheel and
+    has_wheel.
+
+    Example:
+
+        {
+            'My::Workers::ONE::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
+            'My::Workers::ONE::do_something_else' => bless( {...}, 'Gearman::Driver::Wheel' ),
+            'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Wheel' ),
+        }
+
+    * isa: "HashRef"
+    * readonly: "True"
+
+  observer
+    Instance of Gearman::Driver::Observer.
+
+    * isa: "Gearman::Driver::Observer"
+    * readonly: "True"
+
 METHODS
+    Every method except run might only be interesting for people subclassing
+    Gearman::Driver.
+
+  run
+    This must be called after the Gearman::Driver object is instantiated.
+
   get_namespaces
-    Returns a sorted list of "namespaces" in Gearman::Driver.
+    Returns a sorted list of namespaces.
 
   get_modules
-    Returns a sorted list of "modules" in Gearman::Driver.
+    Returns a sorted list of modules.
 
   has_modules
-    Returns the count of "modules" in Gearman::Driver.
+    Returns the count of modules.
 
   has_wheel
     Params: $name
@@ -239,9 +246,6 @@ METHODS
     Params: $name
 
     Returns the wheel instance.
-
-  run
-    This must be called after the Gearman::Driver object is instantiated.
 
 AUTHOR
     Johannes Plunien <plu@cpan.org>
