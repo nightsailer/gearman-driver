@@ -119,9 +119,12 @@ sub BUILD {
     $self->gearman->add_servers( $self->server );
 
     my $wrapper = sub {
-        $self->worker->begin( @_ );
-        my $result = $self->method->body->( $self->worker, @_ );
-        $self->worker->end( @_ );
+        my ($job) = @_;
+
+        $self->worker->begin($job);
+        my $result = $self->method->body->( $self->worker, $job );
+        $self->worker->end($job);
+
         return $result;
     };
 
