@@ -1,6 +1,7 @@
 package Gearman::Driver;
 
 use Moose;
+use Moose::Util qw(apply_all_roles);
 use Carp qw(croak);
 use Gearman::Driver::Observer;
 use Gearman::Driver::Job;
@@ -597,18 +598,19 @@ sub _start_jobs {
     foreach my $module ( $self->get_modules ) {
         my $worker = $module->new( server => $self->server );
         foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
-            my $attr  = $worker->_parse_attributes( $method->attributes );
-            my $name  = $worker->prefix . $method->name;
-            my $job = Gearman::Driver::Job->new(
+            apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
+            next unless $method->has_attribute('Job');
+            my $name = $worker->prefix . $method->name;
+            my $job  = Gearman::Driver::Job->new(
                 driver     => $self,
                 method     => $method,
                 name       => $name,
                 worker     => $worker,
                 server     => $self->server,
-                min_childs => $attr->{MinChilds},
-                max_childs => $attr->{MaxChilds},
+                min_childs => $method->get_attribute('MinChilds'),
+                max_childs => $method->get_attribute('MaxChilds'),
             );
-            for ( 1 .. $attr->{MinChilds} ) {
+            for ( 1 .. $method->get_attribute('MinChilds') ) {
                 $job->add_child();
             }
             $self->_set_job( $name => $job );

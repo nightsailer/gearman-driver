@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01002     Wed Dec 30 2009
+            - Refactored parsing of method attributes
+
 0.01001     Wed Dec 30 2009
             - Added 'server' attribute to Gearman::Driver::Worker
 

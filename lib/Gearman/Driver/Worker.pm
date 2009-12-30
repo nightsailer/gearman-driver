@@ -137,29 +137,6 @@ The parameters are the same as in the job method:
 
 sub end { }
 
-sub _parse_attributes {
-    my ( $self, $attributes ) = @_;
-
-    my @valid_attributes = qw(MinChilds MaxChilds Job);
-
-    my $result = {
-        MinChilds => 1,
-        MaxChilds => 1,
-    };
-
-    foreach my $attr (@$attributes) {
-        my ( $type, $value ) = $attr =~ / (\w+) (?: \( (\d+) \) )*/x;
-        $value ||= 1;
-        unless ( grep $type eq $_, @valid_attributes ) {
-            warn "Invalid attribute '$attr' in " . ref($self);
-            next;
-        }
-        $result->{$type} = $value if defined $result->{$type};
-    }
-
-    return $result;
-}
-
 no Moose;
 
 __PACKAGE__->meta->make_immutable;
