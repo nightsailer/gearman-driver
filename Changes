@@ -1,4 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01000_02  Wed Dec 30 2009
+            - Fixed wrong arguments passed to begin/end methods in
+              Gearman::Driver::Worker
+
 0.01000_01  Tue Dec 29 2009
             - Initial developer release.

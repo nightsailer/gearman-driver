@@ -119,9 +119,9 @@ sub BUILD {
     $self->gearman->add_servers( $self->server );
 
     my $wrapper = sub {
-        $self->worker->begin( $self->driver, @_ );
+        $self->worker->begin( $self->worker, @_ );
         my $result = $self->method->body->( $self->worker, @_ );
-        $self->worker->end( $self->driver, @_ );
+        $self->worker->end( $self->worker, @_ );
         return $result;
     };
 
