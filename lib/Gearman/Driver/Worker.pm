@@ -133,11 +133,11 @@ before sending them back to the client.
 
 This will automatically look for a method C<decode> in this object
 which has to be defined in the subclass. It will call the C<decode>
-method passing the workload value (C<<$job->workload>>). The return
+method passing the workload value (C<< $job->workload >>). The return
 value of the C<decode> method will be passed as 3rd argument to the
 job method. This is useful to deserialize JSON workload to Perl
 datastructures for example. If this attribute is not set,
-C<<$job->workload>> and C<$workload> is the same.
+C<< $job->workload >> and C<$workload> is the same.
 
 Example, workload is this string: C<{"status":1,"message":"OK"}>
 
