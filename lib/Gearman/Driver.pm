@@ -235,7 +235,7 @@ has 'logfile' => (
     coerce        => 1,
     default       => 'gearman_driver.log',
     documentation => 'Path to logfile (default: gearman_driver.log)',
-    is            => 'ro',
+    is            => 'rw',
     isa           => 'Path::Class::File',
 );
 
@@ -256,7 +256,7 @@ See also L<Log::Log4perl>.
 has 'loglayout' => (
     default       => '[%d] %m%n',
     documentation => 'Log message layout (default: [%d] %m%n)',
-    is            => 'ro',
+    is            => 'rw',
     isa           => 'Str',
 );
 
@@ -277,7 +277,7 @@ See also L<Log::Log4perl>.
 has 'loglevel' => (
     default       => 'INFO',
     documentation => 'Log level (default: INFO)',
-    is            => 'ro',
+    is            => 'rw',
     isa           => 'Str',
 );
 
