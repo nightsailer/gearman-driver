@@ -164,6 +164,14 @@ ATTRIBUTES
     * isa: "Str"
     * default: "INFO"
 
+  lib
+    This is just for convenience to extend @INC from command line using
+    "gearman_driver.pl":
+
+        gearman_driver.pl --lib ./lib --lib /custom/lib --namespaces My::Workers
+
+    * isa: "Str"
+
   unknown_job_callback
     Whenever Gearman::Driver::Observer sees a job that isnt handled it will
     call this CodeRef, passing following arguments:

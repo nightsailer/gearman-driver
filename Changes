@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01003     Wed Dec 31 2009
+            - Added script/gearman_driver.pl
+
 0.01002     Wed Dec 30 2009
             - Added Decoder/Encoder attribute
             - Refactored parsing of method attributes

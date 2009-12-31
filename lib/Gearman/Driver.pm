@@ -281,6 +281,28 @@ has 'loglevel' => (
     isa           => 'Str',
 );
 
+=head2 lib
+
+This is just for convenience to extend C<@INC> from command line
+using C<gearman_driver.pl>:
+
+    gearman_driver.pl --lib ./lib --lib /custom/lib --namespaces My::Workers
+
+=over 4
+
+=item * isa: C<Str>
+
+=back
+
+=cut
+
+has 'lib' => (
+    default       => sub { [] },
+    documentation => 'Example: --lib ./lib --lib /custom/lib',
+    is            => 'rw',
+    isa           => 'ArrayRef[Str]',
+);
+
 =head2 unknown_job_callback
 
 Whenever L<Gearman::Driver::Observer> sees a job that isnt handled
@@ -459,6 +481,7 @@ Returns the job instance.
 
 sub BUILD {
     my ($self) = @_;
+    push @INC, @{ $self->lib };
     $self->_setup_logger;
     $self->_load_namespaces;
     $self->_start_observer;

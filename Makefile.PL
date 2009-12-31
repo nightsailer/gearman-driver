@@ -25,5 +25,7 @@ test_requires(
     'File::Slurp' => 0,
 );
 
+install_script glob('script/*.pl');
+
 auto_install;
 WriteAll;
