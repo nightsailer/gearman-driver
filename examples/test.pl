@@ -7,7 +7,7 @@ use Gearman::Driver;
 
 my $driver = Gearman::Driver->new_with_options(
     namespaces           => [qw(GDExamples)],
-    server               => 'localhost:4730,localhost:4731',
+    server               => 'localhost:4730',
     interval             => 5,
     unknown_job_callback => sub {
         my ( $driver, $status ) = @_;
