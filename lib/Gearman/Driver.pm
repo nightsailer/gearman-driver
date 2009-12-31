@@ -530,6 +530,7 @@ sub _load_namespaces {
 sub _is_valid_worker_subclass {
     my ( $self, $module ) = @_;
     return 0 unless $module->can('meta');
+    return 0 unless $module->meta->can('linearized_isa');
     return 0 unless grep $_ eq 'Gearman::Driver::Worker', $module->meta->linearized_isa;
     return 1;
 }
