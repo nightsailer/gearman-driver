@@ -1,10 +1,11 @@
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 13;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
 use File::Slurp;
+use File::Temp qw(tempfile);
 
 my $test = TestLib->new();
 my $gc   = $test->gearman_client;
@@ -52,7 +53,11 @@ for ( 1 .. 5 ) {
 {
     my ( $ret, $filename ) = $gc->do( 'Live::NS1::WrkBeginEnd::job' => 'some workload ...' );
     my $text = read_file($filename);
-    is( $text, "begin some workload ...\njob some workload ...\nend some workload ...\n", 'Begin/end blocks in worker have been run' );
+    is(
+        $text,
+        "begin some workload ...\njob some workload ...\nend some workload ...\n",
+        'Begin/end blocks in worker have been run'
+    );
     unlink $filename;
 }
 
@@ -79,4 +84,15 @@ for ( 1 .. 5 ) {
 {
     my ( $ret, $string ) = $gc->do( 'Live::NS1::Decode::job2' => 'some workload ...' );
     is( $string, 'CUSTOMDECODE::some workload ...::CUSTOMDECODE', 'Custom decoding works' );
+}
+
+{
+    my ( $fh, $filename ) = tempfile( CLEANUP => 1 );
+    my ( $ret, $nothing ) = $gc->do( 'Live::NS2::WrkBeginEnd::job' => $filename );
+    my $text = read_file($filename);
+    is(
+        $text,
+        "begin ...\nend ...\n",
+        'Begin/end blocks in worker have been run, even if the job dies'
+    );
 }

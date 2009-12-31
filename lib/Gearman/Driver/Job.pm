@@ -131,8 +131,13 @@ sub BUILD {
         }
 
         $self->worker->begin(@args);
-        my $result = $self->method->body->( $self->worker, @args );
+
+        my $result = eval { $self->method->body->( $self->worker, @args ) };
+        my $error = $@;
+
         $self->worker->end(@args);
+
+        die $error if $error;
 
         if ( my $encoder = $self->method->get_attribute('Encode') ) {
             $result = $self->worker->$encoder($result);
@@ -172,7 +177,8 @@ sub _add_child {
             while (1) {
                 my $ret = $self->gearman->work;
                 if ( $ret != GEARMAN_SUCCESS ) {
-                    die $self->gearman->error;
+                    $self->log->error( sprintf '[%s] Gearman error: %s', $self->name, $self->gearman->error );
+                    exit(1);
                 }
             }
         },

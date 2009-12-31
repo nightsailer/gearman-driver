@@ -2,6 +2,8 @@ Revision history for Gearman-Driver
 
 0.01003     Wed Dec 31 2009
             - Added script/gearman_driver.pl
+            - Make sure end method in worker class is run even if
+              the worker method dies
 
 0.01002     Wed Dec 30 2009
             - Added Decoder/Encoder attribute
