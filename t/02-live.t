@@ -82,17 +82,18 @@ for ( 1 .. 5 ) {
 }
 
 {
-    my ( $ret, $string ) = $gc->do( 'Live::NS1::Decode::job2' => 'some workload ...' );
-    is( $string, 'CUSTOMDECODE::some workload ...::CUSTOMDECODE', 'Custom decoding works' );
-}
-
-{
     my ( $fh, $filename ) = tempfile( CLEANUP => 1 );
-    my ( $ret, $nothing ) = $gc->do( 'Live::NS2::WrkBeginEnd::job' => $filename );
+    my ( $ret, $nothing ) = $gc->do_background( 'Live::NS2::WrkBeginEnd::job' => $filename );
+    sleep(2);
     my $text = read_file($filename);
     is(
         $text,
         "begin ...\nend ...\n",
         'Begin/end blocks in worker have been run, even if the job dies'
     );
+}
+
+{
+    my ( $ret, $string ) = $gc->do( 'Live::NS1::Decode::job2' => 'some workload ...' );
+    is( $string, 'CUSTOMDECODE::some workload ...::CUSTOMDECODE', 'Custom decoding works' );
 }
