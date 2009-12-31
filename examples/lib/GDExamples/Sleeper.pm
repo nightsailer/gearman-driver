@@ -6,13 +6,11 @@ use Moose;
 
 sub begin {
     my ( $self, $job, $workload ) = @_;
-    my $workload = $job->workload;
     print "$workload begin called...\n";
 }
 
 sub end {
     my ( $self, $job, $workload ) = @_;
-    my $workload = $job->workload;
     print "$workload end called...\n";
 }
 
