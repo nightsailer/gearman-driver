@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 13;
+use Test::More tests => 14;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -96,4 +96,15 @@ for ( 1 .. 5 ) {
 {
     my ( $ret, $string ) = $gc->do( 'Live::NS1::Decode::job2' => 'some workload ...' );
     is( $string, 'CUSTOMDECODE::some workload ...::CUSTOMDECODE', 'Custom decoding works' );
+}
+
+{
+    my ( $fh, $filename ) = tempfile( CLEANUP => 1 );
+    my ( $ret, $nothing ) = $gc->do( 'Live::NS2::UseBase::job' => $filename );
+    my $text = read_file($filename);
+    is(
+        $text,
+        "begin ...\njob ...\nend ...\n",
+        'Begin/end blocks in worker base class have been run'
+    );
 }
