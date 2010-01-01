@@ -524,7 +524,7 @@ sub _load_namespaces {
     }
 
     unless ( $self->has_modules ) {
-        my $modules = join ', ', @modules;
+        my $modules = join ', ', sort @modules;
         croak "None of the modules have a method with 'Job' attribute set: $modules";
     }
 }
