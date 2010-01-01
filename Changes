@@ -3,6 +3,7 @@ Revision history for Gearman-Driver
 0.01004     xxx Jan xx 2010
             - Added debug logging
             - Changed default loglayout
+            - Added possibility to change child process name
 
 0.01003     Thu Dec 31 2009
             - Added script/gearman_driver.pl

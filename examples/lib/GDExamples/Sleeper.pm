@@ -4,6 +4,11 @@ package    # hide from PAUSE
 use base qw(Gearman::Driver::Worker);
 use Moose;
 
+sub process_name {
+    my ( $self, $orig, $job_name ) = @_;
+    return "$orig ($job_name)";
+}
+
 sub begin {
     my ( $self, $job, $workload ) = @_;
     print "$workload begin called...\n";
@@ -18,7 +23,7 @@ sub ZzZzZzzz : Job : MinChilds(3) : MaxChilds(6) {
     my ( $self, $job, $workload ) = @_;
     my $time = 2;
     sleep($time);
-    $self->output( $job->workload ." job called..." );
+    $self->output( $job->workload . " job called..." );
 }
 
 sub output {

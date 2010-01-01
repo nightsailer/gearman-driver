@@ -174,6 +174,10 @@ sub _add_child {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
     my $child = POE::Wheel::Run->new(
         Program => sub {
+            if ( my $process_name = $self->worker->process_name( $0, $self->name ) ) {
+                $0 = $process_name;
+            }
+
             while (1) {
                 my $ret = $self->gearman->work;
                 if ( $ret != GEARMAN_SUCCESS ) {

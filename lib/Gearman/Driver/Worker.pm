@@ -216,6 +216,43 @@ The parameters are the same as in the job method:
 
 sub end { }
 
+=head2 process_name
+
+If this method is overridden in the subclass it will change the
+process name after a job has been forked.
+
+The following parameters are passed to this method:
+
+=over 4
+
+=item * C<$self>
+
+=item * C<$orig> - the original process name ( C<$0> )
+
+=item * C<$job_name> - the name of the job
+
+=back
+
+Example:
+
+    sub process_name {
+        my ( $self, $orig, $job_name ) = @_;
+        return "$orig ($job_name)";
+    }
+
+This may look like:
+
+    plu       2034  0.0  1.7  22392 17948 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::ZzZzZzzz)
+    plu       2035  0.0  1.7  22392 17944 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::ZzZzZzzz)
+    plu       2036  0.0  1.7  22392 17948 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::ZzZzZzzz)
+    plu       2037  0.0  1.7  22392 17956 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::long_running_ZzZzZzzz)
+
+=cut
+
+sub process_name {
+    return 0;
+}
+
 sub decode {
     my ( $self, $result ) = @_;
     return $result;
