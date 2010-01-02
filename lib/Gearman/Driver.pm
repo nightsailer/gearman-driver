@@ -568,18 +568,18 @@ sub _observer_callback {
                 my $free = $job->max_childs - $job->count_childs;
                 if ($free) {
                     my $start = $diff > $free ? $free : $diff;
-                    $self->log->debug( sprintf "Starting %d new jobs of type %s", $start, $row->{name} );
+                    $self->log->debug( sprintf "Starting %d new child(s) of type %s", $start, $row->{name} );
                     $job->add_child for 1 .. $start;
                 }
             }
             elsif ( $job->count_childs && $job->count_childs > $job->min_childs && $row->{queue} == 0 ) {
                 my $stop = $job->count_childs - $job->min_childs;
-                $self->log->debug( sprintf "Stopping %d jobs of type %s", $stop, $row->{name} );
+                $self->log->debug( sprintf "Stopping %d child(s) of type %s", $stop, $row->{name} );
                 $job->remove_child for 1 .. $stop;
             }
             elsif ( $job->count_childs < $job->min_childs ) {
                 my $start = $job->min_childs - $job->count_childs;
-                $self->log->debug( sprintf "Starting %d new jobs of type %s", $start, $row->{name} );
+                $self->log->debug( sprintf "Starting %d new child(s) of type %s", $start, $row->{name} );
                 $job->add_child for 1 .. $start;
             }
         }
