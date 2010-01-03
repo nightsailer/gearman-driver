@@ -1,14 +1,14 @@
 package    # hide from PAUSE
-  Validate::NoJobs::Worker;
+  Validate::NoJobs::NS1::Something;
 
 use base qw(Gearman::Driver::Worker);
 use Moose;
 
-sub foo : FOO {
+sub bla : BLA {
     my ( $self, $data ) = @_;
 }
 
-sub bar : BAR {
+sub fasel : FASEL {
     my ( $self, $data ) = @_;
 }
 

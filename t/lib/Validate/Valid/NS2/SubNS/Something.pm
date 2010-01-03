@@ -1,10 +1,10 @@
 package    # hide from PAUSE
-  Validate::Valid::NS2::Worker;
+  Validate::Valid::NS2::SubNS::Something;
 
 use base qw(Gearman::Driver::Worker);
 use Moose;
 
-sub bla : Job {
+sub fasel : Job {
     my ( $self, $job, $workload ) = @_;
 }
 

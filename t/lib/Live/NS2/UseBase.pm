@@ -1,7 +1,7 @@
 package    # hide from PAUSE
   Live::NS2::UseBase;
 
-use base qw(Base::Wrk1);
+use base qw(Base::TestWorker);
 use Moose;
 
 sub job : Job {

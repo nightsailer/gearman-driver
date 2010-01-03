@@ -1,5 +1,5 @@
 package    # hide from PAUSE
-  Validate::Invalid::NS1::Worker;
+  Validate::Invalid::Something;
 
 use strict;
 use warnings;

@@ -1,5 +1,5 @@
 package    # hide from PAUSE
-  Base::Wrk1;
+  Base::TestWorker;
 
 use base qw(Gearman::Driver::Worker);
 use Moose;

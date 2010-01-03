@@ -15,9 +15,9 @@ $test->run_gearman_driver;
 
 # give gearmand + driver at least 5 seconds to settle
 for ( 1 .. 5 ) {
-    my ( $ret, $pong ) = $gc->do( 'Live::NS1::Wrk1::ping' => 'ping' );
+    my ( $ret, $pong ) = $gc->do( 'Live::NS1::Basic::ping' => 'ping' );
     sleep(1) && next unless $pong;
-    is( $pong, 'pong', 'Job "Live::NS1::Wrk1::ping" returned correct value' );
+    is( $pong, 'pong', 'Job "Live::NS1::Basic::ping" returned correct value' );
     last;
 }
 
@@ -27,8 +27,8 @@ for ( 1 .. 5 ) {
 }
 
 {
-    my ( $ret, $pong ) = $gc->do( 'Live::NS2::Wrk2::ping' => 'ping' );
-    is( $pong, 'PONG', 'Job "Live::NS2::Wrk2::ping" returned correct value' );
+    my ( $ret, $pong ) = $gc->do( 'Live::NS2::Ping2::ping' => 'ping' );
+    is( $pong, 'PONG', 'Job "Live::NS2::Ping2::ping" returned correct value' );
 }
 
 # i hope this assumption is always true:
@@ -36,33 +36,33 @@ for ( 1 .. 5 ) {
 {
     my %pids = ();
     for ( 1 .. 1000 ) {
-        my ( $ret, $pid ) = $gc->do( 'Live::NS1::Wrk1::ten_childs' => '' );
+        my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_childs' => '' );
         $pids{$pid}++;
     }
     is( scalar( keys(%pids) ), 10, "10 different childs handled job 'ten_childs'" );
 }
 
 {
-    my ( $ret, $pid ) = $gc->do( 'Live::NS1::Wrk1::get_pid' => '' );
+    my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::get_pid' => '' );
     like( $pid, qr~^\d+$~, 'Job "get_pid" returned correct value' );
 }
 
 {
-    $gc->do_background( 'Live::NS1::Wrk1::sleeper' => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
+    $gc->do_background( 'Live::NS1::Basic::sleeper' => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
 
-    my ( $ret, $time ) = $gc->do( 'Live::NS1::Wrk1::sleeper' => '0:' . time );
+    my ( $ret, $time ) = $gc->do( 'Live::NS1::Basic::sleeper' => '0:' . time );
     ok( $time <= 2, 'Job "sleeper" returned in less than 2 seconds' );
 }
 
 {
-    $gc->do_background( 'Live::NS1::Wrk1::sleeper' => '4:' . time );               # block last slot for another 4 secs
+    $gc->do_background( 'Live::NS1::Basic::sleeper' => '4:' . time );               # block last slot for another 4 secs
 
-    my ( $ret, $time ) = $gc->do( 'Live::NS1::Wrk1::sleeper' => '0:' . time );
+    my ( $ret, $time ) = $gc->do( 'Live::NS1::Basic::sleeper' => '0:' . time );
     ok( $time >= 2, 'Job "sleeper" returned in more than 2 seconds' );
 }
 
 {
-    my ( $ret, $filename ) = $gc->do( 'Live::NS1::WrkBeginEnd::job' => 'some workload ...' );
+    my ( $ret, $filename ) = $gc->do( 'Live::NS1::BeginEnd::job' => 'some workload ...' );
     my $text = read_file($filename);
     is(
         $text,
@@ -94,7 +94,7 @@ for ( 1 .. 5 ) {
 
 {
     my ( $fh, $filename ) = tempfile( CLEANUP => 1 );
-    my ( $ret, $nothing ) = $gc->do_background( 'Live::NS2::WrkBeginEnd::job' => $filename );
+    my ( $ret, $nothing ) = $gc->do_background( 'Live::NS2::BeginEnd::job' => $filename );
     sleep(2);
     my $text = read_file($filename);
     is( $text, "begin ...\nend ...\n", 'Begin/end blocks in worker have been run, even if the job dies' );

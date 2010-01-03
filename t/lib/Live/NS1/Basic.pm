@@ -1,5 +1,5 @@
 package    # hide from PAUSE
-  Live::NS1::Wrk1;
+  Live::NS1::Basic;
 
 use base qw(Gearman::Driver::Worker);
 use Moose;

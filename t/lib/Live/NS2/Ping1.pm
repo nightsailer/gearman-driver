@@ -1,11 +1,13 @@
 package    # hide from PAUSE
-  Live::NS2::Wrk2;
+  Live::NS2::Ping1;
 
 use base qw(Gearman::Driver::Worker);
 use Moose;
 
+sub prefix { 'something_custom_' }
+
 sub ping : Job {
-    return 'PONG';
+    return 'p0nG';
 }
 
 1;

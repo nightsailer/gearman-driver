@@ -1,5 +1,5 @@
 package    # hide from PAUSE
-  Validate::Valid::NS1::Worker;
+  Validate::Valid::NS1::Something;
 
 use base qw(Gearman::Driver::Worker);
 use Moose;

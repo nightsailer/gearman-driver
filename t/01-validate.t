@@ -18,7 +18,7 @@ eval { Gearman::Driver->new( namespaces => [qw(Validate::Invalid)] ); };
 
 like(
     $@,
-qr/None of the modules have a method with 'Job' attribute set: Validate::Invalid::NS1::Worker, Validate::Invalid::NS2::SubNS::Worker, Validate::Invalid::NS2::Worker1, Validate::Invalid::NS2::Worker2, Validate::Invalid::Worker/,
+qr/None of the modules have a method with 'Job' attribute set: Validate::Invalid::NS1::Something, Validate::Invalid::NS2::Something1, Validate::Invalid::NS2::Something2, Validate::Invalid::NS2::SubNS::Something, Validate::Invalid::Something/,
     'None of the modules found have correct inheritance'
 );
 
@@ -26,6 +26,6 @@ eval { Gearman::Driver->new( namespaces => [qw(Validate::NoJobs)] ); };
 
 like(
     $@,
-qr/None of the modules have a method with 'Job' attribute set: Validate::NoJobs::NS1::Worker, Validate::NoJobs::Worker/,
+qr/None of the modules have a method with 'Job' attribute set: Validate::NoJobs::NS1::Something, Validate::NoJobs::Something/,
     'None of the modules found have correct job methods'
 );

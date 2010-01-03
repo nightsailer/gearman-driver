@@ -1,11 +1,11 @@
 package    # hide from PAUSE
-  Validate::Valid::Worker;
+  Live::NS2::Ping2;
 
 use base qw(Gearman::Driver::Worker);
 use Moose;
 
-sub foo {
-    my ( $self, $job, $workload ) = @_;
+sub ping : Job {
+    return 'PONG';
 }
 
 1;
