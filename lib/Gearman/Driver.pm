@@ -96,7 +96,7 @@ See also: L<namespaces|/namespaces>. If you do not set
 L<server|/server> (gearmand) attribute the default will be used:
 C<localhost:4730>
 
-Each module found in your namespace will be loaded and introspected,
+Each module found in your namespaces will be loaded and introspected,
 looking for methods having the 'Job' attribute set:
 
     package My::Workers::ONE;
