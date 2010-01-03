@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 14;
+use Test::More tests => 15;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -29,6 +29,17 @@ for ( 1 .. 5 ) {
 {
     my ( $ret, $pong ) = $gc->do( 'Live::NS2::Wrk2::ping' => 'ping' );
     is( $pong, 'PONG', 'Job "Live::NS2::Wrk2::ping" returned correct value' );
+}
+
+# i hope this assumption is always true:
+# out of 1000 jobs all 10 childs handled at least one job
+{
+    my %pids = ();
+    for ( 1 .. 1000 ) {
+        my ( $ret, $pid ) = $gc->do( 'Live::NS1::Wrk1::ten_childs' => '' );
+        $pids{$pid}++;
+    }
+    is( scalar( keys(%pids) ), 10, "10 different childs handled job 'ten_childs'" );
 }
 
 {
@@ -86,11 +97,7 @@ for ( 1 .. 5 ) {
     my ( $ret, $nothing ) = $gc->do_background( 'Live::NS2::WrkBeginEnd::job' => $filename );
     sleep(2);
     my $text = read_file($filename);
-    is(
-        $text,
-        "begin ...\nend ...\n",
-        'Begin/end blocks in worker have been run, even if the job dies'
-    );
+    is( $text, "begin ...\nend ...\n", 'Begin/end blocks in worker have been run, even if the job dies' );
 }
 
 {
@@ -102,9 +109,5 @@ for ( 1 .. 5 ) {
     my ( $fh, $filename ) = tempfile( CLEANUP => 1 );
     my ( $ret, $nothing ) = $gc->do( 'Live::NS2::UseBase::job' => $filename );
     my $text = read_file($filename);
-    is(
-        $text,
-        "begin ...\njob ...\nend ...\n",
-        'Begin/end blocks in worker base class have been run'
-    );
+    is( $text, "begin ...\njob ...\nend ...\n", 'Begin/end blocks in worker base class have been run' );
 }

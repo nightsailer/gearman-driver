@@ -13,6 +13,11 @@ sub get_pid : Job {
     return $self->pid;
 }
 
+sub ten_childs : Job : MinChilds(10) : MaxChilds(10) {
+    my ( $self, $job, $workload ) = @_;
+    return $self->pid;
+}
+
 sub sleeper : Job : MinChilds(2) : MaxChilds(6) {
     my ( $self, $job, $workload ) = @_;
     my ( $sleep, $time ) = split /:/, $job->workload;
