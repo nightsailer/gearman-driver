@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 15;
+use Test::More tests => 16;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -110,4 +110,11 @@ for ( 1 .. 5 ) {
     my ( $ret, $nothing ) = $gc->do( 'Live::NS2::UseBase::job' => $filename );
     my $text = read_file($filename);
     is( $text, "begin ...\njob ...\nend ...\n", 'Begin/end blocks in worker base class have been run' );
+}
+
+{
+    my @nothing = $gc->do_background( 'Live::NS1::Basic::quit' => 'exit' );
+    sleep(3);    # wait for the worker being restarted
+    my ( $ret, $string ) = $gc->do( 'Live::NS1::Basic::quit' => 'foo' );
+    is( $string, 'i am back', 'Worker child restarted after exit' );
 }

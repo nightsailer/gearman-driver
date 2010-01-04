@@ -29,4 +29,10 @@ sub pid {
     return $$;
 }
 
+sub quit : Job {
+    my ( $self, $job, $workload ) = @_;
+    exit(0) if $workload eq 'exit';
+    return 'i am back';
+}
+
 1;
