@@ -10,8 +10,8 @@ all_from 'lib/Gearman/Driver.pm';
 requires(
     'Gearman::XS'                => '0.7',
     'Module::Find'               => '0.08',
-    'Moose'                      => '0.93',
-    'MooseX::Getopt'             => '0.26',
+    'Moose'                      => '0.90',
+    'MooseX::Getopt'             => '0.24',
     'MooseX::Log::Log4perl'      => '0.40',
     'MooseX::MethodAttributes'   => '0.18',
     'MooseX::Types::Path::Class' => '0.05',
