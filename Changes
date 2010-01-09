@@ -1,7 +1,8 @@
 Revision history for Gearman-Driver
 
-0.01005     Sat Jan 02 2010
+0.01005     Sat Jan 09 2010
             - Updated example scripts
+            - Lower dependencies version
 
 0.01004     Fri Jan 01 2010
             - Added debug logging
