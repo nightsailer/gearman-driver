@@ -189,7 +189,6 @@ sub _add_child {
         StdoutEvent => "got_child_stdout",
         StderrEvent => "got_child_stderr",
         CloseEvent  => "got_child_close",
-        CloseOnCall => 1,
     );
     $kernel->sig_child( $child->PID, "got_child_signal" );
 

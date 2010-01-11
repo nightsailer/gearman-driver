@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01006     Mon Jan 11 2010
+            - Remove 'CloseOnCall' POE::Wheel::Run option
+
 0.01005     Sat Jan 09 2010
             - Updated example scripts
             - Lower dependencies version
