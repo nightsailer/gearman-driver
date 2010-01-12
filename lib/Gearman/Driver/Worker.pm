@@ -65,7 +65,6 @@ another jobs. See 'spread_work' method in L</SYNOPSIS> above.
 has 'server' => (
     is       => 'ro',
     isa      => 'Str',
-    required => 1,
 );
 
 =head1 METHODATTRIBUTES
