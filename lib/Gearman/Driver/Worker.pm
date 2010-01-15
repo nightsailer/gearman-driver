@@ -63,8 +63,8 @@ another jobs. See 'spread_work' method in L</SYNOPSIS> above.
 =cut
 
 has 'server' => (
-    is       => 'ro',
-    isa      => 'Str',
+    is  => 'ro',
+    isa => 'Str',
 );
 
 =head1 METHODATTRIBUTES
@@ -250,6 +250,44 @@ This may look like:
 
 sub process_name {
     return 0;
+}
+
+=head2 override_attributes
+
+If this method is overridden in the subclass it will change B<all>
+attributes of your job methods. It must return a reference to a hash
+containing valid L<attribute keys|/METHODATTRIBUTES>. E.g.:
+
+    sub override_attributes {
+        return {
+            MinChilds => 0,
+            MaxChilds => 1,
+        }
+    }
+
+=cut
+
+sub override_attributes {
+    return {};
+}
+
+=head2 default_attributes
+
+If this method is overridden in the subclass it can supply default
+attributes which are added to all job methods. This is useful if
+you want to Encode/Decode all your jobs:
+
+    sub default_attributes {
+        return {
+            Encode => 1,
+            Decode => 1,
+        }
+    }
+
+=cut
+
+sub default_attributes {
+    return {};
 }
 
 sub decode {
