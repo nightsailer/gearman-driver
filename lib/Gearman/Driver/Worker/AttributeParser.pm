@@ -10,7 +10,20 @@ has 'parsed_attributes' => (
     },
     is     => 'ro',
     isa    => 'HashRef',
+    lazy   => 1,
     traits => [qw(Hash)],
+);
+
+has 'default_attributes' => (
+    default => sub { {} },
+    is      => 'rw',
+    isa     => 'HashRef',
+);
+
+has 'override_attributes' => (
+    default => sub { {} },
+    is      => 'rw',
+    isa     => 'HashRef',
 );
 
 sub _parse_attributes {
@@ -28,6 +41,10 @@ sub _parse_attributes {
         MaxChilds => 1,
     };
 
+    foreach my $attr ( keys %{ $self->default_attributes } ) {
+        unshift @$attributes, sprintf '%s(%s)', $attr, $self->default_attributes->{$attr};
+    }
+
     foreach my $attr (@$attributes) {
         my ( $type, $value ) = $attr =~ / (\w+) (?: \( (.*?) \) )*/x;
 
@@ -42,6 +59,8 @@ sub _parse_attributes {
         }
 
         $result->{$type} = $value if defined $result->{$type};
+
+        $result->{$type} = $self->override_attributes->{$type} if defined $self->override_attributes->{$type};
     }
 
     return $result;

@@ -628,6 +628,8 @@ sub _start_jobs {
         my $worker = $module->new( server => $self->server );
         foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
             apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
+            $method->default_attributes( $worker->default_attributes );
+            $method->override_attributes( $worker->override_attributes );
             next unless $method->has_attribute('Job');
             my $name = $worker->prefix . $method->name;
             my $job  = Gearman::Driver::Job->new(

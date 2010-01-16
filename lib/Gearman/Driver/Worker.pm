@@ -260,9 +260,14 @@ containing valid L<attribute keys|/METHODATTRIBUTES>. E.g.:
 
     sub override_attributes {
         return {
-            MinChilds => 0,
+            MinChilds => 1,
             MaxChilds => 1,
         }
+    }
+
+    sub job1 : Job : MinChilds(10) : MaxChilds(20) {
+        my ( $self, $job, $workload ) = @_;
+        # This will get MinChilds(1) MaxChilds(1) from override_attributes
     }
 
 =cut
@@ -279,9 +284,23 @@ you want to Encode/Decode all your jobs:
 
     sub default_attributes {
         return {
-            Encode => 1,
-            Decode => 1,
+            Encode => 'encode',
+            Decode => 'decode',
         }
+    }
+
+    sub decode {
+        my ( $self, $workload ) = @_;
+        return JSON::XS::decode_json($workload);
+    }
+
+    sub encode {
+        my ( $self, $result ) = @_;
+        return JSON::XS::encode_json($result);
+    }
+
+    sub job1 : Job {
+        my ( $self, $job, $workload ) = @_;
     }
 
 =cut

@@ -1,7 +1,6 @@
 Revision history for Gearman-Driver
 
 0.01007     TBD.
-			TODO: IMPLEMENT
 			- Add new methods override_attributes and
 			  default_attributes to worker base class
 

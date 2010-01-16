@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 16;
+use Test::More tests => 22;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -117,4 +117,28 @@ for ( 1 .. 5 ) {
     sleep(3);    # wait for the worker being restarted
     my ( $ret, $string ) = $gc->do( 'Live::NS1::Basic::quit' => 'foo' );
     is( $string, 'i am back', 'Worker child restarted after exit' );
+}
+
+{
+    for ( 1 .. 3 ) {
+        my ( $ret, $string ) = $gc->do( "Live::NS1::DefaultAttributes::job$_" => 'workload' );
+        is(
+            $string,
+            'DefaultAttributes::ENCODE::DefaultAttributes::DECODE::'
+              . 'workload::DECODE::DefaultAttributes::ENCODE::DefaultAttributes',
+            'Encode/decode default attributes'
+        );
+    }
+}
+
+{
+    for ( 1 .. 3 ) {
+        my ( $ret, $string ) = $gc->do( "Live::NS1::OverrideAttributes::job$_" => 'workload' );
+        is(
+            $string,
+            'OverrideAttributes::ENCODE::OverrideAttributes::DECODE::'
+              . 'workload::DECODE::OverrideAttributes::ENCODE::OverrideAttributes',
+            'Encode/decode override attributes'
+        );
+    }
 }
