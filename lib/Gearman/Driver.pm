@@ -563,7 +563,7 @@ sub _observer_callback {
     my ( $self, $status ) = @_;
     foreach my $row (@$status) {
         if ( my $job = $self->get_job( $row->{name} ) ) {
-            if ( $job->count_childs && $job->count_childs == $row->{busy} && $row->{queue} ) {
+            if ( $job->count_childs <= $row->{busy} && $row->{queue} ) {
                 my $diff = $row->{queue} - $row->{busy};
                 my $free = $job->max_childs - $job->count_childs;
                 if ($free) {

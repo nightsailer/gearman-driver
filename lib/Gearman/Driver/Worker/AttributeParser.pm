@@ -55,7 +55,7 @@ sub _parse_attributes {
         # Default values
         $value ||= 'encode' if $type eq 'Encode';
         $value ||= 'decode' if $type eq 'Decode';
-        $value ||= 1;
+        $value = 1 unless defined $value;
 
         unless ( grep $type eq $_, @valid_attributes ) {
             warn "Invalid attribute '$attr' in " . ref($self);
