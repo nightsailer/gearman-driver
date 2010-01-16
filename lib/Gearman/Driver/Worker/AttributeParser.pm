@@ -45,6 +45,10 @@ sub _parse_attributes {
         unshift @$attributes, sprintf '%s(%s)', $attr, $self->default_attributes->{$attr};
     }
 
+    foreach my $attr ( keys %{ $self->override_attributes } ) {
+        push @$attributes, sprintf '%s(%s)', $attr, $self->override_attributes->{$attr};
+    }
+
     foreach my $attr (@$attributes) {
         my ( $type, $value ) = $attr =~ / (\w+) (?: \( (.*?) \) )*/x;
 
@@ -59,8 +63,6 @@ sub _parse_attributes {
         }
 
         $result->{$type} = $value if defined $result->{$type};
-
-        $result->{$type} = $self->override_attributes->{$type} if defined $self->override_attributes->{$type};
     }
 
     return $result;
