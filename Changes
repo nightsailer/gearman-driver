@@ -5,9 +5,9 @@ Revision history for Gearman-Driver
             - Set interval to 0 to disable Observer
 
 0.01007     Sat Jan 16 2010
-			- Add new methods override_attributes and
-			  default_attributes to worker base class
-			- Support MinChilds(0)
+            - Add new methods override_attributes and
+              default_attributes to worker base class
+            - Support MinChilds(0)
 
 0.01006     Mon Jan 11 2010
             - Remove 'CloseOnCall' POE::Wheel::Run option
