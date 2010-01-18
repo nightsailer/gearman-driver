@@ -63,9 +63,8 @@ another jobs. See 'spread_work' method in L</SYNOPSIS> above.
 =cut
 
 has 'server' => (
-    is       => 'ro',
-    isa      => 'Str',
-    required => 1,
+    is  => 'ro',
+    isa => 'Str',
 );
 
 =head1 METHODATTRIBUTES
@@ -251,6 +250,63 @@ This may look like:
 
 sub process_name {
     return 0;
+}
+
+=head2 override_attributes
+
+If this method is overridden in the subclass it will change B<all>
+attributes of your job methods. It must return a reference to a hash
+containing valid L<attribute keys|/METHODATTRIBUTES>. E.g.:
+
+    sub override_attributes {
+        return {
+            MinChilds => 1,
+            MaxChilds => 1,
+        }
+    }
+
+    sub job1 : Job : MinChilds(10) : MaxChilds(20) {
+        my ( $self, $job, $workload ) = @_;
+        # This will get MinChilds(1) MaxChilds(1) from override_attributes
+    }
+
+=cut
+
+sub override_attributes {
+    return {};
+}
+
+=head2 default_attributes
+
+If this method is overridden in the subclass it can supply default
+attributes which are added to all job methods. This is useful if
+you want to Encode/Decode all your jobs:
+
+    sub default_attributes {
+        return {
+            Encode => 'encode',
+            Decode => 'decode',
+        }
+    }
+
+    sub decode {
+        my ( $self, $workload ) = @_;
+        return JSON::XS::decode_json($workload);
+    }
+
+    sub encode {
+        my ( $self, $result ) = @_;
+        return JSON::XS::encode_json($result);
+    }
+
+    sub job1 : Job {
+        my ( $self, $job, $workload ) = @_;
+    }
+
+=cut
+
+sub default_attributes {
+    return {};
 }
 
 sub decode {

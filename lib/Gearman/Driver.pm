@@ -11,7 +11,7 @@ use MooseX::Types::Path::Class;
 use POE;
 with qw(MooseX::Log::Log4perl MooseX::Getopt);
 
-our $VERSION = '0.01006';
+our $VERSION = '0.01007';
 
 =head1 NAME
 
@@ -569,7 +569,7 @@ sub _observer_callback {
     my ( $self, $status ) = @_;
     foreach my $row (@$status) {
         if ( my $job = $self->get_job( $row->{name} ) ) {
-            if ( $job->count_childs && $job->count_childs == $row->{busy} && $row->{queue} ) {
+            if ( $job->count_childs <= $row->{busy} && $row->{queue} ) {
                 my $diff = $row->{queue} - $row->{busy};
                 my $free = $job->max_childs - $job->count_childs;
                 if ($free) {
@@ -634,6 +634,8 @@ sub _start_jobs {
         my $worker = $module->new( server => $self->server );
         foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
             apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
+            $method->default_attributes( $worker->default_attributes );
+            $method->override_attributes( $worker->override_attributes );
             next unless $method->has_attribute('Job');
             my $name = $worker->prefix . $method->name;
             my $job  = Gearman::Driver::Job->new(

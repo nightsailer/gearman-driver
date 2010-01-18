@@ -11,7 +11,12 @@ has 'ua' => (
     isa     => 'LWP::UserAgent',
 );
 
-sub is_online : Job : MinChilds(4) {
+sub process_name {
+    my ( $self, $orig, $job_name ) = @_;
+    return "$orig ($job_name)";
+}
+
+sub is_online : Job : MinChilds(0) {
     my ( $self, $job, $workload ) = @_;
     my $response = $self->ua->get($workload);
     printf "%s => %s\n", $workload, $response->status_line;
