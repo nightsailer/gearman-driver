@@ -21,6 +21,7 @@ Gearman::Driver - Manages Gearman workers
 
     package My::Workers::One;
 
+    # Yes, you need to do it exactly this way
     use base qw(Gearman::Driver::Worker);
     use Moose;
 
@@ -161,7 +162,7 @@ has 'namespaces' => (
     handles       => { get_namespaces => 'sort' },
     is            => 'rw',
     isa           => 'ArrayRef[Str]',
-    required      => 1,
+    required      => 0,
     traits        => [qw(Array)],
 );
 
@@ -446,36 +447,106 @@ There's one mandatory param (hashref) with following keys:
 
 =over 4
 
-=item * method
+=item * decode (optionally)
+
+Name of a decoder method in your worker object.
+
+=item * encode (optionally)
+
+Name of a encoder method in your worker object.
+
+=item * method (mandatory)
 
 Reference to a L<Class::MOP::Method> object which will get invoked.
 
-=item * min_childs
+=item * min_childs (mandatory)
 
 Minimum number of childs that should be forked.
 
-=item * max_childs
+=item * max_childs (mandatory)
 
 Maximum number of childs that may be forked.
 
-=item * name
+=item * name (mandatory)
 
 Job name/alias that method should be registered with Gearman.
 
-=item * object
+=item * object (mandatory)
 
 Object that should be passed as first parameter to the job method.
 
 =back
+
+Basically you never really need this method if you use
+L</namespaces>. But this depends on method attributes which some
+people do hate. In this case, feel free to setup Gearman::Driver
+this way:
+
+    package My::Workers::One;
+
+    use Moose;
+    use JSON::XS;
+    extends 'Gearman::Driver::Worker::Base';
+
+    sub scale_image {
+        my ( $self, $job, $workload ) = @_;
+        # do something
+    }
+
+    # this method will be registered with gearmand as 'My::Workers::One::do_something_else'
+    sub do_something_else {
+        my ( $self, $job, $workload ) = @_;
+        # do something
+    }
+
+    sub encode_json {
+        my ( $self, $result ) = @_;
+        return JSON::XS::encode_json($result);
+    }
+
+    sub decode_json {
+        my ( $self, $workload ) = @_;
+        return JSON::XS::decode_json($workload);
+    }
+
+    1;
+
+    package main;
+
+    use Gearman::Driver;
+    use My::Workers::One;
+
+    my $driver = Gearman::Driver->new(
+        server   => 'localhost:4730,otherhost:4731',
+        interval => 60,
+    );
+
+    my $worker = My::Workers::One->new();
+
+    foreach my $method (qw(scale_image do_something_else)) {
+        $driver->add_job(
+            decode     => 'decode_json',
+            encode     => 'encode_json',
+            max_childs => 5,
+            method     => $worker->meta->find_method_by_name($method)->body,
+            min_childs => 1,
+            name       => $method,
+            object     => $worker,
+        );
+    }
+
+    $driver->run;
+
 
 =cut
 
 sub add_job {
     my ( $self, $params ) = @_;
 
-    # TODO: validate $params
     my $job = Gearman::Driver::Job->new(
         driver     => $self,
+        decode     => $params->{decode} || '',
+        encode     => $params->{encode} || '',
         max_childs => $params->{max_childs},
         method     => $params->{method},
         min_childs => $params->{min_childs},
@@ -487,6 +558,8 @@ sub add_job {
     $self->_set_job( $params->{name} => $job );
 
     $self->log->debug( sprintf "Added new job: %s (childs: %d)", $params->{name}, $params->{min_childs} );
+
+    return 1;
 }
 
 =head2 run
@@ -496,6 +569,11 @@ This must be called after the L<Gearman::Driver> object is instantiated.
 =cut
 
 sub run {
+    my ($self) = @_;
+    push @INC, @{ $self->lib };
+    $self->_load_namespaces;
+    $self->_start_observer;
+    $self->_start_session;
     POE::Kernel->run();
 }
 
@@ -527,16 +605,7 @@ Returns the job instance.
 
 sub BUILD {
     my ($self) = @_;
-    $self->_setup;
-}
-
-sub _setup {
-    my ($self) = @_;
-    push @INC, @{ $self->lib };
     $self->_setup_logger;
-    $self->_load_namespaces;
-    $self->_start_observer;
-    $self->_start_session;
 }
 
 sub _setup_logger {
@@ -567,20 +636,10 @@ sub _load_namespaces {
         $self->log->debug("Module found in namespace '$ns': $_") for @modules_ns;
     }
 
-    unless (@modules) {
-        my $ns = join ', ', $self->get_namespaces;
-        croak "Could not find any modules in those namespaces: $ns";
-    }
-
     foreach my $module (@modules) {
         next unless $self->_is_valid_worker_subclass($module);
         next unless $self->_has_job_method($module);
         $self->_add_module($module);
-    }
-
-    unless ( $self->has_modules ) {
-        my $modules = join ', ', sort @modules;
-        croak "None of the modules have a method with 'Job' attribute set: $modules";
     }
 }
 
@@ -695,11 +754,13 @@ sub _add_jobs {
 
             $self->add_job(
                 {
-                    name       => $worker->prefix . $method->name,
-                    method     => $method,
-                    object     => $worker,
-                    min_childs => $method->get_attribute('MinChilds'),
+                    decode     => $method->get_attribute('Decode'),
+                    encode     => $method->get_attribute('Encode'),
                     max_childs => $method->get_attribute('MaxChilds'),
+                    method     => $method->body,
+                    min_childs => $method->get_attribute('MinChilds'),
+                    name       => $worker->prefix . $method->name,
+                    object     => $worker,
                 }
             );
         }

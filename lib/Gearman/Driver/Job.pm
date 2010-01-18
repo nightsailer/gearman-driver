@@ -47,7 +47,7 @@ has 'name' => (
 
 has 'method' => (
     is       => 'rw',
-    isa      => 'Class::MOP::Method',
+    isa      => 'CodeRef',
     required => 1,
 );
 
@@ -74,6 +74,20 @@ has 'min_childs' => (
     default  => 1,
     is       => 'rw',
     isa      => 'Int',
+    required => 1,
+);
+
+has 'encode' => (
+    default  => '',
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+);
+
+has 'decode' => (
+    default  => '',
+    is       => 'rw',
+    isa      => 'Str',
     required => 1,
 );
 
@@ -123,7 +137,7 @@ sub BUILD {
 
         my @args = ($job);
 
-        if ( my $decoder = $self->method->get_attribute('Decode') ) {
+        if ( my $decoder = $self->decode ) {
             push @args, $self->worker->$decoder( $job->workload );
         }
         else {
@@ -132,14 +146,14 @@ sub BUILD {
 
         $self->worker->begin(@args);
 
-        my $result = eval { $self->method->body->( $self->worker, @args ) };
+        my $result = eval { $self->method->( $self->worker, @args ) };
         my $error = $@;
 
         $self->worker->end(@args);
 
         die $error if $error;
 
-        if ( my $encoder = $self->method->get_attribute('Encode') ) {
+        if ( my $encoder = $self->encode ) {
             $result = $self->worker->$encoder($result);
         }
 

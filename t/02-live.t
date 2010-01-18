@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 23;
+use Test::More tests => 25;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -146,4 +146,20 @@ for ( 1 .. 5 ) {
 {
     my ( $ret, $string ) = $gc->do( 'Live::job' => 'some workload ...' );
     is( $string, 'ok', 'loaded root namespace' );
+}
+
+{
+    my ( $ret, $string ) = $gc->do( 'Live::NS3::AddJob::job1' => 'foo' );
+    is( $string, 'CUSTOMENCODE::foo::CUSTOMENCODE', 'Custom encoding works' );
+}
+
+{
+    my ( $ret, $filename ) = $gc->do( 'Live::NS3::AddJob::job2' => 'some workload ...' );
+    my $text = read_file($filename);
+    is(
+        $text,
+        "begin some workload ...\njob some workload ...\nend some workload ...\n",
+        'Begin/end blocks in worker have been run'
+    );
+    unlink $filename;
 }

@@ -1,6 +1,6 @@
 package Gearman::Driver::Worker;
 
-use base qw(MooseX::MethodAttributes::Inheritable);
+use base qw(MooseX::MethodAttributes::Inheritable Gearman::Driver::Worker::Base);
 use Moose;
 
 =head1 NAME
@@ -59,13 +59,6 @@ L<Gearman::Driver> connects to the L<server|Gearman::Driver/server>
 passed to its constructor. This value is also stored in this class.
 This can be useful if a job uses L<Gearman::XS::Client> to add
 another job. See 'spread_work' method in L</SYNOPSIS> above.
-
-=cut
-
-has 'server' => (
-    is  => 'ro',
-    isa => 'Str',
-);
 
 =head1 METHODATTRIBUTES
 
@@ -169,12 +162,6 @@ all jobs are registered with the full package and method name
 C<ref(shift . '::')>, but this can be changed by overriding the
 C<prefix> method in the subclass, see L</SYNOPSIS> above.
 
-=cut
-
-sub prefix {
-    return ref(shift) . '::';
-}
-
 =head2 begin
 
 This method is called before a job method is called. In this base
@@ -191,10 +178,6 @@ The parameters are the same as in the job method:
 
 =back
 
-=cut
-
-sub begin { }
-
 =head2 end
 
 This method is called after a job method has been called. In this
@@ -210,10 +193,6 @@ The parameters are the same as in the job method:
 =item * C<$job>
 
 =back
-
-=cut
-
-sub end { }
 
 =head2 process_name
 
@@ -246,12 +225,6 @@ This may look like:
     plu       2036  0.0  1.7  22392 17948 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::ZzZzZzzz)
     plu       2037  0.0  1.7  22392 17956 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::long_running_ZzZzZzzz)
 
-=cut
-
-sub process_name {
-    return 0;
-}
-
 =head2 override_attributes
 
 If this method is overridden in the subclass it will change B<all>
@@ -269,12 +242,6 @@ containing valid L<attribute keys|/METHODATTRIBUTES>. E.g.:
         my ( $self, $job, $workload ) = @_;
         # This will get MinChilds(1) MaxChilds(1) from override_attributes
     }
-
-=cut
-
-sub override_attributes {
-    return {};
-}
 
 =head2 default_attributes
 
@@ -302,22 +269,6 @@ you want to Encode/Decode all your jobs:
     sub job1 : Job {
         my ( $self, $job, $workload ) = @_;
     }
-
-=cut
-
-sub default_attributes {
-    return {};
-}
-
-sub decode {
-    my ( $self, $result ) = @_;
-    return $result;
-}
-
-sub encode {
-    my ( $self, $result ) = @_;
-    return $result;
-}
 
 no Moose;
 
