@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 16;
+use Test::More tests => 17;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -117,4 +117,9 @@ for ( 1 .. 5 ) {
     sleep(3);    # wait for the worker being restarted
     my ( $ret, $string ) = $gc->do( 'Live::NS1::Basic::quit' => 'foo' );
     is( $string, 'i am back', 'Worker child restarted after exit' );
+}
+
+{
+    my ( $ret, $string ) = $gc->do( 'Live::job' => 'some workload ...' );
+    is( $string, 'ok', 'loaded root namespace' );
 }

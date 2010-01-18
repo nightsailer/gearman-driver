@@ -508,7 +508,13 @@ sub _load_namespaces {
     my @modules = ();
     foreach my $ns ( $self->get_namespaces ) {
         my @modules_ns = useall $ns;
+
+        # Module::Find::useall($ns) does not load $ns itself
+        eval "use $ns";
+        push @modules_ns, $ns unless $@;
+
         push @modules, @modules_ns;
+
         $self->log->debug("Module found in namespace '$ns': $_") for @modules_ns;
     }
 
