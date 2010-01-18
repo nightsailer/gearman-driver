@@ -558,14 +558,16 @@ sub _has_job_method {
 
 sub _start_observer {
     my ($self) = @_;
-    $self->{observer} = Gearman::Driver::Observer->new(
-        callback => sub {
-            my ($status) = @_;
-            $self->_observer_callback($status);
-        },
-        interval => $self->interval,
-        server   => $self->server,
-    );
+    if ($self->interval > 0) {
+        $self->{observer} = Gearman::Driver::Observer->new(
+            callback => sub {
+                my ($status) = @_;
+                $self->_observer_callback($status);
+            },
+            interval => $self->interval,
+            server   => $self->server,
+        );
+    }
 }
 
 sub _observer_callback {
