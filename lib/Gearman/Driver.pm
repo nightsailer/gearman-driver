@@ -664,6 +664,10 @@ __PACKAGE__->meta->make_immutable;
 
 Johannes Plunien E<lt>plu@cpan.orgE<gt>
 
+=head1 CONTRIBUTORS
+
+Uwe Voelker, <uwe.voelker@gmx.de>
+
 =head1 COPYRIGHT AND LICENSE
 
 Copyright 2009 by Johannes Plunien
