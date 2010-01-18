@@ -20,12 +20,13 @@ requires(
 );
 
 test_requires(
-    'Test::More'  => 0,
-    'File::Temp'  => 0,
-    'File::Slurp' => 0,
+    'Test::Exception' => 0,
+    'Test::More'      => 0,
+    'File::Temp'      => 0,
+    'File::Slurp'     => 0,
 );
 
-install_script(glob('script/*.pl'));
+install_script( glob('script/*.pl') );
 
 auto_install;
 WriteAll;
