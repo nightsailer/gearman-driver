@@ -440,8 +440,54 @@ has '+logger' => ( traits => [qw(NoGetopt)] );
 
 =head1 METHODS
 
-Every method except L<run|/run> might only be interesting for
-people subclassing L<Gearman::Driver>.
+=head2 add_job
+
+There's one mandatory param (hashref) with following keys:
+
+=over 4
+
+=item * method
+
+Reference to a L<Class::MOP::Method> object which will get invoked.
+
+=item * min_childs
+
+Minimum number of childs that should be forked.
+
+=item * max_childs
+
+Maximum number of childs that may be forked.
+
+=item * name
+
+Job name/alias that method should be registered with Gearman.
+
+=item * object
+
+Object that should be passed as first parameter to the job method.
+
+=back
+
+=cut
+
+sub add_job {
+    my ( $self, $params ) = @_;
+
+    # TODO: validate $params
+    my $job = Gearman::Driver::Job->new(
+        driver     => $self,
+        max_childs => $params->{max_childs},
+        method     => $params->{method},
+        min_childs => $params->{min_childs},
+        name       => $params->{name},
+        server     => $self->server,
+        worker     => $params->{object},
+    );
+
+    $self->_set_job( $params->{name} => $job );
+
+    $self->log->debug( sprintf "Added new job: %s (childs: %d)", $params->{name}, $params->{min_childs} );
+}
 
 =head2 run
 
@@ -558,7 +604,7 @@ sub _has_job_method {
 
 sub _start_observer {
     my ($self) = @_;
-    if ($self->interval > 0) {
+    if ( $self->interval > 0 ) {
         $self->{observer} = Gearman::Driver::Observer->new(
             callback => sub {
                 my ($status) = @_;
@@ -629,34 +675,44 @@ sub _on_sig {
 
 sub _start {
     $_[KERNEL]->sig( $_ => 'got_sig' ) for qw(INT QUIT ABRT KILL TERM);
+    $_[OBJECT]->_add_jobs;
     $_[OBJECT]->_start_jobs;
+}
+
+sub _add_jobs {
+    my ($self) = @_;
+
+    foreach my $module ( $self->get_modules ) {
+        my $worker = $module->new( server => $self->server );
+
+        foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
+            apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
+
+            $method->default_attributes( $worker->default_attributes );
+            $method->override_attributes( $worker->override_attributes );
+
+            next unless $method->has_attribute('Job');
+
+            $self->add_job(
+                {
+                    name       => $worker->prefix . $method->name,
+                    method     => $method,
+                    object     => $worker,
+                    min_childs => $method->get_attribute('MinChilds'),
+                    max_childs => $method->get_attribute('MaxChilds'),
+                }
+            );
+        }
+
+    }
 }
 
 sub _start_jobs {
     my ($self) = @_;
 
-    foreach my $module ( $self->get_modules ) {
-        my $worker = $module->new( server => $self->server );
-        foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
-            apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
-            $method->default_attributes( $worker->default_attributes );
-            $method->override_attributes( $worker->override_attributes );
-            next unless $method->has_attribute('Job');
-            my $name = $worker->prefix . $method->name;
-            my $job  = Gearman::Driver::Job->new(
-                driver     => $self,
-                method     => $method,
-                name       => $name,
-                worker     => $worker,
-                server     => $self->server,
-                min_childs => $method->get_attribute('MinChilds'),
-                max_childs => $method->get_attribute('MaxChilds'),
-            );
-            for ( 1 .. $method->get_attribute('MinChilds') ) {
-                $job->add_child();
-            }
-            $self->_set_job( $name => $job );
-            $self->log->debug( sprintf "Added new job: $name (childs: %d)", $method->get_attribute('MinChilds') );
+    foreach my $job ( $self->get_jobs ) {
+        for ( 1 .. $job->min_childs ) {
+            $job->add_child();
         }
     }
 }

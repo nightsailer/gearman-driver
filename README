@@ -230,8 +230,23 @@ INTERNAL ATTRIBUTES
     * readonly: "True"
 
 METHODS
-    Every method except run might only be interesting for people subclassing
-    Gearman::Driver.
+  add_job
+    There's one mandatory param (hashref) with following keys:
+
+    * method
+        Reference to a Class::MOP::Method object which will get invoked.
+
+    * min_childs
+        Minimum number of childs that should be forked.
+
+    * max_childs
+        Maximum number of childs that may be forked.
+
+    * name
+        Job name/alias that method should be registered with Gearman.
+
+    * object
+        Object that should be passed as first parameter to the job method.
 
   run
     This must be called after the Gearman::Driver object is instantiated.
