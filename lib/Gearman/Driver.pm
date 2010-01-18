@@ -481,13 +481,16 @@ Returns the job instance.
 
 sub BUILD {
     my ($self) = @_;
+    $self->_setup;
+}
+
+sub _setup {
+    my ($self) = @_;
     push @INC, @{ $self->lib };
     $self->_setup_logger;
     $self->_load_namespaces;
     $self->_start_observer;
     $self->_start_session;
-
-    # $self->_start_jobs;
 }
 
 sub _setup_logger {
