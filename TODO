@@ -1,7 +1,7 @@
 * write more tests
 * write more docs
 * add more examples
-* support MinChilds(0) MaxChilds(n)
+* cleanup test mess
 
 * implement some shared stash with different backends (e.g. memcached) to have
   shared data across multiple worker childs (running on multiple servers). Some

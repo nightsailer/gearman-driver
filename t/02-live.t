@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 25;
+use Test::More tests => 28;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -162,4 +162,29 @@ for ( 1 .. 5 ) {
         'Begin/end blocks in worker have been run'
     );
     unlink $filename;
+}
+
+# i hope this assumption is always true:
+# out of 1000 jobs all 10 childs handled at least one job
+{
+    my %pids = ();
+    for ( 1 .. 1000 ) {
+        my ( $ret, $pid ) = $gc->do( 'Live::NS3::AddJob::ten_childs' => '' );
+        $pids{$pid}++;
+    }
+    is( scalar( keys(%pids) ), 10, "10 different childs handled job 'Live::NS3::AddJob::ten_childs'" );
+}
+
+{
+    $gc->do_background( 'Live::NS3::AddJob::sleeper' => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
+
+    my ( $ret, $time ) = $gc->do( 'Live::NS3::AddJob::sleeper' => '0:' . time );
+    ok( $time <= 2, 'Job "Live::NS3::AddJob::sleeper" returned in less than 2 seconds' );
+}
+
+{
+    $gc->do_background( 'Live::NS3::AddJob::sleeper' => '4:' . time );               # block last slot for another 4 secs
+
+    my ( $ret, $time ) = $gc->do( 'Live::NS3::AddJob::sleeper' => '0:' . time );
+    ok( $time >= 2, 'Job "Live::NS3::AddJob::sleeper" returned in more than 2 seconds' );
 }

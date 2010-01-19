@@ -46,4 +46,20 @@ sub custom_decode {
     return "CUSTOMDECODE::${workload}::CUSTOMDECODE";
 }
 
+sub pid {
+    return $$;
+}
+
+sub ten_childs {
+    my ( $self, $job, $workload ) = @_;
+    return $self->pid;
+}
+
+sub sleeper {
+    my ( $self, $job, $workload ) = @_;
+    my ( $sleep, $time ) = split /:/, $job->workload;
+    sleep($sleep) if $sleep;
+    return time - $time;
+}
+
 1;
