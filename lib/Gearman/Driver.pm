@@ -158,6 +158,7 @@ returns a sorted list of all namespaces.
 =cut
 
 has 'namespaces' => (
+    default       => sub              { [] },
     documentation => 'Example: --namespaces My::Workers --namespaces My::OtherWorkers',
     handles       => { get_namespaces => 'sort' },
     is            => 'rw',
