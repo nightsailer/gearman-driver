@@ -478,8 +478,8 @@ Object that should be passed as first parameter to the job method.
 =back
 
 Basically you never really need this method if you use
-L</namespaces>. But this depends on method attributes which some
-people do hate. In this case, feel free to setup Gearman::Driver
+L</namespaces>. But L</namespaces> depend on method attributes which
+some people do hate. In this case, feel free to setup your C<$driver>
 this way:
 
     package My::Workers::One;

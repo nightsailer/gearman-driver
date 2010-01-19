@@ -256,8 +256,8 @@ METHODS
         Object that should be passed as first parameter to the job method.
 
     Basically you never really need this method if you use "namespaces". But
-    this depends on method attributes which some people do hate. In this
-    case, feel free to setup Gearman::Driver this way:
+    "namespaces" depend on method attributes which some people do hate. In
+    this case, feel free to setup your $driver this way:
 
         package My::Workers::One;
 
