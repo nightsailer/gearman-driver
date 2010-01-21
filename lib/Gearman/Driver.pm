@@ -10,6 +10,7 @@ use Log::Log4perl qw(:easy);
 use Module::Find;
 use MooseX::Types::Path::Class;
 use POE;
+use Try::Tiny;
 with qw(MooseX::Log::Log4perl MooseX::Getopt);
 
 our $VERSION = '0.01010';
@@ -712,7 +713,9 @@ sub _load_namespaces {
     }
 
     foreach my $module (@modules) {
-        Class::MOP::load_class($module);
+        try {
+            Class::MOP::load_class($module);
+        };
         next unless $self->_is_valid_worker_subclass($module);
         next unless $self->_has_job_method($module);
         $self->_add_module($module);

@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More tests => 3;
 use Test::Exception;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -48,4 +48,15 @@ POE::Kernel->run();
         [ 'Live::NS2::BeginEnd', 'Live::NS2::Ping1', 'Live::NS2::Ping2', 'Live::NS2::UseBase' ],
         'load namespaces with filter'
     );
+}
+
+{
+    my $driver = Gearman::Driver->new(
+        interval   => 0,
+        namespaces => [qw(DoesNotExist)],
+    );
+
+    $driver->_load_namespaces;
+
+    is_deeply( [ $driver->get_modules ], [], 'empty namespace' );
 }
