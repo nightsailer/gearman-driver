@@ -291,9 +291,11 @@ it under the same terms as Perl itself.
 
 =item * L<Gearman::Driver>
 
-=item * L<Gearman::Driver::Observer>
+=item * L<Gearman::Driver::Console>
 
 =item * L<Gearman::Driver::Job>
+
+=item * L<Gearman::Driver::Observer>
 
 =back
 

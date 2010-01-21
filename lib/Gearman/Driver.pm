@@ -5,6 +5,7 @@ use Moose::Util qw(apply_all_roles);
 use Class::MOP;
 use Carp qw(croak);
 use Gearman::Driver::Observer;
+use Gearman::Driver::Console;
 use Gearman::Driver::Job;
 use Log::Log4perl qw(:easy);
 use Module::Find;
@@ -264,6 +265,28 @@ has 'server' => (
     required      => 1,
 );
 
+=head2 console_port
+
+TODO: Add docs
+
+=over 4
+
+=item * default: C<47300>
+
+=item * isa: C<Int>
+
+=back
+
+=cut
+
+has 'console_port' => (
+    default       => 47300,
+    documentation => 'Port of management console (default: 47300)',
+    is            => 'rw',
+    isa           => 'Int',
+    required      => 1,
+);
+
 =head2 interval
 
 Each n seconds L<Net::Telnet::Gearman> is used in
@@ -510,6 +533,26 @@ has 'observer' => (
     traits => [qw(NoGetopt)],
 );
 
+=head2 console
+
+Instance of L<Gearman::Driver::Console>.
+
+=over 4
+
+=item * isa: C<Gearman::Driver::Console>
+
+=item * readonly: C<True>
+
+=back
+
+=cut
+
+has 'console' => (
+    is     => 'ro',
+    isa    => 'Gearman::Driver::Console',
+    traits => [qw(NoGetopt)],
+);
+
 has '+logger' => ( traits => [qw(NoGetopt)] );
 
 =head1 METHODS
@@ -646,6 +689,7 @@ sub run {
     push @INC, @{ $self->lib };
     $self->_load_namespaces;
     $self->_start_observer;
+    $self->_start_console;
     $self->_start_session;
     POE::Kernel->run();
 }
@@ -752,6 +796,14 @@ sub _start_observer {
             server   => $self->server,
         );
     }
+}
+
+sub _start_console {
+    my ($self) = @_;
+    $self->{console} = Gearman::Driver::Console->new(
+        driver => $self,
+        port   => $self->console_port,
+    );
 }
 
 sub _observer_callback {
@@ -889,9 +941,11 @@ it under the same terms as Perl itself.
 
 =over 4
 
-=item * L<Gearman::Driver::Observer>
+=item * L<Gearman::Driver::Console>
 
 =item * L<Gearman::Driver::Job>
+
+=item * L<Gearman::Driver::Observer>
 
 =item * L<Gearman::Driver::Worker>
 
