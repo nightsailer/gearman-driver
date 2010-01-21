@@ -38,6 +38,7 @@ for ( 1 .. 5 ) {
     for ( 1 .. 10000 ) {
         my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_childs' => '' );
         $pids{$pid}++;
+        last if scalar( keys(%pids) ) == 10;
     }
     is( scalar( keys(%pids) ), 10, "10 different childs handled job 'ten_childs'" );
 }
@@ -169,8 +170,9 @@ for ( 1 .. 5 ) {
 {
     my %pids = ();
     for ( 1 .. 10000 ) {
-        my ( $ret, $pid ) = $gc->do( 'Live::NS3::AddJob::ten_childs' => '' );
+        my ( $ret, $pid ) = $gc->do( 'Live::NS3::AddJob::ten_childs' => 'xxx' );
         $pids{$pid}++;
+        last if scalar( keys(%pids) ) == 10;
     }
     is( scalar( keys(%pids) ), 10, "10 different childs handled job 'Live::NS3::AddJob::ten_childs'" );
 }
@@ -183,7 +185,7 @@ for ( 1 .. 5 ) {
 }
 
 {
-    $gc->do_background( 'Live::NS3::AddJob::sleeper' => '4:' . time );               # block last slot for another 4 secs
+    $gc->do_background( 'Live::NS3::AddJob::sleeper' => '4:' . time );    # block last slot for another 4 secs
 
     my ( $ret, $time ) = $gc->do( 'Live::NS3::AddJob::sleeper' => '0:' . time );
     ok( $time >= 2, 'Job "Live::NS3::AddJob::sleeper" returned in more than 2 seconds' );
