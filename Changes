@@ -1,6 +1,6 @@
 Revision history for Gearman-Driver
 
-0.01010     TBD
+0.01010     Thu Jan 21 2010
             - Fix no namespaces handling
             - Use Try::Tiny in Gearman::Driver::Job instead of eval
             - Add 'wanted' attribute to filter worker classes
