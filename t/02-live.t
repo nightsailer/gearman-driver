@@ -32,10 +32,10 @@ for ( 1 .. 5 ) {
 }
 
 # i hope this assumption is always true:
-# out of 1000 jobs all 10 childs handled at least one job
+# out of 10000 jobs all 10 childs handled at least one job
 {
     my %pids = ();
-    for ( 1 .. 1000 ) {
+    for ( 1 .. 10000 ) {
         my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_childs' => '' );
         $pids{$pid}++;
     }
@@ -165,10 +165,10 @@ for ( 1 .. 5 ) {
 }
 
 # i hope this assumption is always true:
-# out of 1000 jobs all 10 childs handled at least one job
+# out of 10000 jobs all 10 childs handled at least one job
 {
     my %pids = ();
-    for ( 1 .. 1000 ) {
+    for ( 1 .. 10000 ) {
         my ( $ret, $pid ) = $gc->do( 'Live::NS3::AddJob::ten_childs' => '' );
         $pids{$pid}++;
     }
