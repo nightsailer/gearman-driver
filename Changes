@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - Ensure enough childs running each 5 seconds (not
+              depending on usage of Gearman::Driver::Observer)
             - Fix broken module loading
 
 0.01010     Thu Jan 21 2010

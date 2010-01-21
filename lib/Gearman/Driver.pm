@@ -772,11 +772,6 @@ sub _observer_callback {
                 $self->log->debug( sprintf "Stopping %d child(s) of type %s", $stop, $row->{name} );
                 $job->remove_child for 1 .. $stop;
             }
-            elsif ( $job->count_childs < $job->min_childs ) {
-                my $start = $job->min_childs - $job->count_childs;
-                $self->log->debug( sprintf "Starting %d new child(s) of type %s", $start, $row->{name} );
-                $job->add_child for 1 .. $start;
-            }
         }
         else {
             $self->unknown_job_callback->( $self, $row ) if $row->{queue} > 0;
@@ -789,8 +784,9 @@ sub _start_session {
     POE::Session->create(
         object_states => [
             $self => {
-                _start  => '_start',
-                got_sig => '_on_sig',
+                _start         => '_start',
+                got_sig        => '_on_sig',
+                monitor_childs => '_monitor_childs',
             }
         ]
     );
@@ -815,6 +811,7 @@ sub _start {
     $_[KERNEL]->sig( $_ => 'got_sig' ) for qw(INT QUIT ABRT KILL TERM);
     $_[OBJECT]->_add_jobs;
     $_[OBJECT]->_start_jobs;
+    $_[KERNEL]->delay( monitor_childs => 5 );
 }
 
 sub _add_jobs {
@@ -855,6 +852,18 @@ sub _start_jobs {
             $job->add_child();
         }
     }
+}
+
+sub _monitor_childs {
+    my $self = $_[OBJECT];
+    foreach my $job ( $self->get_jobs ) {
+        if ( $job->count_childs < $job->min_childs ) {
+            my $start = $job->min_childs - $job->count_childs;
+            $self->log->debug( sprintf "Starting %d new child(s) of type %s", $start, $job->name );
+            $job->add_child for 1 .. $start;
+        }
+    }
+    $_[KERNEL]->delay( monitor_childs => 5 );
 }
 
 no Moose;
