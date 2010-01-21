@@ -11,6 +11,7 @@ has 'fh'       => ( is => 'ro' );
 
 sub begin {
     my ( $self, $job, $workload ) = @_;
+    return unless $job->function_name eq 'Live::NS3::AddJob::begin_end';
     my ( $fh, $filename ) = tempfile( CLEANUP => 0 );
     print $fh "begin $workload\n";
     $self->{fh}       = $fh;
@@ -19,12 +20,13 @@ sub begin {
 
 sub end {
     my ( $self, $job, $workload ) = @_;
+    return unless $job->function_name eq 'Live::NS3::AddJob::begin_end';
     my $fh = $self->{fh};
     print $fh "end $workload\n";
     close $fh;
 }
 
-sub job2 {
+sub begin_end {
     my ( $self, $job, $workload ) = @_;
     my $fh = $self->{fh};
     print $fh "job $workload\n";

@@ -3,7 +3,6 @@ package    # hide from PAUSE
 
 use base qw(Gearman::Driver::Worker);
 use Moose;
-use File::Temp qw(tempfile);
 
 sub begin {
     my ( $self, $job, $workload ) = @_;

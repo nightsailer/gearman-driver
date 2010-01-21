@@ -25,9 +25,9 @@ $driver->add_job(
 $driver->add_job(
     {
         max_childs => 1,
-        method     => $w1->meta->find_method_by_name('job2')->body,
+        method     => $w1->meta->find_method_by_name('begin_end')->body,
         min_childs => 1,
-        name       => 'Live::NS3::AddJob::job2',
+        name       => 'Live::NS3::AddJob::begin_end',
         object     => $w1,
     }
 );

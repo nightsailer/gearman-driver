@@ -99,6 +99,7 @@ for ( 1 .. 5 ) {
     sleep(2);
     my $text = read_file($filename);
     is( $text, "begin ...\nend ...\n", 'Begin/end blocks in worker have been run, even if the job dies' );
+    unlink $filename;
 }
 
 {
@@ -111,6 +112,7 @@ for ( 1 .. 5 ) {
     my ( $ret, $nothing ) = $gc->do( 'Live::NS2::UseBase::job' => $filename );
     my $text = read_file($filename);
     is( $text, "begin ...\njob ...\nend ...\n", 'Begin/end blocks in worker base class have been run' );
+    unlink $filename;
 }
 
 {
@@ -155,7 +157,7 @@ for ( 1 .. 5 ) {
 }
 
 {
-    my ( $ret, $filename ) = $gc->do( 'Live::NS3::AddJob::job2' => 'some workload ...' );
+    my ( $ret, $filename ) = $gc->do( 'Live::NS3::AddJob::begin_end' => 'some workload ...' );
     my $text = read_file($filename);
     is(
         $text,
