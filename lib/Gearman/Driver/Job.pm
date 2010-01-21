@@ -4,6 +4,7 @@ use Moose;
 use Gearman::XS::Worker;
 use Gearman::XS qw(:constants);
 use POE qw(Wheel::Run);
+use Try::Tiny;
 
 =head1 NAME
 
@@ -146,8 +147,14 @@ sub BUILD {
 
         $self->worker->begin(@args);
 
-        my $result = eval { $self->method->( $self->worker, @args ) };
-        my $error = $@;
+        my $error;
+        my $result;
+        try {
+            $result = $self->method->( $self->worker, @args );
+        }
+        catch {
+            $error = $_;
+        };
 
         $self->worker->end(@args);
 

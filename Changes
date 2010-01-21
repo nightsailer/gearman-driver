@@ -2,6 +2,7 @@ Revision history for Gearman-Driver
 
 0.01010     TBD
             - Fix no namespaces handling
+            - Use Try::Tiny in Gearman::Driver::Job instead of eval
 
 0.01009     Tue Jan 19 2010
             - Refactor add_job method

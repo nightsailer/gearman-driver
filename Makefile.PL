@@ -17,6 +17,7 @@ requires(
     'MooseX::Types::Path::Class' => '0.05',
     'Net::Telnet::Gearman'       => '0.01000',
     'POE'                        => '1.280',
+    'Try::Tiny'                  => '0.02',
 );
 
 test_requires(
