@@ -33,7 +33,7 @@ be used with a standard telnet client. It's possible to list all
 running worker processes as well as changing min/max processes
 on runtime.
 
-Each successful L<command|/COMMANDS> ends with a colon. If a
+Each successful L<command|/COMMANDS> ends with a dot. If a
 command throws an error, a line starting with 'ERR' will be
 returned.
 
