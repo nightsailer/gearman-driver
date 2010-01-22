@@ -177,7 +177,9 @@ ATTRIBUTES
     * isa: "Str"
 
   console_port
-    TODO: Add docs
+    Gearman::Driver has a telnet management console, see also:
+
+    Gearman::Driver::Console
 
     * default: 47300
     * isa: "Int"
