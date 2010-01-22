@@ -116,7 +116,7 @@ sub set_max_childs {
 
     my $job = $self->driver->get_job($job_name) || die "ERR invalid_job_name: $job_name\n";
 
-    $job->min_childs($min_childs);
+    $job->max_childs($max_childs);
 
     return "OK";
 }
