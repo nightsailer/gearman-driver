@@ -10,11 +10,32 @@ Gearman::Driver::Console - Management console
 
 =head1 SYNOPSIS
 
-TODO: Add docs | telnet localhost 47300 etc
+    $ ~/Gearman-Driver$ ./examples/driver.pl --console_port 12345 &
+    [1] 32890
+    $ ~/Gearman-Driver$ telnet localhost 12345
+    Trying ::1...
+    telnet: connect to address ::1: Connection refused
+    Trying fe80::1...
+    telnet: connect to address fe80::1: Connection refused
+    Trying 127.0.0.1...
+    Connected to localhost.
+    Escape character is '^]'.
+    status
+    GDExamples::Sleeper::ZzZzZzzz   3       6       3
+    GDExamples::Sleeper::long_running_ZzZzZzzz      1       2       1
+    GDExamples::WWW::is_online      0       1       0
+    .
 
 =head1 DESCRIPTION
 
-TODO: Add docs
+By default L<Gearman::Driver> opens a management console which can
+be used with a standard telnet client. It's possible to list all
+running worker processes as well as changing min/max processes
+on runtime.
+
+Each successful L<command|/COMMANDS> ends with a colon. If a
+command throws an error, a line starting with 'ERR' will be
+returned.
 
 =cut
 
@@ -57,6 +78,8 @@ sub BUILD {
                     $heap->{client}->put($_);
                 };
             }
+            elsif ($command eq 'quit') {
+            }
             else {
                 $heap->{client}->put("ERR unknown_command: $command");
             }
@@ -68,7 +91,26 @@ sub BUILD {
 
 =head2 status
 
-  name min_childs max_childs current_childs
+Parameters: C<none>
+
+    GDExamples::Sleeper::ZzZzZzzz   3       6       3
+    GDExamples::Sleeper::long_running_ZzZzZzzz      1       2       1
+    GDExamples::WWW::is_online      0       1       0
+    .
+
+Columns are separated by tabs in this order:
+
+=over 4
+
+=item * job_name
+
+=item * min_childs
+
+=item * max_childs
+
+=item * current_childs
+
+=back
 
 =cut
 
@@ -83,18 +125,32 @@ sub status {
 
 =head2 set_min_childs
 
-  set_min_childs $job_name $min_childs_value
+Parameters: C<job_name min_childs>
+
+    set_min_childs asdf 5
+    ERR invalid_job_name: asdf
+    set_min_childs GDExamples::Sleeper::ZzZzZzzz ten
+    ERR invalid_value: min_childs must be >= 0
+    set_min_childs GDExamples::Sleeper::ZzZzZzzz 10
+    ERR invalid_value: min_childs must be smaller than max_childs
+    set_min_childs GDExamples::Sleeper::ZzZzZzzz 5
+    OK
+    .
 
 =cut
 
 sub set_min_childs {
     my ( $self, $job_name, $min_childs ) = @_;
 
+    my $job = $self->_get_job($job_name);
+
     if ( !defined($min_childs) or $min_childs !~ /^\d+$/ or $min_childs < 0 ) {
-        die "ERR invalid_value: minchilds must be greater than 0\n";
+        die "ERR invalid_value: min_childs must be >= 0\n";
     }
 
-    my $job = $self->driver->get_job($job_name) || die "ERR invalid_job_name: $job_name\n";
+    if ( $min_childs > $job->max_childs ) {
+        die "ERR invalid_value: min_childs must be smaller than max_childs\n";
+    }
 
     $job->min_childs($min_childs);
 
@@ -103,22 +159,49 @@ sub set_min_childs {
 
 =head2 set_max_childs
 
-  set_max_childs $job_name $max_childs_value
+Parameters: C<job_name max_childs>
+
+    set_max_childs asdf 5
+    ERR invalid_job_name: asdf
+    set_max_childs GDExamples::Sleeper::ZzZzZzzz ten
+    ERR invalid_value: max_childs must be >= 0
+    set_max_childs GDExamples::Sleeper::ZzZzZzzz 0
+    ERR invalid_value: max_childs must be greater than min_childs
+    set_max_childs GDExamples::Sleeper::ZzZzZzzz 6
+    OK
+    .
 
 =cut
 
 sub set_max_childs {
     my ( $self, $job_name, $max_childs ) = @_;
 
+    my $job = $self->_get_job($job_name);
+
     if ( !defined($max_childs) or $max_childs !~ /^\d+$/ or $max_childs < 0 ) {
         die "ERR invalid_value: max_childs must be >= 0\n";
     }
 
-    my $job = $self->driver->get_job($job_name) || die "ERR invalid_job_name: $job_name\n";
+    if ( $max_childs < $job->min_childs ) {
+        die "ERR invalid_value: max_childs must be greater than min_childs\n";
+    }
 
     $job->max_childs($max_childs);
 
     return "OK";
+}
+
+=head2 quit
+
+Parameters: C<none>
+
+Closes your connection gracefully.
+
+=cut
+
+sub _get_job {
+    my ( $self, $job_name ) = @_;
+    return $self->driver->get_job($job_name) || die "ERR invalid_job_name: $job_name\n";
 }
 
 no Moose;

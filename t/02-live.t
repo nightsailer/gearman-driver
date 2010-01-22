@@ -1,11 +1,12 @@
 use strict;
 use warnings;
-use Test::More tests => 28;
+use Test::More tests => 29;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
 use File::Slurp;
 use File::Temp qw(tempfile);
+use Net::Telnet;
 
 my $test = TestLib->new();
 my $gc   = $test->gearman_client;
@@ -41,6 +42,28 @@ for ( 1 .. 5 ) {
         last if scalar( keys(%pids) ) == 10;
     }
     is( scalar( keys(%pids) ), 10, "10 different childs handled job 'ten_childs'" );
+}
+
+# Let's change min/max childs via console
+{
+    my $telnet = Net::Telnet->new(
+        Timeout => 5,
+        Host    => '127.0.0.1',
+        Port    => 47300,
+    );
+    $telnet->open;
+    $telnet->print('set_min_childs Live::NS1::Basic::ten_childs 5');
+    $telnet->print('set_max_childs Live::NS1::Basic::ten_childs 5');
+    my %pids = ();
+    for ( 1 .. 10000 ) {
+        my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_childs' => '' );
+        $pids{$pid}++;
+        last if scalar( keys(%pids) ) == 5;
+    }
+    is( scalar( keys(%pids) ), 5, "5 different childs handled job 'ten_childs'" );
+    $telnet->print('set_min_childs Live::NS1::Basic::ten_childs 10');
+    $telnet->print('set_max_childs Live::NS1::Basic::ten_childs 10');
+    $telnet->close;
 }
 
 {

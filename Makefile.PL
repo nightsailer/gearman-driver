@@ -21,10 +21,11 @@ requires(
 );
 
 test_requires(
+    'File::Slurp'     => 0,
+    'File::Temp'      => 0,
+    'Net::Telnet'     => 0,
     'Test::Exception' => 0,
     'Test::More'      => 0,
-    'File::Temp'      => 0,
-    'File::Slurp'     => 0,
 );
 
 install_script( glob('script/*.pl') );
