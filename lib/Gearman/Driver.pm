@@ -267,7 +267,9 @@ has 'server' => (
 
 =head2 console_port
 
-TODO: Add docs
+Gearman::Driver has a telnet management console, see also:
+
+L<Gearman::Driver::Console>
 
 =over 4
 
