@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+0.01011     - Fri Jan 22 2010
+            - Implement management console
             - Ensure enough childs running each 5 seconds (not
               depending on usage of Gearman::Driver::Observer)
             - Fix broken module loading
