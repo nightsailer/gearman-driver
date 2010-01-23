@@ -35,7 +35,7 @@ Gearman::Driver - Manages Gearman workers
     }
 
     # this method will be registered with gearmand as 'My::Workers::One::do_something_else'
-    sub do_something_else : Job : MinChilds(2) : MaxChilds(15) {
+    sub do_something_else : Job : MinProcesses(2) : MaxProcesses(15) {
         my ( $self, $job, $workload ) = @_;
         # do something
     }
@@ -294,7 +294,7 @@ has 'console_port' => (
 Each n seconds L<Net::Telnet::Gearman> is used in
 L<Gearman::Driver::Observer> to check status of free/running/busy
 workers on gearmand. This is used to fork more workers depending
-on the queue size and the MinChilds/MaxChilds
+on the queue size and the MinProcesses/MaxProcesses
 L<attribute|Gearman::Driver::Worker/METHODATTRIBUTES> of the
 job method. See also: L<Gearman::Driver::Worker>
 
@@ -577,13 +577,13 @@ Name of a encoder method in your worker object.
 
 Reference to a L<Class::MOP::Method> object which will get invoked.
 
-=item * min_childs (mandatory)
+=item * min_processes (mandatory)
 
-Minimum number of childs that should be forked.
+Minimum number of processes that should be forked.
 
-=item * max_childs (mandatory)
+=item * max_processes (mandatory)
 
-Maximum number of childs that may be forked.
+Maximum number of processes that may be forked.
 
 =item * name (mandatory)
 
@@ -643,13 +643,13 @@ this way:
 
     foreach my $method (qw(scale_image do_something_else)) {
         $driver->add_job(
-            decode     => 'decode_json',
-            encode     => 'encode_json',
-            max_childs => 5,
-            method     => $worker->meta->find_method_by_name($method)->body,
-            min_childs => 1,
-            name       => $method,
-            object     => $worker,
+            decode        => 'decode_json',
+            encode        => 'encode_json',
+            max_processes => 5,
+            method        => $worker->meta->find_method_by_name($method)->body,
+            min_processes => 1,
+            name          => $method,
+            object        => $worker,
         );
     }
 
@@ -661,21 +661,24 @@ this way:
 sub add_job {
     my ( $self, $params ) = @_;
 
+    $params->{max_processes} = delete $params->{max_childs} if defined $params->{max_childs};
+    $params->{min_processes} = delete $params->{min_childs} if defined $params->{min_childs};
+
     my $job = Gearman::Driver::Job->new(
-        driver     => $self,
-        decode     => $params->{decode} || '',
-        encode     => $params->{encode} || '',
-        max_childs => $params->{max_childs},
-        method     => $params->{method},
-        min_childs => $params->{min_childs},
-        name       => $params->{name},
-        server     => $self->server,
-        worker     => $params->{object},
+        driver        => $self,
+        decode        => $params->{decode} || '',
+        encode        => $params->{encode} || '',
+        max_processes => $params->{max_processes},
+        method        => $params->{method},
+        min_processes => $params->{min_processes},
+        name          => $params->{name},
+        server        => $self->server,
+        worker        => $params->{object},
     );
 
     $self->_set_job( $params->{name} => $job );
 
-    $self->log->debug( sprintf "Added new job: %s (childs: %d)", $params->{name}, $params->{min_childs} );
+    $self->log->debug( sprintf "Added new job: %s (processes: %d)", $params->{name}, $params->{min_processes} );
 
     return 1;
 }
@@ -812,19 +815,19 @@ sub _observer_callback {
     my ( $self, $status ) = @_;
     foreach my $row (@$status) {
         if ( my $job = $self->get_job( $row->{name} ) ) {
-            if ( $job->count_childs <= $row->{busy} && $row->{queue} ) {
+            if ( $job->count_processes <= $row->{busy} && $row->{queue} ) {
                 my $diff = $row->{queue} - $row->{busy};
-                my $free = $job->max_childs - $job->count_childs;
+                my $free = $job->max_processes - $job->count_processes;
                 if ($free) {
                     my $start = $diff > $free ? $free : $diff;
-                    $self->log->debug( sprintf "Starting %d new child(s) of type %s", $start, $row->{name} );
-                    $job->add_child for 1 .. $start;
+                    $self->log->debug( sprintf "Starting %d new process(es) of type %s", $start, $row->{name} );
+                    $job->add_process for 1 .. $start;
                 }
             }
-            elsif ( $job->count_childs && $job->count_childs > $job->min_childs && $row->{queue} == 0 ) {
-                my $stop = $job->count_childs - $job->min_childs;
-                $self->log->debug( sprintf "Stopping %d child(s) of type %s", $stop, $row->{name} );
-                $job->remove_child for 1 .. $stop;
+            elsif ( $job->count_processes && $job->count_processes > $job->min_processes && $row->{queue} == 0 ) {
+                my $stop = $job->count_processes - $job->min_processes;
+                $self->log->debug( sprintf "Stopping %d process(es) of type %s", $stop, $row->{name} );
+                $job->remove_process for 1 .. $stop;
             }
         }
         else {
@@ -838,9 +841,9 @@ sub _start_session {
     POE::Session->create(
         object_states => [
             $self => {
-                _start         => '_start',
-                got_sig        => '_on_sig',
-                monitor_childs => '_monitor_childs',
+                _start            => '_start',
+                got_sig           => '_on_sig',
+                monitor_processes => '_monitor_processes',
             }
         ]
     );
@@ -850,9 +853,9 @@ sub _on_sig {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
 
     foreach my $job ( $self->get_jobs ) {
-        foreach my $child ( $job->get_childs ) {
-            $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $job->name );
-            $child->kill();
+        foreach my $process ( $job->get_processes ) {
+            $self->log->info( sprintf '(%d) [%s] Process killed', $process->PID, $job->name );
+            $process->kill();
         }
     }
 
@@ -865,7 +868,7 @@ sub _start {
     $_[KERNEL]->sig( $_ => 'got_sig' ) for qw(INT QUIT ABRT KILL TERM);
     $_[OBJECT]->_add_jobs;
     $_[OBJECT]->_start_jobs;
-    $_[KERNEL]->delay( monitor_childs => 5 );
+    $_[KERNEL]->delay( monitor_processes => 5 );
 }
 
 sub _add_jobs {
@@ -884,13 +887,13 @@ sub _add_jobs {
 
             $self->add_job(
                 {
-                    decode     => $method->get_attribute('Decode'),
-                    encode     => $method->get_attribute('Encode'),
-                    max_childs => $method->get_attribute('MaxChilds'),
-                    method     => $method->body,
-                    min_childs => $method->get_attribute('MinChilds'),
-                    name       => $worker->prefix . $method->name,
-                    object     => $worker,
+                    decode        => $method->get_attribute('Decode'),
+                    encode        => $method->get_attribute('Encode'),
+                    max_processes => $method->get_attribute('MaxProcesses'),
+                    method        => $method->body,
+                    min_processes => $method->get_attribute('MinProcesses'),
+                    name          => $worker->prefix . $method->name,
+                    object        => $worker,
                 }
             );
         }
@@ -902,22 +905,22 @@ sub _start_jobs {
     my ($self) = @_;
 
     foreach my $job ( $self->get_jobs ) {
-        for ( 1 .. $job->min_childs ) {
-            $job->add_child();
+        for ( 1 .. $job->min_processes ) {
+            $job->add_process();
         }
     }
 }
 
-sub _monitor_childs {
+sub _monitor_processes {
     my $self = $_[OBJECT];
     foreach my $job ( $self->get_jobs ) {
-        if ( $job->count_childs < $job->min_childs ) {
-            my $start = $job->min_childs - $job->count_childs;
-            $self->log->debug( sprintf "Starting %d new child(s) of type %s", $start, $job->name );
-            $job->add_child for 1 .. $start;
+        if ( $job->count_processes < $job->min_processes ) {
+            my $start = $job->min_processes - $job->count_processes;
+            $self->log->debug( sprintf "Starting %d new process(es) of type %s", $start, $job->name );
+            $job->add_process for 1 .. $start;
         }
     }
-    $_[KERNEL]->delay( monitor_childs => 5 );
+    $_[KERNEL]->delay( monitor_processes => 5 );
 }
 
 no Moose;

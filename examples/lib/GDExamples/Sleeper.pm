@@ -19,7 +19,7 @@ sub end {
     print "$workload end called...\n";
 }
 
-sub ZzZzZzzz : Job : MinChilds(3) : MaxChilds(6) {
+sub ZzZzZzzz : Job : MinProcesses(3) : MaxProcesses(6) {
     my ( $self, $job, $workload ) = @_;
     my $time = 2;
     sleep($time);
@@ -31,7 +31,7 @@ sub output {
     print "$workload\n";
 }
 
-sub long_running_ZzZzZzzz : Job : MinChilds(1) : MaxChilds(2) {
+sub long_running_ZzZzZzzz : Job : MinProcesses(1) : MaxProcesses(2) {
     my ( $self, $job, $workload ) = @_;
     my $time = 4;
     sleep($time);

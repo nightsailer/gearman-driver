@@ -1,5 +1,5 @@
 package    # hide from PAUSE
-  Live::NS3::AddJob;
+  Live::NS3::AddJobChilds;
 
 use Moose;
 extends 'Gearman::Driver::Worker::Base';
@@ -11,7 +11,7 @@ has 'fh'       => ( is => 'ro' );
 
 sub begin {
     my ( $self, $job, $workload ) = @_;
-    return unless $job->function_name eq 'Live::NS3::AddJob::begin_end';
+    return unless $job->function_name eq 'Live::NS3::AddJobChilds::begin_end';
     my ( $fh, $filename ) = tempfile( CLEANUP => 0 );
     print $fh "begin $workload\n";
     $self->{fh}       = $fh;
@@ -20,7 +20,7 @@ sub begin {
 
 sub end {
     my ( $self, $job, $workload ) = @_;
-    return unless $job->function_name eq 'Live::NS3::AddJob::begin_end';
+    return unless $job->function_name eq 'Live::NS3::AddJobChilds::begin_end';
     my $fh = $self->{fh};
     print $fh "end $workload\n";
     close $fh;

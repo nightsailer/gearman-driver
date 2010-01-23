@@ -31,14 +31,17 @@ sub _parse_attributes {
 
     my $attributes = $self->attributes;
 
-    my @valid_attributes = qw(MinChilds MaxChilds Job Encode Decode);
+    my @valid_attributes = qw(
+      Encode Decode Job MaxChilds
+      MaxProcesses MinChilds MinProcesses
+    );
 
     my $result = {
-        Decode    => 0,
-        Encode    => 0,
-        Job       => 0,
-        MinChilds => 1,
-        MaxChilds => 1,
+        Decode       => 0,
+        Encode       => 0,
+        Job          => 0,
+        MinProcesses => 1,
+        MaxProcesses => 1,
     };
 
     foreach my $attr ( keys %{ $self->default_attributes } ) {
@@ -61,6 +64,8 @@ sub _parse_attributes {
             warn "Invalid attribute '$attr' in " . ref($self);
             next;
         }
+
+        $type =~ s/^(Min|Max)Childs$/$1Processes/;
 
         $result->{$type} = $value if defined $result->{$type};
     }

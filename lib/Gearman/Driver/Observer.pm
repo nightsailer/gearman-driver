@@ -13,7 +13,7 @@ Gearman::Driver::Observer - Observes Gearman status interface
 Each n seconds L<Net::Telnet::Gearman> is used to fetch status of
 free/running/busy workers from the Gearman server. L<Gearman::Driver>
 decides to fork more workers depending on the queue size and the
-MinChilds/MaxChilds attribute of the job methods.
+MinProcesses/MaxProcesses attribute of the job methods.
 
 Currently there's no public interface.
 

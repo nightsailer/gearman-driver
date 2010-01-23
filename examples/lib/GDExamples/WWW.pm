@@ -16,7 +16,7 @@ sub process_name {
     return "$orig ($job_name)";
 }
 
-sub is_online : Job : MinChilds(0) {
+sub is_online : Job : MinProcesses(0) {
     my ( $self, $job, $workload ) = @_;
     my $response = $self->ua->get($workload);
     printf "%s => %s\n", $workload, $response->status_line;

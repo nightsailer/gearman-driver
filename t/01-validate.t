@@ -13,10 +13,10 @@ my $driver = Gearman::Driver->new( interval => 0 );
 my %params = ();
 
 throws_ok { $driver->add_job( \%params ) }
-qr/Attribute \(min_childs\) does not pass the type constraint because: Validation failed for 'Int' failed with value undef/,
-  'min_childs undef';
+qr/Attribute \(max_processes\) does not pass the type constraint because: Validation failed for 'Int' failed with value undef/,
+  'max_processes undef';
 
-$params{min_childs} = 0;
+$params{max_processes} = 1;
 throws_ok { $driver->add_job( \%params ) }
 qr/Attribute \(method\) does not pass the type constraint because: Validation failed for 'CodeRef' failed with value undef/,
   'method undef';
@@ -28,8 +28,8 @@ qr/Attribute \(name\) does not pass the type constraint because: Validation fail
 
 $params{name} = 'some_job';
 throws_ok { $driver->add_job( \%params ) }
-qr/Attribute \(max_childs\) does not pass the type constraint because: Validation failed for 'Int' failed with value undef/,
-  'max_childs undef';
+qr/Attribute \(min_processes\) does not pass the type constraint because: Validation failed for 'Int' failed with value undef/,
+  'min_processes undef';
 
-$params{max_childs} = 1;
+$params{min_processes} = 0;
 ok( $driver->add_job( \%params ), 'add_job successful' );

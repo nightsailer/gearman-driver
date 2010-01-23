@@ -20,12 +20,14 @@ POE::Kernel->run();
     is_deeply(
         [ $driver->get_modules ],
         [
-            'Live',                          'Live::NS1::Basic',
-            'Live::NS1::BeginEnd',           'Live::NS1::Decode',
-            'Live::NS1::DefaultAttributes',  'Live::NS1::Encode',
-            'Live::NS1::OverrideAttributes', 'Live::NS1::Spread',
-            'Live::NS2::BeginEnd',           'Live::NS2::Ping1',
-            'Live::NS2::Ping2',              'Live::NS2::UseBase'
+            'Live',                               'Live::NS1::Basic',
+            'Live::NS1::BasicChilds',             'Live::NS1::BeginEnd',
+            'Live::NS1::Decode',                  'Live::NS1::DefaultAttributes',
+            'Live::NS1::DefaultAttributesChilds', 'Live::NS1::Encode',
+            'Live::NS1::OverrideAttributes',      'Live::NS1::OverrideAttributesChilds',
+            'Live::NS1::Spread',                  'Live::NS2::BeginEnd',
+            'Live::NS2::Ping1',                   'Live::NS2::Ping2',
+            'Live::NS2::UseBase'
         ],
         'load namespaces without filter'
     );

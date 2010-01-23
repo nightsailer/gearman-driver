@@ -1,5 +1,9 @@
 Revision history for Gearman-Driver
 
+0.01012     Sat Jan 23 2010
+            - Rename (Max|Min)Childs to (Max|Min)Processes
+              (Min|Max)Childs still supported
+
 0.01011     Fri Jan 22 2010
             - Implement management console
             - Ensure enough childs running each 5 seconds (not

@@ -15,7 +15,7 @@ SYNOPSIS
         }
 
         # this method will be registered with gearmand as 'My::Workers::One::do_something_else'
-        sub do_something_else : Job : MinChilds(2) : MaxChilds(15) {
+        sub do_something_else : Job : MinProcesses(2) : MaxProcesses(15) {
             my ( $self, $job, $workload ) = @_;
             # do something
         }
@@ -188,7 +188,7 @@ ATTRIBUTES
     Each n seconds Net::Telnet::Gearman is used in Gearman::Driver::Observer
     to check status of free/running/busy workers on gearmand. This is used
     to fork more workers depending on the queue size and the
-    MinChilds/MaxChilds attribute of the job method. See also:
+    MinProcesses/MaxProcesses attribute of the job method. See also:
     Gearman::Driver::Worker
 
     * default: 5
@@ -296,11 +296,11 @@ METHODS
     * method (mandatory)
         Reference to a Class::MOP::Method object which will get invoked.
 
-    * min_childs (mandatory)
-        Minimum number of childs that should be forked.
+    * min_processes (mandatory)
+        Minimum number of processes that should be forked.
 
-    * max_childs (mandatory)
-        Maximum number of childs that may be forked.
+    * max_processes (mandatory)
+        Maximum number of processes that may be forked.
 
     * name (mandatory)
         Job name/alias that method should be registered with Gearman.
@@ -355,13 +355,13 @@ METHODS
 
         foreach my $method (qw(scale_image do_something_else)) {
             $driver->add_job(
-                decode     => 'decode_json',
-                encode     => 'encode_json',
-                max_childs => 5,
-                method     => $worker->meta->find_method_by_name($method)->body,
-                min_childs => 1,
-                name       => $method,
-                object     => $worker,
+                decode        => 'decode_json',
+                encode        => 'encode_json',
+                max_processes => 5,
+                method        => $worker->meta->find_method_by_name($method)->body,
+                min_processes => 1,
+                name          => $method,
+                object        => $worker,
             );
         }
 

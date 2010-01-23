@@ -1,14 +1,14 @@
 package    # hide from PAUSE
-  Live::NS1::DefaultAttributes;
+  Live::NS1::DefaultAttributesChilds;
 
 use base qw(Gearman::Driver::Worker);
 use Moose;
 
 sub default_attributes {
     return {
-        MinProcesses => 3,
-        Encode       => 'encode',
-        Decode       => 'decode',
+        MinChilds => 3,
+        Encode    => 'encode',
+        Decode    => 'decode',
     };
 }
 

@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 29;
+use Test::More tests => 44;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -15,11 +15,13 @@ $test->run_gearmand;
 $test->run_gearman_driver;
 
 # give gearmand + driver at least 5 seconds to settle
-for ( 1 .. 5 ) {
-    my ( $ret, $pong ) = $gc->do( 'Live::NS1::Basic::ping' => 'ping' );
-    sleep(1) && next unless $pong;
-    is( $pong, 'pong', 'Job "Live::NS1::Basic::ping" returned correct value' );
-    last;
+foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
+    for ( 1 .. 5 ) {
+        my ( $ret, $pong ) = $gc->do( "${namespace}::ping" => 'ping' );
+        sleep(1) && next unless $pong;
+        is( $pong, 'pong', "Job '${namespace}::ping' returned correct value" );
+        last;
+    }
 }
 
 {
@@ -33,18 +35,20 @@ for ( 1 .. 5 ) {
 }
 
 # i hope this assumption is always true:
-# out of 10000 jobs all 10 childs handled at least one job
+# out of 10000 jobs all 10 processes handled at least one job
 {
-    my %pids = ();
-    for ( 1 .. 10000 ) {
-        my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_childs' => '' );
-        $pids{$pid}++;
-        last if scalar( keys(%pids) ) == 10;
+    foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
+        my %pids = ();
+        for ( 1 .. 10000 ) {
+            my ( $ret, $pid ) = $gc->do( "${namespace}::ten_processes" => '' );
+            $pids{$pid}++;
+            last if scalar( keys(%pids) ) == 10;
+        }
+        is( scalar( keys(%pids) ), 10, "10 different processes handled job 'ten_processes'" );
     }
-    is( scalar( keys(%pids) ), 10, "10 different childs handled job 'ten_childs'" );
 }
 
-# Let's change min/max childs via console
+# Let's change min/max processes via console
 {
     my $telnet = Net::Telnet->new(
         Timeout => 5,
@@ -52,17 +56,17 @@ for ( 1 .. 5 ) {
         Port    => 47300,
     );
     $telnet->open;
-    $telnet->print('set_min_childs Live::NS1::Basic::ten_childs 5');
-    $telnet->print('set_max_childs Live::NS1::Basic::ten_childs 5');
+    $telnet->print('set_min_processes Live::NS1::Basic::ten_processes 5');
+    $telnet->print('set_max_processes Live::NS1::Basic::ten_processes 5');
     my %pids = ();
     for ( 1 .. 10000 ) {
-        my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_childs' => '' );
+        my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_processes' => '' );
         $pids{$pid}++;
         last if scalar( keys(%pids) ) == 5;
     }
-    is( scalar( keys(%pids) ), 5, "5 different childs handled job 'ten_childs'" );
-    $telnet->print('set_min_childs Live::NS1::Basic::ten_childs 10');
-    $telnet->print('set_max_childs Live::NS1::Basic::ten_childs 10');
+    is( scalar( keys(%pids) ), 5, "5 different processes handled job 'ten_processes'" );
+    $telnet->print('set_min_processes Live::NS1::Basic::ten_processes 10');
+    $telnet->print('set_max_processes Live::NS1::Basic::ten_processes 10');
     $telnet->close;
 }
 
@@ -72,17 +76,20 @@ for ( 1 .. 5 ) {
 }
 
 {
-    $gc->do_background( 'Live::NS1::Basic::sleeper' => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
+    foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
+        {
+            $gc->do_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
 
-    my ( $ret, $time ) = $gc->do( 'Live::NS1::Basic::sleeper' => '0:' . time );
-    ok( $time <= 2, 'Job "sleeper" returned in less than 2 seconds' );
-}
+            my ( $ret, $time ) = $gc->do( "${namespace}::sleeper" => '0:' . time );
+            ok( $time <= 2, 'Job "sleeper" returned in less than 2 seconds' );
+        }
+        {
+            $gc->do_background( "${namespace}::sleeper" => '4:' . time );    # block last slot for another 4 secs
 
-{
-    $gc->do_background( 'Live::NS1::Basic::sleeper' => '4:' . time );               # block last slot for another 4 secs
-
-    my ( $ret, $time ) = $gc->do( 'Live::NS1::Basic::sleeper' => '0:' . time );
-    ok( $time >= 2, 'Job "sleeper" returned in more than 2 seconds' );
+            my ( $ret, $time ) = $gc->do( "${namespace}::sleeper" => '0:' . time );
+            ok( $time >= 2, "Job '${namespace}::sleeper' returned in more than 2 seconds" );
+        }
+    }
 }
 
 {
@@ -142,30 +149,27 @@ for ( 1 .. 5 ) {
     my @nothing = $gc->do_background( 'Live::NS1::Basic::quit' => 'exit' );
     sleep(3);    # wait for the worker being restarted
     my ( $ret, $string ) = $gc->do( 'Live::NS1::Basic::quit' => 'foo' );
-    is( $string, 'i am back', 'Worker child restarted after exit' );
+    is( $string, 'i am back', 'Worker process restarted after exit' );
 }
 
 {
-    for ( 1 .. 3 ) {
-        my ( $ret, $string ) = $gc->do( "Live::NS1::DefaultAttributes::job$_" => 'workload' );
-        is(
-            $string,
-            'DefaultAttributes::ENCODE::DefaultAttributes::DECODE::'
-              . 'workload::DECODE::DefaultAttributes::ENCODE::DefaultAttributes',
-            'Encode/decode default attributes'
-        );
-    }
-}
-
-{
-    for ( 1 .. 3 ) {
-        my ( $ret, $string ) = $gc->do( "Live::NS1::OverrideAttributes::job$_" => 'workload' );
-        is(
-            $string,
-            'OverrideAttributes::ENCODE::OverrideAttributes::DECODE::'
-              . 'workload::DECODE::OverrideAttributes::ENCODE::OverrideAttributes',
-            'Encode/decode override attributes'
-        );
+    foreach my $namespace (
+        qw(
+        Live::NS1::DefaultAttributes
+        Live::NS1::DefaultAttributesChilds
+        Live::NS1::OverrideAttributes
+        Live::NS1::OverrideAttributesChilds
+        )
+      )
+    {
+        for ( 1 .. 3 ) {
+            my ( $ret, $string ) = $gc->do( "${namespace}::job$_" => 'workload' );
+            is(
+                $string,
+                "${namespace}::ENCODE::${namespace}::DECODE::workload::DECODE::${namespace}::ENCODE::${namespace}",
+                'Encode/decode override attributes'
+            );
+        }
     }
 }
 
@@ -174,44 +178,52 @@ for ( 1 .. 5 ) {
     is( $string, 'ok', 'loaded root namespace' );
 }
 
-{
-    my ( $ret, $string ) = $gc->do( 'Live::NS3::AddJob::job1' => 'foo' );
-    is( $string, 'CUSTOMENCODE::foo::CUSTOMENCODE', 'Custom encoding works' );
-}
+#
+#
+# AddJob
+#
+#
 
-{
-    my ( $ret, $filename ) = $gc->do( 'Live::NS3::AddJob::begin_end' => 'some workload ...' );
-    my $text = read_file($filename);
-    is(
-        $text,
-        "begin some workload ...\njob some workload ...\nend some workload ...\n",
-        'Begin/end blocks in worker have been run'
-    );
-    unlink $filename;
-}
-
-# i hope this assumption is always true:
-# out of 10000 jobs all 10 childs handled at least one job
-{
-    my %pids = ();
-    for ( 1 .. 10000 ) {
-        my ( $ret, $pid ) = $gc->do( 'Live::NS3::AddJob::ten_childs' => 'xxx' );
-        $pids{$pid}++;
-        last if scalar( keys(%pids) ) == 10;
+foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
+    {
+        my ( $ret, $string ) = $gc->do( "${namespace}::job1" => 'foo' );
+        is( $string, 'CUSTOMENCODE::foo::CUSTOMENCODE', 'Custom encoding works' );
     }
-    is( scalar( keys(%pids) ), 10, "10 different childs handled job 'Live::NS3::AddJob::ten_childs'" );
-}
 
-{
-    $gc->do_background( 'Live::NS3::AddJob::sleeper' => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
+    {
+        my ( $ret, $filename ) = $gc->do( "${namespace}::begin_end" => 'some workload ...' );
+        my $text = read_file($filename);
+        is(
+            $text,
+            "begin some workload ...\njob some workload ...\nend some workload ...\n",
+            'Begin/end blocks in worker have been run'
+        );
+        unlink $filename;
+    }
 
-    my ( $ret, $time ) = $gc->do( 'Live::NS3::AddJob::sleeper' => '0:' . time );
-    ok( $time <= 2, 'Job "Live::NS3::AddJob::sleeper" returned in less than 2 seconds' );
-}
+    # i hope this assumption is always true:
+    # out of 10000 jobs all 10 processes handled at least one job
+    {
+        my %pids = ();
+        for ( 1 .. 10000 ) {
+            my ( $ret, $pid ) = $gc->do( "${namespace}::ten_processes" => 'xxx' );
+            $pids{$pid}++;
+            last if scalar( keys(%pids) ) == 10;
+        }
+        is( scalar( keys(%pids) ), 10, "10 different processes handled job '{namespace}::ten_processes'" );
+    }
 
-{
-    $gc->do_background( 'Live::NS3::AddJob::sleeper' => '4:' . time );    # block last slot for another 4 secs
+    {
+        $gc->do_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
 
-    my ( $ret, $time ) = $gc->do( 'Live::NS3::AddJob::sleeper' => '0:' . time );
-    ok( $time >= 2, 'Job "Live::NS3::AddJob::sleeper" returned in more than 2 seconds' );
+        my ( $ret, $time ) = $gc->do( "${namespace}::sleeper" => '0:' . time );
+        ok( $time <= 2, 'Job "Live::NS3::AddJob::sleeper" returned in less than 2 seconds' );
+    }
+
+    {
+        $gc->do_background( "${namespace}::sleeper" => '4:' . time );               # block last slot for another 4 secs
+
+        my ( $ret, $time ) = $gc->do( "${namespace}::sleeper" => '0:' . time );
+        ok( $time >= 2, 'Job "Live::NS3::AddJob::sleeper" returned in more than 2 seconds' );
+    }
 }

@@ -6,35 +6,37 @@ use Moose;
 
 sub override_attributes {
     return {
-        MinChilds => 1,
-        Encode    => 'encode',
-        Decode    => 'decode',
+        MinProcesses => 1,
+        Encode       => 'encode',
+        Decode       => 'decode',
     };
 }
 
-sub job1 : Job : MinChilds(5) : Encode(invalid) : Decode(invalid) {
+sub job1 : Job : MinProcesses(5) : Encode(invalid) : Decode(invalid) {
     my ( $self, $job, $workload ) = @_;
     return $workload;
 }
 
-sub job2 : Job : MinChilds(5) : Encode(invalid) : Decode(invalid) {
+sub job2 : Job : MinProcesses(5) : Encode(invalid) : Decode(invalid) {
     my ( $self, $job, $workload ) = @_;
     return $workload;
 }
 
-sub job3 : Job : MinChilds(5) : Encode(invalid) : Decode(invalid) {
+sub job3 : Job : MinProcesses(5) : Encode(invalid) : Decode(invalid) {
     my ( $self, $job, $workload ) = @_;
     return $workload;
 }
 
 sub encode {
     my ( $self, $result ) = @_;
-    return "OverrideAttributes::ENCODE::${result}::ENCODE::OverrideAttributes";
+    my $package = ref($self);
+    return "${package}::ENCODE::${result}::ENCODE::${package}";
 }
 
 sub decode {
     my ( $self, $workload ) = @_;
-    return "OverrideAttributes::DECODE::${workload}::DECODE::OverrideAttributes";
+    my $package = ref($self);
+    return "${package}::DECODE::${workload}::DECODE::${package}";
 }
 
 1;

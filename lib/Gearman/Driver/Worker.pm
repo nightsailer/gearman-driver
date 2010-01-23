@@ -24,7 +24,7 @@ Gearman::Driver::Worker - Base class for workers
         return join '_', split /::/, __PACKAGE__;
     }
 
-    sub do_something : Job : MinChilds(2) : MaxChilds(15) {
+    sub do_something : Job : MinProcesses(2) : MaxProcesses(15) {
         my ( $self, $job, $workload ) = @_;
         # $job => Gearman::XS::Job instance
     }
@@ -66,13 +66,13 @@ another job. See 'spread_work' method in L</SYNOPSIS> above.
 
 This will register the method with gearmand.
 
-=head2 MinChilds
+=head2 MinProcesses
 
-Minimum number of childs working parallel on this job/method.
+Minimum number of processes working parallel on this job/method.
 
-=head2 MaxChilds
+=head2 MaxProcesses
 
-Maximum number of childs working parallel on this job/method.
+Maximum number of processes working parallel on this job/method.
 
 =head2 Encode
 
@@ -233,14 +233,14 @@ containing valid L<attribute keys|/METHODATTRIBUTES>. E.g.:
 
     sub override_attributes {
         return {
-            MinChilds => 1,
-            MaxChilds => 1,
+            MinProcesses => 1,
+            MaxProcesses => 1,
         }
     }
 
-    sub job1 : Job : MinChilds(10) : MaxChilds(20) {
+    sub job1 : Job : MinProcesses(10) : MaxProcesses(20) {
         my ( $self, $job, $workload ) = @_;
-        # This will get MinChilds(1) MaxChilds(1) from override_attributes
+        # This will get MinProcesses(1) MaxProcesses(1) from override_attributes
     }
 
 =head2 default_attributes

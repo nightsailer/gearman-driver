@@ -12,19 +12,19 @@ Gearman::Driver::Job - Handles the POE magic
 
 =head1 DESCRIPTION
 
-This class is responsible for starting/stopping childs as well as
-handling all pipes (STDOUT/STDERR/STDIN) of the childs. All events
+This class is responsible for starting/stopping processes as well as
+handling all pipes (STDOUT/STDERR/STDIN) of the processes. All events
 are written to a logfile. Possible events are:
 
 =over 4
 
-=item * Starting childs
+=item * Starting processes
 
-=item * STDOUT of childs
+=item * STDOUT of processes
 
-=item * STDERR of childs
+=item * STDERR of processes
 
-=item * Stopping childs
+=item * Stopping processes
 
 =back
 
@@ -64,14 +64,14 @@ has 'server' => (
     required => 1,
 );
 
-has 'max_childs' => (
+has 'max_processes' => (
     default  => 1,
     is       => 'rw',
     isa      => 'Int',
     required => 1,
 );
 
-has 'min_childs' => (
+has 'min_processes' => (
     default  => 1,
     is       => 'rw',
     isa      => 'Int',
@@ -92,15 +92,15 @@ has 'decode' => (
     required => 1,
 );
 
-has 'childs' => (
+has 'processes' => (
     default => sub { {} },
     handles => {
-        count_childs => 'count',
-        delete_child => 'delete',
-        get_child    => 'get',
-        get_childs   => 'values',
-        get_pids     => 'keys',
-        set_child    => 'set',
+        count_processes => 'count',
+        delete_process  => 'delete',
+        get_process     => 'get',
+        get_processes   => 'values',
+        get_pids        => 'keys',
+        set_process     => 'set',
     },
     is     => 'ro',
     isa    => 'HashRef',
@@ -117,14 +117,14 @@ has 'session' => (
     isa => 'POE::Session',
 );
 
-sub add_child {
+sub add_process {
     my ($self) = @_;
-    POE::Kernel->post( $self->session => 'add_child' );
+    POE::Kernel->post( $self->session => 'add_process' );
 }
 
-sub remove_child {
+sub remove_process {
     my ($self) = @_;
-    POE::Kernel->post( $self->session => 'remove_child' );
+    POE::Kernel->post( $self->session => 'remove_process' );
 }
 
 sub BUILD {
@@ -175,13 +175,13 @@ sub BUILD {
     $self->{session} = POE::Session->create(
         object_states => [
             $self => {
-                _start           => '_start',
-                got_child_stdout => '_on_child_stdout',
-                got_child_stderr => '_on_child_stderr',
-                got_child_close  => '_on_child_close',
-                got_child_signal => '_on_child_signal',
-                add_child        => '_add_child',
-                remove_child     => '_remove_child',
+                _start             => '_start',
+                got_process_stdout => '_on_process_stdout',
+                got_process_stderr => '_on_process_stderr',
+                got_process_close  => '_on_process_close',
+                got_process_signal => '_on_process_signal',
+                add_process        => '_add_process',
+                remove_process     => '_remove_process',
             }
         ]
     );
@@ -191,9 +191,9 @@ sub _start {
     $_[KERNEL]->alias_set( $_[OBJECT]->name );
 }
 
-sub _add_child {
+sub _add_process {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
-    my $child = POE::Wheel::Run->new(
+    my $process = POE::Wheel::Run->new(
         Program => sub {
             if ( my $process_name = $self->worker->process_name( $0, $self->name ) ) {
                 $0 = $process_name;
@@ -207,62 +207,62 @@ sub _add_child {
                 }
             }
         },
-        StdoutEvent => "got_child_stdout",
-        StderrEvent => "got_child_stderr",
-        CloseEvent  => "got_child_close",
+        StdoutEvent => "got_process_stdout",
+        StderrEvent => "got_process_stderr",
+        CloseEvent  => "got_process_close",
     );
-    $kernel->sig_child( $child->PID, "got_child_signal" );
+    $kernel->sig_child( $process->PID, "got_process_signal" );
 
     # Wheel events include the wheel's ID.
-    $heap->{wheels}{ $child->ID } = $child;
+    $heap->{wheels}{ $process->ID } = $process;
 
-    $self->log->info( sprintf '(%d) [%s] Child started', $child->PID, $self->name );
+    $self->log->info( sprintf '(%d) [%s] Process started', $process->PID, $self->name );
 
-    $self->set_child( $child->PID => $child );
+    $self->set_process( $process->PID => $process );
 }
 
-sub _remove_child {
+sub _remove_process {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
     my ($pid) = ( $self->get_pids )[0];
-    my $child = $self->delete_child($pid);
-    $child->kill();
-    $self->log->info( sprintf '(%d) [%s] Child killed', $child->PID, $self->name );
+    my $process = $self->delete_process($pid);
+    $process->kill();
+    $self->log->info( sprintf '(%d) [%s] Process killed', $process->PID, $self->name );
 }
 
-sub _on_child_stdout {
+sub _on_process_stdout {
     my ( $self, $heap, $stdout, $wid ) = @_[ OBJECT, HEAP, ARG0, ARG1 ];
-    my $child = $heap->{wheels}{$wid};
-    $self->log->info( sprintf '(%d) [%s] STDOUT: %s', $child->PID, $self->name, $stdout );
+    my $process = $heap->{wheels}{$wid};
+    $self->log->info( sprintf '(%d) [%s] STDOUT: %s', $process->PID, $self->name, $stdout );
 }
 
-sub _on_child_stderr {
+sub _on_process_stderr {
     my ( $self, $heap, $stderr, $wid ) = @_[ OBJECT, HEAP, ARG0, ARG1 ];
-    my $child = $heap->{wheels}{$wid};
-    $self->log->info( sprintf '(%d) [%s] STDERR: %s', $child->PID, $self->name, $stderr );
+    my $process = $heap->{wheels}{$wid};
+    $self->log->info( sprintf '(%d) [%s] STDERR: %s', $process->PID, $self->name, $stderr );
 }
 
-sub _on_child_close {
+sub _on_process_close {
     my ( $self, $heap, $wid ) = @_[ OBJECT, HEAP, ARG0 ];
 
-    my $child = delete $heap->{wheels}{$wid};
+    my $process = delete $heap->{wheels}{$wid};
 
-    # May have been reaped by got_child_signal
-    return unless defined $child;
+    # May have been reaped by got_process_signal
+    return unless defined $process;
 
-    $self->delete_child( $child->PID );
+    $self->delete_process( $process->PID );
 }
 
-sub _on_child_signal {
+sub _on_process_signal {
     my ( $self, $heap, $pid, $status ) = @_[ OBJECT, HEAP, ARG1 .. ARG2 ];
 
-    my $child = $self->delete_child($pid);
+    my $process = $self->delete_process($pid);
 
     $self->log->info( sprintf '(%d) [%s] Exited with status %s', $pid, $self->name, $status );
 
-    # May have been reaped by got_child_close
-    return unless defined $child;
+    # May have been reaped by got_process_close
+    return unless defined $process;
 
-    delete $heap->{wheels}{ $child->ID };
+    delete $heap->{wheels}{ $process->ID };
 }
 
 no Moose;
