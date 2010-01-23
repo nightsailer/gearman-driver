@@ -79,6 +79,7 @@ sub BUILD {
                 };
             }
             elsif ( $command eq 'quit' ) {
+                delete $heap->{client};
             }
             else {
                 $heap->{client}->put("ERR unknown_command: $command");
