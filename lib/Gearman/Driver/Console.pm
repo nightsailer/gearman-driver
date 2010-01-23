@@ -202,7 +202,18 @@ Parameters: C<none>
 
 Closes your connection gracefully.
 
+=head2 shutdown
+
+Parameters: C<none>
+
+Shuts L<Gearman::Driver> down.
+
 =cut
+
+sub shutdown {
+    my ($self) = @_;
+    $self->driver->shutdown;
+}
 
 sub _get_job {
     my ( $self, $job_name ) = @_;

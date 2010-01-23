@@ -555,6 +555,12 @@ has 'console' => (
     traits => [qw(NoGetopt)],
 );
 
+has 'session' => (
+    is     => 'ro',
+    isa    => 'POE::Session',
+    traits => [qw(NoGetopt)],
+);
+
 has '+logger' => ( traits => [qw(NoGetopt)] );
 
 =head1 METHODS
@@ -699,6 +705,17 @@ sub run {
     POE::Kernel->run();
 }
 
+=head2 shutdown
+
+Sends TERM signal to all child processes and exits Gearman::Driver.
+
+=cut
+
+sub shutdown {
+    my ($self) = @_;
+    POE::Kernel->signal( $self->{session}, 'TERM' );
+}
+
 =head2 get_namespaces
 
 Returns a sorted list of L<namespaces|Gearman::Driver/namespaces>.
@@ -838,7 +855,7 @@ sub _observer_callback {
 
 sub _start_session {
     my ($self) = @_;
-    POE::Session->create(
+    $self->{session} = POE::Session->create(
         object_states => [
             $self => {
                 _start            => '_start',

@@ -3,6 +3,7 @@ Revision history for Gearman-Driver
 0.01012     Sat Jan 23 2010
             - Rename (Max|Min)Childs to (Max|Min)Processes
               (Min|Max)Childs still supported
+            - Add shutdown command to management console
 
 0.01011     Fri Jan 22 2010
             - Implement management console
