@@ -370,6 +370,9 @@ METHODS
   run
     This must be called after the Gearman::Driver object is instantiated.
 
+  shutdown
+    Sends TERM signal to all child processes and exits Gearman::Driver.
+
   get_namespaces
     Returns a sorted list of namespaces.
 
