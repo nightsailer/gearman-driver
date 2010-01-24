@@ -38,3 +38,6 @@
 ^sloccount\.sc$
 ^.*\.log$
 ^Gearman-Driver-.*
+
+^\.shipit
+^xt.*
