@@ -230,6 +230,7 @@ foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
 }
 
 {
+    sleep(3);
     my @expected = (
         "Live::NS1::BasicChilds::ping\t1\t1\t1",
         "Live::NS2::Ping2::ping\t1\t1\t1",
