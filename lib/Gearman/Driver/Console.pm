@@ -148,7 +148,7 @@ sub set_min_processes {
 
     my $job = $self->_get_job($job_name);
 
-    if ( !defined($min_processes) or $min_processes !~ /^\d+$/ or $min_processes < 0 ) {
+    if ( !defined($min_processes) || $min_processes !~ /^\d+$/ || $min_processes < 0 ) {
         die "ERR invalid_value: min_processes must be >= 0\n";
     }
 
@@ -184,7 +184,7 @@ sub set_max_processes {
 
     my $job = $self->_get_job($job_name);
 
-    if ( !defined($max_processes) or $max_processes !~ /^\d+$/ or $max_processes < 0 ) {
+    if ( !defined($max_processes) || $max_processes !~ /^\d+$/ || $max_processes < 0 ) {
         die "ERR invalid_value: max_processes must be >= 0\n";
     }
 
