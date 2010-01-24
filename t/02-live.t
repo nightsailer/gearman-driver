@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More tests => 45;
+use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -230,7 +231,7 @@ foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
 }
 
 {
-    sleep(5);
+    sleep(15);
     my @expected = (
         "Live::NS1::BasicChilds::ping\t1\t1\t1",
         "Live::NS2::Ping2::ping\t1\t1\t1",
@@ -292,5 +293,5 @@ foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
     }
     $telnet->print('quit');
     $telnet->close;
-	is_deeply(\@lines, \@expected);
+	eq_or_diff(\@lines, \@expected);
 }
