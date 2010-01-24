@@ -1,5 +1,6 @@
 Revision history for Gearman-Driver
 
+0.01013     Sun Jan 24 2010
             - If console_port is set to 0 it's disabled at all
 
 0.01012     Sat Jan 23 2010
