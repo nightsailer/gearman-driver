@@ -184,6 +184,8 @@ ATTRIBUTES
     * default: 47300
     * isa: "Int"
 
+    Set this to 0 to disable management console at all.
+
   interval
     Each n seconds Net::Telnet::Gearman is used in Gearman::Driver::Observer
     to check status of free/running/busy workers on gearmand. This is used

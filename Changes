@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - If console_port is set to 0 it's disabled at all
+
 0.01012     Sat Jan 23 2010
             - Rename (Max|Min)Childs to (Max|Min)Processes
               (Min|Max)Childs still supported

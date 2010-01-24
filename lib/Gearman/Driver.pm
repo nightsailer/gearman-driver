@@ -279,6 +279,8 @@ L<Gearman::Driver::Console>
 
 =back
 
+Set this to C<0> to disable management console at all.
+
 =cut
 
 has 'console_port' => (
@@ -822,10 +824,12 @@ sub _start_observer {
 
 sub _start_console {
     my ($self) = @_;
-    $self->{console} = Gearman::Driver::Console->new(
-        driver => $self,
-        port   => $self->console_port,
-    );
+    if ( $self->console_port > 0 ) {
+        $self->{console} = Gearman::Driver::Console->new(
+            driver => $self,
+            port   => $self->console_port,
+        );
+    }
 }
 
 sub _observer_callback {
