@@ -230,7 +230,7 @@ foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
 }
 
 {
-    sleep(3);
+    sleep(5);
     my @expected = (
         "Live::NS1::BasicChilds::ping\t1\t1\t1",
         "Live::NS2::Ping2::ping\t1\t1\t1",
@@ -262,7 +262,7 @@ foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
         "Live::NS1::Decode::job1\t1\t1\t1",
         "Live::NS1::OverrideAttributesChilds::job1\t1\t1\t1",
         "Live::NS1::BasicChilds::ten_processes\t10\t10\t10",
-        "Live::NS3::AddJobChilds::sleeper\t2\t6\t6",
+        "Live::NS3::AddJobChilds::sleeper\t2\t6\t2",
         "Live::NS1::OverrideAttributes::job2\t1\t1\t1",
         "Live::NS1::Spread::some_job_3\t1\t1\t1",
         "Live::NS1::Spread::some_job_2\t1\t1\t1",
