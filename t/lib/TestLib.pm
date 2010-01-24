@@ -8,6 +8,7 @@ use Gearman::XS qw(:constants);
 use Gearman::XS::Client;
 use Gearman::XS::Server;
 use Gearman::Driver;
+use Net::Telnet;
 
 my ( $host, $port ) = ( '127.0.0.1', 4731 );
 
@@ -41,6 +42,8 @@ sub run_gearman_driver {
 
         exit(0);
     }
+
+    sleep(5);
 }
 
 sub gearman_client {
@@ -59,6 +62,16 @@ sub gearman_driver {
         namespaces => [qw(Live)],
         server     => join( ':', $host, $port ),
     );
+}
+
+sub telnet_client {
+    my $telnet = Net::Telnet->new(
+        Timeout => 5,
+        Host    => '127.0.0.1',
+        Port    => 47300,
+    );
+    $telnet->open;
+    return $telnet;
 }
 
 sub DESTROY {
