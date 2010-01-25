@@ -101,13 +101,15 @@ L<Gearman::Driver::Console::Basic>. It's very easy to extend this
 console with new commands. Every module found in namespace
 C<Gearman::Driver::Console::*> will be loaded. Each of those
 modules has to be implemented as a L<Moose::Role>. You've got
-access to two attributes there:
+access to two attributes/methods there:
 
 =over 4
 
-=item * driver - reference to the L<Gearman::Driver> object
+=item * C<driver> - reference to the L<Gearman::Driver> object
 
-=item * server - reference to the L<POE::Component::TCP::Server> object
+=item * C<server> - reference to the L<POE::Component::TCP::Server> object
+
+=item * C<get_job($name)> - returns a L<Gearman::Driver::Job> object
 
 =back
 
@@ -140,6 +142,12 @@ expected (as long as you do not forget the C<\n>):
         die "ERR this is a broken command\n";
     }
 
+    sub get_max_processes {
+        my ( $self, $job_name ) = @_;
+        my $job = $self->get_job($job_name); # this automatically dies if job is not found
+        return $job->max_processes;
+    }
+
     1;
 
 Yes, that's all...
@@ -159,8 +167,18 @@ Yes, that's all...
     .
     broken
     ERR this is a broken command
+    get_max_processes asdf
+    ERR invalid_job_name: asdf
+    get_max_processes GDExamples::Sleeper::ZzZzZzzz
+    6
+    .
 
 =cut
+
+sub get_job {
+    my ( $self, $job_name ) = @_;
+    return $self->driver->get_job($job_name) || die "ERR invalid_job_name: $job_name\n";
+}
 
 no Moose;
 

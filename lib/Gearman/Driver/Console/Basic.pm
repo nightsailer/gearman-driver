@@ -69,7 +69,7 @@ Parameters: C<job_name min_processes>
 sub set_min_processes {
     my ( $self, $job_name, $min_processes ) = @_;
 
-    my $job = $self->_get_job($job_name);
+    my $job = $self->get_job($job_name);
 
     if ( !defined($min_processes) || $min_processes !~ /^\d+$/ || $min_processes < 0 ) {
         die "ERR invalid_value: min_processes must be >= 0\n";
@@ -105,7 +105,7 @@ Parameters: C<job_name max_processes>
 sub set_max_processes {
     my ( $self, $job_name, $max_processes ) = @_;
 
-    my $job = $self->_get_job($job_name);
+    my $job = $self->get_job($job_name);
 
     if ( !defined($max_processes) || $max_processes !~ /^\d+$/ || $max_processes < 0 ) {
         die "ERR invalid_value: max_processes must be >= 0\n";
@@ -137,11 +137,6 @@ Shuts L<Gearman::Driver> down.
 sub shutdown {
     my ($self) = @_;
     $self->driver->shutdown;
-}
-
-sub _get_job {
-    my ( $self, $job_name ) = @_;
-    return $self->driver->get_job($job_name) || die "ERR invalid_job_name: $job_name\n";
 }
 
 =head1 AUTHOR
