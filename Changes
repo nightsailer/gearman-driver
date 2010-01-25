@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - Refactor console for being more extensible
+
 0.01013     Sun Jan 24 2010
             - If console_port is set to 0 it's disabled at all
 

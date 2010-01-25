@@ -408,6 +408,7 @@ COPYRIGHT AND LICENSE
 
 SEE ALSO
     * Gearman::Driver::Console
+    * Gearman::Driver::Console::Basic
     * Gearman::Driver::Job
     * Gearman::Driver::Observer
     * Gearman::Driver::Worker

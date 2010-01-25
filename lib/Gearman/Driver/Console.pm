@@ -2,6 +2,8 @@ package Gearman::Driver::Console;
 
 use Moose;
 use POE qw(Component::Server::TCP);
+use Module::Find;
+use Moose::Util qw(apply_all_roles);
 use Try::Tiny;
 
 =head1 NAME
@@ -61,12 +63,16 @@ has 'driver' => (
 sub BUILD {
     my ($self) = @_;
 
+    my @commands = findallmod Gearman::Driver::Console;
+    apply_all_roles( $self => @commands );
+
     $self->{server} = POE::Component::Server::TCP->new(
         Alias       => "server",
         Port        => $self->port,
         ClientInput => sub {
             my ( $session, $heap, $input ) = @_[ SESSION, HEAP, ARG0 ];
             my ( $command, @params ) = split /\s+/, $input;
+            $command ||= '';
             if ( $self->can($command) ) {
                 try {
                     my @result = $self->$command(@params);
@@ -90,136 +96,71 @@ sub BUILD {
 
 =head1 COMMANDS
 
-=head2 status
-
-Parameters: C<none>
-
-    GDExamples::Sleeper::ZzZzZzzz   3       6       3
-    GDExamples::Sleeper::long_running_ZzZzZzzz      1       2       1
-    GDExamples::WWW::is_online      0       1       0
-    .
-
-Columns are separated by tabs in this order:
+All basic commands are implemented in
+L<Gearman::Driver::Console::Basic>. It's very easy to extend this
+console with new commands. Every module found in namespace
+C<Gearman::Driver::Console::*> will be loaded. Each of those
+modules has to be implemented as a L<Moose::Role>. You've got
+access to two attributes there:
 
 =over 4
 
-=item * job_name
+=item * driver - reference to the L<Gearman::Driver> object
 
-=item * min_processes
-
-=item * max_processes
-
-=item * current_processes
+=item * server - reference to the L<POE::Component::TCP::Server> object
 
 =back
 
-=cut
+So a new command could look like:
 
-sub status {
-    my ($self) = @_;
-    my @result = ();
-    foreach my $job ( $self->driver->get_jobs ) {
-        push @result,
-          sprintf( "%s\t%d\t%d\t%d", $job->name, $job->min_processes, $job->max_processes, $job->count_processes );
+    package Gearman::Driver::Console::List;
+
+    use Moose::Role;
+
+    sub list {
+        my ($self) = @_;
+        my @result = ();
+        foreach my $job ( $self->driver->get_jobs ) {
+            push @result, $job->name;
+        }
+        return @result;
     }
-    return @result;
-}
 
-=head2 set_min_processes
+    1;
 
-Parameters: C<job_name min_processes>
+If you need to throw an error, just die and everything will work as
+expected (as long as you do not forget the C<\n>):
 
-    set_min_processes asdf 5
-    ERR invalid_job_name: asdf
-    set_min_processes GDExamples::Sleeper::ZzZzZzzz ten
-    ERR invalid_value: min_processes must be >= 0
-    set_min_processes GDExamples::Sleeper::ZzZzZzzz 10
-    ERR invalid_value: min_processes must be smaller than max_processes
-    set_min_processes GDExamples::Sleeper::ZzZzZzzz 5
-    OK
+    package Gearman::Driver::Console::Broken;
+
+    use Moose::Role;
+
+    sub broken {
+        my ($self) = @_;
+        die "ERR this is a broken command\n";
+    }
+
+    1;
+
+Yes, that's all...
+
+    $ ~/Gearman-Driver$ telnet localhost 47300
+    Trying ::1...
+    telnet: connect to address ::1: Connection refused
+    Trying fe80::1...
+    telnet: connect to address fe80::1: Connection refused
+    Trying 127.0.0.1...
+    Connected to localhost.
+    Escape character is '^]'.
+    list
+    GDExamples::Sleeper::ZzZzZzzz
+    GDExamples::Sleeper::long_running_ZzZzZzzz
+    GDExamples::WWW::is_online
     .
+    broken
+    ERR this is a broken command
 
 =cut
-
-*set_min_childs = \&set_min_processes;
-
-sub set_min_processes {
-    my ( $self, $job_name, $min_processes ) = @_;
-
-    my $job = $self->_get_job($job_name);
-
-    if ( !defined($min_processes) || $min_processes !~ /^\d+$/ || $min_processes < 0 ) {
-        die "ERR invalid_value: min_processes must be >= 0\n";
-    }
-
-    if ( $min_processes > $job->max_processes ) {
-        die "ERR invalid_value: min_processes must be smaller than max_processes\n";
-    }
-
-    $job->min_processes($min_processes);
-
-    return "OK";
-}
-
-=head2 set_max_processes
-
-Parameters: C<job_name max_processes>
-
-    set_max_processes asdf 5
-    ERR invalid_job_name: asdf
-    set_max_processes GDExamples::Sleeper::ZzZzZzzz ten
-    ERR invalid_value: max_processes must be >= 0
-    set_max_processes GDExamples::Sleeper::ZzZzZzzz 0
-    ERR invalid_value: max_processes must be greater than min_processes
-    set_max_processes GDExamples::Sleeper::ZzZzZzzz 6
-    OK
-    .
-
-=cut
-
-*set_max_childs = \&set_max_processes;
-
-sub set_max_processes {
-    my ( $self, $job_name, $max_processes ) = @_;
-
-    my $job = $self->_get_job($job_name);
-
-    if ( !defined($max_processes) || $max_processes !~ /^\d+$/ || $max_processes < 0 ) {
-        die "ERR invalid_value: max_processes must be >= 0\n";
-    }
-
-    if ( $max_processes < $job->min_processes ) {
-        die "ERR invalid_value: max_processes must be greater than min_processes\n";
-    }
-
-    $job->max_processes($max_processes);
-
-    return "OK";
-}
-
-=head2 quit
-
-Parameters: C<none>
-
-Closes your connection gracefully.
-
-=head2 shutdown
-
-Parameters: C<none>
-
-Shuts L<Gearman::Driver> down.
-
-=cut
-
-sub shutdown {
-    my ($self) = @_;
-    $self->driver->shutdown;
-}
-
-sub _get_job {
-    my ( $self, $job_name ) = @_;
-    return $self->driver->get_job($job_name) || die "ERR invalid_job_name: $job_name\n";
-}
 
 no Moose;
 
@@ -241,6 +182,8 @@ it under the same terms as Perl itself.
 =over 4
 
 =item * L<Gearman::Driver>
+
+=item * L<Gearman::Driver::Console::Basic>
 
 =item * L<Gearman::Driver::Job>
 
