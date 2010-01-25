@@ -3,6 +3,7 @@
 * add more examples
 * cleanup test mess
 * doc scripts/gearman_driver.pl somewhere
+* rework log messages
 
 * implement some shared stash with different backends (e.g. memcached) to have
   shared data across multiple worker childs (running on multiple servers). Some
