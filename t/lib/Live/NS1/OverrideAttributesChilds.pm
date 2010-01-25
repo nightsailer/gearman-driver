@@ -12,17 +12,7 @@ sub override_attributes {
     };
 }
 
-sub job1 : Job : MinChilds(5) : Encode(invalid) : Decode(invalid) {
-    my ( $self, $job, $workload ) = @_;
-    return $workload;
-}
-
-sub job2 : Job : MinChilds(5) : Encode(invalid) : Decode(invalid) {
-    my ( $self, $job, $workload ) = @_;
-    return $workload;
-}
-
-sub job3 : Job : MinChilds(5) : Encode(invalid) : Decode(invalid) {
+sub job : Job : MinChilds(5) : Encode(invalid) : Decode(invalid) {
     my ( $self, $job, $workload ) = @_;
     return $workload;
 }

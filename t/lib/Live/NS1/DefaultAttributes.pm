@@ -12,17 +12,7 @@ sub default_attributes {
     };
 }
 
-sub job1 : Job {
-    my ( $self, $job, $workload ) = @_;
-    return $workload;
-}
-
-sub job2 : Job {
-    my ( $self, $job, $workload ) = @_;
-    return $workload;
-}
-
-sub job3 : Job {
+sub job : Job {
     my ( $self, $job, $workload ) = @_;
     return $workload;
 }

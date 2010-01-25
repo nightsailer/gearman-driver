@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 44;
+use Test::More tests => 36;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
@@ -156,14 +156,12 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
         )
       )
     {
-        for ( 1 .. 3 ) {
-            my ( $ret, $string ) = $gc->do( "${namespace}::job$_" => 'workload' );
-            is(
-                $string,
-                "${namespace}::ENCODE::${namespace}::DECODE::workload::DECODE::${namespace}::ENCODE::${namespace}",
-                'Encode/decode override attributes'
-            );
-        }
+        my ( $ret, $string ) = $gc->do( "${namespace}::job" => 'workload' );
+        is(
+            $string,
+            "${namespace}::ENCODE::${namespace}::DECODE::workload::DECODE::${namespace}::ENCODE::${namespace}",
+            'Encode/decode override attributes'
+        );
     }
 }
 
