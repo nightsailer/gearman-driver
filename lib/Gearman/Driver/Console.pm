@@ -28,7 +28,7 @@ Gearman::Driver::Console - Management console
 
 =head1 DESCRIPTION
 
-By default L<Gearman::Driver> opens a management console which can
+By default L<Gearman::Driver> provides a management console which can
 be used with a standard telnet client. It's possible to list all
 running worker processes as well as changing min/max processes
 on runtime.
