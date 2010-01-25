@@ -1,5 +1,6 @@
 Revision history for Gearman-Driver
 
+0.01014     Mon Jan 25 2010
             - Refactor console for being more extensible
 
 0.01013     Sun Jan 24 2010

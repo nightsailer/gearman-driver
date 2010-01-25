@@ -14,7 +14,7 @@ use POE;
 use Try::Tiny;
 with qw(MooseX::Log::Log4perl MooseX::Getopt);
 
-our $VERSION = '0.01013';
+our $VERSION = '0.01014';
 
 =head1 NAME
 
