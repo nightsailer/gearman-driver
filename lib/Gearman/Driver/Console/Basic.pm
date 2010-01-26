@@ -179,7 +179,30 @@ sub kill {
 
     die "ERR invalid_value: the given PID(s) do not belong to us\n" unless @valid_pids;
 
-    kill 15, @valid_pids;
+    CORE::kill 15, @valid_pids;
+
+    return "OK";
+}
+
+=head2 killall
+
+Kills all childs/pids of given job.
+
+Parameters: C<job_name>
+
+    killall GDExamples::Sleeper::ZzZzZzzz
+    OK
+    .
+
+=cut
+
+sub killall {
+    my ( $self, $job_name ) = @_;
+
+    my $job  = $self->get_job($job_name);
+    my @pids = $job->get_pids;
+
+    CORE::kill 15, @pids;
 
     return "OK";
 }

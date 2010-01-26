@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 171;
+use Test::More tests => 177;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -64,23 +64,40 @@ sleep(5);
             push @pids, $line if $line =~ /^\d+$/;
         }
     };
+
     $test->();
     $telnet->print('kill 1');
     is( $telnet->getline(), "ERR invalid_value: the given PID(s) do not belong to us\n" );
+
     my @old_pids = @pids;
+
     $telnet->print( 'kill ' . shift(@pids) );
     is( $telnet->getline(), "OK\n" );
     is( $telnet->getline(), ".\n" );
+
     $telnet->print( 'kill ' . shift(@pids) );
     is( $telnet->getline(), "OK\n" );
     is( $telnet->getline(), ".\n" );
+
     sleep(6);
+
     $test->();
+
     is( scalar(@pids), scalar(@old_pids) );
 
     for ( 0 .. 1 ) {
         isnt( shift(@pids), shift(@old_pids) );
     }
+
+    $telnet->print('killall Live::NS1::BasicChilds::sleeper');
+    is( $telnet->getline(), "OK\n" );
+    is( $telnet->getline(), ".\n" );
+
+    sleep(6);
+
+    $test->();
+
+    is( scalar(@pids), 2 );
 }
 
 {
