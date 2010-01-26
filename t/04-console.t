@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 157;
+use Test::More tests => 160;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -50,6 +50,16 @@ sleep(5);
         push @lines,     $line;
     }
     eq_or_diff( \@lines, \@expected );
+}
+
+{
+    my @expected = ( qr/^Live::NS1::BasicChilds::sleeper\t2\t6\t2$/, qr/^\d+$/, qr/^\d+$/ );
+    $telnet->print('show Live::NS1::BasicChilds::sleeper');
+    while ( my $line = $telnet->getline() ) {
+        last if $line eq ".\n";
+        chomp $line;
+        like( $line, shift(@expected) );
+    }
 }
 
 {

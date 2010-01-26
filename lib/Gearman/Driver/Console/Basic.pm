@@ -120,6 +120,38 @@ sub set_max_processes {
     return "OK";
 }
 
+=head2 show
+
+Parameters: C<job_name>
+
+    show GDExamples::Sleeper::ZzZzZzzz
+    GDExamples::Sleeper::ZzZzZzzz   3       6       3
+    3662
+    3664
+    3663
+    .
+    show GDExamples::Sleeper::long_running_ZzZzZzzz
+    GDExamples::Sleeper::long_running_ZzZzZzzz      1       2       1
+    3665
+    .
+
+=cut
+
+sub show {
+    my ( $self, $job_name ) = @_;
+
+    my $job = $self->get_job($job_name);
+
+    my @result = ();
+
+    push @result,
+      sprintf( "%s\t%d\t%d\t%d", $job->name, $job->min_processes, $job->max_processes, $job->count_processes );
+
+    push @result, $job->get_pids;
+
+    return @result;
+}
+
 =head2 quit
 
 Parameters: C<none>

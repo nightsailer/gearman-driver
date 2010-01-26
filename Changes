@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - New console command: show
+
 0.01014     Mon Jan 25 2010
             - Refactor console for being more extensible
 
