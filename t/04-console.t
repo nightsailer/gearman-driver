@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 160;
+use Test::More tests => 171;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -53,12 +53,33 @@ sleep(5);
 }
 
 {
-    my @expected = ( qr/^Live::NS1::BasicChilds::sleeper\t2\t6\t2$/, qr/^\d+$/, qr/^\d+$/ );
-    $telnet->print('show Live::NS1::BasicChilds::sleeper');
-    while ( my $line = $telnet->getline() ) {
-        last if $line eq ".\n";
-        chomp $line;
-        like( $line, shift(@expected) );
+    my @pids = ();
+    my $test = sub {
+        my @expected = ( qr/^Live::NS1::BasicChilds::sleeper\t2\t6\t2$/, qr/^\d+$/, qr/^\d+$/ );
+        $telnet->print('show Live::NS1::BasicChilds::sleeper');
+        while ( my $line = $telnet->getline() ) {
+            last if $line eq ".\n";
+            chomp $line;
+            like( $line, shift(@expected) );
+            push @pids, $line if $line =~ /^\d+$/;
+        }
+    };
+    $test->();
+    $telnet->print('kill 1');
+    is( $telnet->getline(), "ERR invalid_value: the given PID(s) do not belong to us\n" );
+    my @old_pids = @pids;
+    $telnet->print( 'kill ' . shift(@pids) );
+    is( $telnet->getline(), "OK\n" );
+    is( $telnet->getline(), ".\n" );
+    $telnet->print( 'kill ' . shift(@pids) );
+    is( $telnet->getline(), "OK\n" );
+    is( $telnet->getline(), ".\n" );
+    sleep(6);
+    $test->();
+    is( scalar(@pids), scalar(@old_pids) );
+
+    for ( 0 .. 1 ) {
+        isnt( shift(@pids), shift(@old_pids) );
     }
 }
 

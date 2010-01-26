@@ -152,6 +152,38 @@ sub show {
     return @result;
 }
 
+=head2 kill
+
+Parameters: C<pid> [<pid> <pid> ...]
+
+    kill 1
+    ERR invalid_value: the given PID(s) do not belong to us
+    kill 3662
+    OK
+    .
+
+=cut
+
+sub kill {
+    my ( $self, @pids ) = @_;
+
+    my @valid_pids = ();
+    foreach my $job ( $self->driver->get_jobs ) {
+        my @job_pids = $job->get_pids;
+        foreach my $pid (@pids) {
+            if ( grep $_ eq $pid, @job_pids ) {
+                push @valid_pids, $pid;
+            }
+        }
+    }
+
+    die "ERR invalid_value: the given PID(s) do not belong to us\n" unless @valid_pids;
+
+    kill 15, @valid_pids;
+
+    return "OK";
+}
+
 =head2 quit
 
 Parameters: C<none>
