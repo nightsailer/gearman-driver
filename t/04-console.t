@@ -170,7 +170,7 @@ sleep(5);
     );
 
     $telnet->print('status');
-    my @lines = ();
+    @lines = ();
     while ( my $line = $telnet->getline() ) {
         last if $line eq ".\n";
         chomp $line;
