@@ -120,6 +120,47 @@ sub set_max_processes {
     return "OK";
 }
 
+=head2 set_processes
+
+Parameters: C<job_name min_processes max_processes>
+
+    set_processes asdf 1 1
+    ERR invalid_job_name: asdf
+    set_processes GDExamples::Sleeper::ZzZzZzzz ten ten
+    ERR invalid_value: min_processes must be >= 0
+    set_processes GDExamples::Sleeper::ZzZzZzzz 1 ten
+    ERR invalid_value: max_processes must be >= 0
+    set_processes GDExamples::Sleeper::ZzZzZzzz 5 1
+    ERR invalid_value: max_processes must be greater than min_processes
+    set_processes GDExamples::Sleeper::ZzZzZzzz 1 5
+    OK
+    .
+
+=cut
+
+sub set_processes {
+    my ( $self, $job_name, $min_processes, $max_processes ) = @_;
+
+    my $job = $self->get_job($job_name);
+
+    if ( !defined($min_processes) || $min_processes !~ /^\d+$/ || $min_processes < 0 ) {
+        die "ERR invalid_value: min_processes must be >= 0\n";
+    }
+
+    if ( !defined($max_processes) || $max_processes !~ /^\d+$/ || $max_processes < 0 ) {
+        die "ERR invalid_value: max_processes must be >= 0\n";
+    }
+
+    if ( $max_processes < $min_processes ) {
+        die "ERR invalid_value: max_processes must be greater than min_processes\n";
+    }
+
+    $job->min_processes($min_processes);
+    $job->max_processes($max_processes);
+
+    return "OK";
+}
+
 =head2 show
 
 Parameters: C<job_name>

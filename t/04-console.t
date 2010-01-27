@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 177;
+use Test::More tests => 254;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -140,6 +140,43 @@ sleep(5);
         push @lines, $line;
     }
     eq_or_diff( \@lines, \@expected );
+
+    foreach my $job_name (@job_names) {
+        $telnet->print("set_processes $job_name 1 1");
+        is( $telnet->getline(), "OK\n" );
+        is( $telnet->getline(), ".\n" );
+    }
+    sleep(6);
+
+    @expected = (
+        "Live::NS1::BasicChilds::ping\t1\t1\t1",             "Live::NS2::Ping2::ping\t1\t1\t1",
+        "Live::NS1::OverrideAttributesChilds::job\t1\t1\t1", "Live::NS1::OverrideAttributes::job\t1\t1\t1",
+        "Live::NS1::BeginEnd::job\t1\t1\t1",                 "Live::NS3::AddJob::begin_end\t1\t1\t1",
+        "Live::NS1::Spread::some_job_4\t1\t1\t1",            "Live::NS1::Spread::some_job_1\t1\t1\t1",
+        "Live::NS2::UseBase::job\t1\t1\t1",                  "Live::NS1::Spread::main\t1\t1\t1",
+        "Live::NS1::Encode::job1\t1\t1\t1",                  "Live::NS1::Basic::quit\t1\t1\t1",
+        "Live::NS1::Basic::ping\t1\t1\t1",                   "Live::NS1::Decode::job2\t1\t1\t1",
+        "Live::NS1::Basic::get_pid\t1\t1\t1",                "Live::NS3::AddJobChilds::ten_processes\t1\t1\t1",
+        "Live::NS1::Basic::sleeper\t1\t1\t1",                "something_custom_ping\t1\t1\t1",
+        "Live::NS1::DefaultAttributesChilds::job\t1\t1\t1",  "Live::NS1::Encode::job2\t1\t1\t1",
+        "Live::NS2::BeginEnd::job\t1\t1\t1",                 "Live::NS3::AddJob::ten_processes\t1\t1\t1",
+        "Live::NS1::Decode::job1\t1\t1\t1",                  "Live::NS1::DefaultAttributes::job\t1\t1\t1",
+        "Live::NS1::BasicChilds::ten_processes\t1\t1\t1",    "Live::NS3::AddJobChilds::sleeper\t1\t1\t1",
+        "Live::NS1::Spread::some_job_2\t1\t1\t1",            "Live::NS1::Spread::some_job_3\t1\t1\t1",
+        "Live::job\t1\t1\t1",                                "Live::NS3::AddJobChilds::job1\t1\t1\t1",
+        "Live::NS3::AddJob::job1\t1\t1\t1",                  "Live::NS1::Spread::some_job_5\t1\t1\t1",
+        "Live::NS1::Basic::ten_processes\t1\t1\t1",          "Live::NS3::AddJob::sleeper\t1\t1\t1",
+        "Live::NS1::BasicChilds::sleeper\t1\t1\t1",          "Live::NS3::AddJobChilds::begin_end\t1\t1\t1",
+    );
+
+    $telnet->print('status');
+    my @lines = ();
+    while ( my $line = $telnet->getline() ) {
+        last if $line eq ".\n";
+        chomp $line;
+        push @lines, $line;
+    }
+    eq_or_diff( \@lines, \@expected );
 }
 
 {
@@ -169,6 +206,18 @@ sleep(5);
     is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_max_processes Live::job 4");
+    is( $telnet->getline(), "ERR invalid_value: max_processes must be greater than min_processes\n" );
+
+    $telnet->print("set_processes asdf 1 1");
+    is( $telnet->getline(), "ERR invalid_job_name: asdf\n" );
+
+    $telnet->print("set_processes Live::job ten ten");
+    is( $telnet->getline(), "ERR invalid_value: min_processes must be >= 0\n" );
+
+    $telnet->print("set_processes Live::job 1 ten");
+    is( $telnet->getline(), "ERR invalid_value: max_processes must be >= 0\n" );
+
+    $telnet->print("set_processes Live::job 5 1");
     is( $telnet->getline(), "ERR invalid_value: max_processes must be greater than min_processes\n" );
 }
 
