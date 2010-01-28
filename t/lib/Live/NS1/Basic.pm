@@ -8,7 +8,7 @@ sub ping : Job {
     return 'pong';
 }
 
-sub get_pid : Job {
+sub get_pid : Job : MinChilds(0) {
     my ( $self, $job, $workload ) = @_;
     return $self->pid;
 }

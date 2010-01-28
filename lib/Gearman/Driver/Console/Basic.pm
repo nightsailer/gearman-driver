@@ -1,6 +1,7 @@
 package Gearman::Driver::Console::Basic;
 
 use Moose::Role;
+use DateTime;
 
 =head1 NAME
 
@@ -42,18 +43,28 @@ sub status {
     my ($self) = @_;
 
     # get maximum lengths
-    my @max = (0, 1, 1, 1);
+    my @max = ( 0, 1, 1, 1, 1, 1, 1 );
     foreach my $job ( $self->driver->get_jobs ) {
-        $max[0] = length $job->name            if $max[0] < length $job->name;
-        $max[1] = length $job->min_processes   if $max[1] < length $job->min_processes;
-        $max[2] = length $job->max_processes   if $max[2] < length $job->max_processes;
-        $max[3] = length $job->count_processes if $max[3] < length $job->count_processes;
+        $max[0] = length $job->name              if $max[0] < length $job->name;
+        $max[1] = length $job->min_processes     if $max[1] < length $job->min_processes;
+        $max[2] = length $job->max_processes     if $max[2] < length $job->max_processes;
+        $max[3] = length $job->count_processes   if $max[3] < length $job->count_processes;
+        $max[4] = length $job->get_lastrun       if $max[4] < length $job->get_lastrun;
+        $max[5] = length $job->get_lasterror     if $max[5] < length $job->get_lasterror;
+        $max[6] = length $job->get_lasterror_msg if $max[6] < length $job->get_lasterror_msg;
     }
 
     my @result = ();
     foreach my $job ( $self->driver->get_jobs ) {
+        my $error = $job->get_lasterror_msg;
+        chomp $error;
         push @result,
-          sprintf( "%-$max[0]s  %$max[1]d  %$max[2]d  %$max[3]d", $job->name, $job->min_processes, $job->max_processes, $job->count_processes );
+          sprintf(
+            "%-$max[0]s  %$max[1]d  %$max[2]d  %$max[3]d  %$max[4]s  %$max[5]s  %$max[6]s",
+            $job->name, $job->min_processes, $job->max_processes, $job->count_processes,
+            DateTime->from_epoch( epoch => $job->get_lastrun ),
+            DateTime->from_epoch( epoch => $job->get_lasterror ), $error
+          );
     }
 
     return @result;

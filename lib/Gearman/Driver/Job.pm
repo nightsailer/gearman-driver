@@ -5,6 +5,7 @@ use Gearman::XS::Worker;
 use Gearman::XS qw(:constants);
 use POE qw(Wheel::Run);
 use Try::Tiny;
+use Cache::FastMmap;
 
 =head1 NAME
 
@@ -117,6 +118,62 @@ has 'session' => (
     isa => 'POE::Session',
 );
 
+has 'lastrun' => (
+    is      => 'rw',
+    isa     => 'Int',
+    trigger => sub {
+        my ( $self, $value ) = @_;
+        my $key = sprintf '%s_lastrun', $self->name;
+        $self->cache->set( $key => $value );
+    }
+);
+
+has 'lasterror' => (
+    is      => 'rw',
+    isa     => 'Int',
+    trigger => sub {
+        my ( $self, $value ) = @_;
+        my $key = sprintf '%s_lasterror', $self->name;
+        $self->cache->set( $key => $value );
+    }
+);
+
+has 'lasterror_msg' => (
+    is      => 'rw',
+    isa     => 'Str',
+    trigger => sub {
+        my ( $self, $value ) = @_;
+        my $key = sprintf '%s_lasterror_msg', $self->name;
+        $self->cache->set( $key => $value );
+    }
+);
+
+has 'cache' => (
+    default => sub {
+        Cache::FastMmap->new(
+            share_file  => '/tmp/gearman_driver.cache',
+            expire_time => 604800,
+        );
+    },
+    is  => 'ro',
+    isa => 'Cache::FastMmap',
+);
+
+sub get_lastrun {
+    my ($self) = @_;
+    return $self->cache->get( $self->name . "_lastrun" ) || 0;
+}
+
+sub get_lasterror {
+    my ( $self, $job ) = @_;
+    return $self->cache->get( $self->name . "_lasterror" ) || 0;
+}
+
+sub get_lasterror_msg {
+    my ( $self, $job ) = @_;
+    return $self->cache->get( $self->name . "_lasterror_msg" ) || '';
+}
+
 sub add_process {
     my ($self) = @_;
     POE::Kernel->post( $self->session => 'add_process' );
@@ -154,7 +211,11 @@ sub BUILD {
         }
         catch {
             $error = $_;
+            $self->lasterror(time);
+            $self->lasterror_msg($error);
         };
+
+        $self->lastrun(time);
 
         $self->worker->end(@args);
 

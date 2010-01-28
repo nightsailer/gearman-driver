@@ -58,9 +58,10 @@ sub gearman_server {
 
 sub gearman_driver {
     return Gearman::Driver->new(
-        interval   => 1,
-        namespaces => [qw(Live)],
-        server     => join( ':', $host, $port ),
+        max_idle_time => 5,
+        interval      => 1,
+        namespaces    => [qw(Live)],
+        server        => join( ':', $host, $port ),
     );
 }
 

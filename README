@@ -208,6 +208,21 @@ ATTRIBUTES
 
     *   isa: "Int"
 
+  max_idle_time
+    Whenever Gearman::Driver::Observer notices that there are more processes
+    running than actually necessary (depending on min_processes and
+    max_processes setting) it will kill them. By default this happens
+    immediately. If you change this value to 300, a process which is not
+    necessary is killed after 300 seconds.
+
+    Please remember that this also depends on what value you set "interval"
+    to. The max_idle_time is only checked each n seconds where n is
+    "interval".
+
+    *   default: 0
+
+    *   isa: "Int"
+
   logfile
     Path to logfile.
 

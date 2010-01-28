@@ -318,6 +318,36 @@ has 'interval' => (
     required      => 1,
 );
 
+=head2 max_idle_time
+
+Whenever L<Gearman::Driver::Observer> notices that there are more
+processes running than actually necessary (depending on min_processes
+and max_processes setting) it will kill them. By default this happens
+immediately. If you change this value to C<300>, a process which is
+not necessary is killed after 300 seconds.
+
+Please remember that this also depends on what value you set
+L</interval> to. The max_idle_time is only checked each n seconds
+where n is L</interval>.
+
+=over 4
+
+=item * default: C<0>
+
+=item * isa: C<Int>
+
+=back
+
+=cut
+
+has 'max_idle_time' => (
+    default       => '0',
+    documentation => 'How many seconds a worker may be idle before its killed',
+    is            => 'rw',
+    isa           => 'Int',
+    required      => 1,
+);
+
 =head2 logfile
 
 Path to logfile.
@@ -855,14 +885,19 @@ sub _observer_callback {
                 my $free = $job->max_processes - $job->count_processes;
                 if ($free) {
                     my $start = $diff > $free ? $free : $diff;
-                    $self->log->debug( sprintf "Starting %d new process(es) of type %s", $start, $row->{name} );
+                    $self->log->debug( sprintf "Starting %d new process(es) of type %s", $start, $job->name );
                     $job->add_process for 1 .. $start;
                 }
             }
+
             elsif ( $job->count_processes && $job->count_processes > $job->min_processes && $row->{queue} == 0 ) {
-                my $stop = $job->count_processes - $job->min_processes;
-                $self->log->debug( sprintf "Stopping %d process(es) of type %s", $stop, $row->{name} );
-                $job->remove_process for 1 .. $stop;
+                my $idle = time - $job->get_lastrun;
+                if ( $idle >= $self->max_idle_time ) {
+                    my $stop = $job->count_processes - $job->min_processes;
+                    $self->log->debug( sprintf "Stopping %d process(es) of type %s (idle: %d)",
+                        $stop, $job->name, $idle );
+                    $job->remove_process for 1 .. $stop;
+                }
             }
         }
         else {

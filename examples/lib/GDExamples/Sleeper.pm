@@ -26,6 +26,10 @@ sub ZzZzZzzz : Job : MinProcesses(3) : MaxProcesses(6) {
     $self->output( $job->workload . " job called..." );
 }
 
+sub error : Job {
+    die "some test";
+}
+
 sub output {
     my ( $self, $workload ) = @_;
     print "$workload\n";

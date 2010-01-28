@@ -4,6 +4,8 @@ name 'Gearman-Driver';
 all_from 'lib/Gearman/Driver.pm';
 
 requires(
+    'Cache::FastMmap'            => '1.34',
+    'DateTime'                   => '0.4304',
     'Gearman::XS'                => '0.7',
     'Module::Find'               => '0.08',
     'Moose'                      => '0.90',

@@ -11,6 +11,7 @@ use Gearman::Driver;
 # ./examples/client.pl
 
 my $driver = Gearman::Driver->new_with_options(
+    max_idle_time        => 10,
     namespaces           => [qw(GDExamples)],
     server               => 'localhost:4730',
     interval             => 2,

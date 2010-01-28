@@ -3,7 +3,8 @@ Revision history for Gearman-Driver
             - New console commands: show, kill, killall,
               set_processes
             - Tidied status output of Gearman::Driver::Console
-            - Method get_job is sorted now
+            - Method get_jobs is sorted now
+            - New option: max_idle_time
 
 0.01014     Mon Jan 25 2010
             - Refactor console for being more extensible
