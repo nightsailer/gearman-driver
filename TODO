@@ -5,6 +5,7 @@
 * doc scripts/gearman_driver.pl somewhere
 * rework log messages
 * observer should only kill childs after n times seen as "being not needed"
+* monitor should also kill childs if cur_childs > max_childs
 
 * implement some shared stash with different backends (e.g. memcached) to have
   shared data across multiple worker childs (running on multiple servers). Some
