@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 254;
+use Test::More tests => 260;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -25,6 +25,7 @@ sleep(5);
         "Live::NS1::Basic::ping                     1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::Basic::quit                     1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::Basic::sleeper                  2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Live::NS1::Basic::sleepy_pid               0   1   0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::Basic::ten_processes           10  10  10  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::BasicChilds::ping               1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::BasicChilds::sleeper            2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
@@ -134,6 +135,7 @@ sleep(5);
         "Live::NS1::Basic::ping                    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::Basic::quit                    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::Basic::sleeper                 0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Live::NS1::Basic::sleepy_pid              0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::Basic::ten_processes           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::BasicChilds::ping              0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::BasicChilds::sleeper           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
@@ -189,6 +191,7 @@ sleep(5);
         "Live::NS1::Basic::ping                    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::Basic::quit                    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::Basic::sleeper                 1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Live::NS1::Basic::sleepy_pid              1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::Basic::ten_processes           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::BasicChilds::ping              1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS1::BasicChilds::sleeper           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",

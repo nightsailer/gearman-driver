@@ -8,8 +8,19 @@ sub ping : Job {
     return 'pong';
 }
 
+sub sleepy_pid : Job : MinChilds(0) {
+    my ( $self, $job, $workload ) = @_;
+    $workload ||= 0;
+    for ( 0 .. $workload ) {
+        warn "sleeping zZzZz $_";
+        sleep(1);
+    }
+    return $self->pid;
+}
+
 sub get_pid : Job : MinChilds(0) {
     my ( $self, $job, $workload ) = @_;
+    warn "get_pid: ". $self->pid;
     return $self->pid;
 }
 
