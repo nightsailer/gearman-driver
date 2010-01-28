@@ -509,7 +509,6 @@ has 'jobs' => (
     handles => {
         _set_job => 'set',
         get_job  => 'get',
-        get_jobs => 'values',
         has_job  => 'defined',
     },
     is     => 'ro',
@@ -689,6 +688,21 @@ sub add_job {
     $self->log->debug( sprintf "Added new job: %s (processes: %d)", $params->{name}, $params->{min_processes} );
 
     return 1;
+}
+
+=head2 get_jobs
+
+Returns all L<Gearman::Driver::Job> objects ordered by jobname.
+
+=cut
+
+sub get_jobs {
+    my ($self) = @_;
+    my @result = ();
+    foreach my $name ( sort keys %{ $self->jobs } ) {
+        push @result, $self->get_job($name);
+    }
+    return @result;
 }
 
 =head2 run

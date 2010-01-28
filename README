@@ -396,6 +396,9 @@ METHODS
 
         $driver->run;
 
+  get_jobs
+    Returns all Gearman::Driver::Job objects ordered by jobname.
+
   run
     This must be called after the Gearman::Driver object is instantiated.
 
