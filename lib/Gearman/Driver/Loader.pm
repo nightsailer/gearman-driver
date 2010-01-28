@@ -1,16 +1,13 @@
 package Gearman::Driver::Loader;
 
 use Moose::Role;
-use Try::Tiny;
+use Class::MOP;
 use Module::Find;
+use Try::Tiny;
 
 =head1 NAME
 
 Gearman::Driver::Loader - Loads worker classes
-
-=head1 SYNOPSIS
-
-    TODO: add docs
 
 =head1 DESCRIPTION
 
@@ -187,28 +184,33 @@ Returns the count of L<modules|Gearman::Driver/modules>.
 
 =head2 is_valid_worker_subclass
 
-TODO: add docs
+Parameters: C<$package>
+
+Checks if the given C<$package> is a valid subclass of
+L<Gearman::Driver::Worker>.
 
 =cut
 
 sub is_valid_worker_subclass {
-    my ( $self, $module ) = @_;
-    return 0 unless $module->can('meta');
-    return 0 unless $module->meta->can('linearized_isa');
-    return 0 unless grep $_ eq 'Gearman::Driver::Worker', $module->meta->linearized_isa;
+    my ( $self, $package ) = @_;
+    return 0 unless $package->can('meta');
+    return 0 unless $package->meta->can('linearized_isa');
+    return 0 unless grep $_ eq 'Gearman::Driver::Worker', $package->meta->linearized_isa;
     return 1;
 }
 
 =head2 has_job_method
 
-TODO: add docs
+Parameters: C<$package>
+
+Checks if the given C<$package> has a valid job method.
 
 =cut
 
 sub has_job_method {
-    my ( $self, $module ) = @_;
-    return 0 unless $module->meta->can('get_nearest_methods_with_attributes');
-    foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
+    my ( $self, $package ) = @_;
+    return 0 unless $package->meta->can('get_nearest_methods_with_attributes');
+    foreach my $method ( $package->meta->get_nearest_methods_with_attributes ) {
         next unless grep $_ eq 'Job', @{ $method->attributes };
         return 1;
     }
@@ -217,7 +219,14 @@ sub has_job_method {
 
 =head2 load_namespaces
 
-TODO: add docs
+Loops over all L</namespaces> and uses L<findallmod|Module::Find>
+to generate a list of modules to load. It verifies the module is
+L</wanted> before it's being loaded using
+L<Class::MOP::load_class|Class::MOP>. After loading
+L</is_valid_worker_subclass> and L<has_wanted> is used to verify it.
+After all tests have passed the modules are L<added|/add_module>.
+So finally the loader is ready and can be queried with L<get_modules>
+for example.
 
 =cut
 
