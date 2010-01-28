@@ -17,12 +17,12 @@ C<quit>, C<shutdown>, ...
 
 Parameters: C<none>
 
-    GDExamples::Sleeper::ZzZzZzzz   3       6       3
-    GDExamples::Sleeper::long_running_ZzZzZzzz      1       2       1
-    GDExamples::WWW::is_online      0       1       0
+    GDExamples::Sleeper::ZzZzZzzz               3  6  3
+    GDExamples::Sleeper::long_running_ZzZzZzzz  1  2  1
+    GDExamples::WWW::is_online                  0  1  0
     .
 
-Columns are separated by tabs in this order:
+Columns are separated by at least two spaces in this order:
 
 =over 4
 
@@ -40,11 +40,22 @@ Columns are separated by tabs in this order:
 
 sub status {
     my ($self) = @_;
+
+    # get maximum lengths
+    my @max = (0, 1, 1, 1);
+    foreach my $job ( $self->driver->get_jobs ) {
+        $max[0] = length $job->name            if $max[0] < length $job->name;
+        $max[1] = length $job->min_processes   if $max[1] < length $job->min_processes;
+        $max[2] = length $job->max_processes   if $max[2] < length $job->max_processes;
+        $max[3] = length $job->count_processes if $max[3] < length $job->count_processes;
+    }
+
     my @result = ();
     foreach my $job ( $self->driver->get_jobs ) {
         push @result,
-          sprintf( "%s\t%d\t%d\t%d", $job->name, $job->min_processes, $job->max_processes, $job->count_processes );
+          sprintf( "%-$max[0]s  %$max[1]d  %$max[2]d  %$max[3]d", $job->name, $job->min_processes, $job->max_processes, $job->count_processes );
     }
+
     return @result;
 }
 
@@ -186,7 +197,7 @@ sub show {
     my @result = ();
 
     push @result,
-      sprintf( "%s\t%d\t%d\t%d", $job->name, $job->min_processes, $job->max_processes, $job->count_processes );
+      sprintf( "%s  %d  %d  %d", $job->name, $job->min_processes, $job->max_processes, $job->count_processes );
 
     push @result, $job->get_pids;
 
