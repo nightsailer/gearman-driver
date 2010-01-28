@@ -229,7 +229,9 @@ not necessary is killed after 300 seconds.
 
 Please remember that this also depends on what value you set
 L</interval> to. The max_idle_time is only checked each n seconds
-where n is L</interval>.
+where n is L</interval>. Besides that it makes only sense when you
+have workers where L<Gearman::Driver::Worker/MinProcesses> is set to
+C<0>.
 
 =over 4
 
