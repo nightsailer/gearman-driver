@@ -193,6 +193,7 @@ L<Gearman::Driver::Worker>.
 
 sub is_valid_worker_subclass {
     my ( $self, $package ) = @_;
+    return 0 unless $package;
     return 0 unless $package->can('meta');
     return 0 unless $package->meta->can('linearized_isa');
     return 0 unless grep $_ eq 'Gearman::Driver::Worker', $package->meta->linearized_isa;
@@ -209,6 +210,7 @@ Checks if the given C<$package> has a valid job method.
 
 sub has_job_method {
     my ( $self, $package ) = @_;
+    return 0 unless $package;
     return 0 unless $package->meta->can('get_nearest_methods_with_attributes');
     foreach my $method ( $package->meta->get_nearest_methods_with_attributes ) {
         next unless grep $_ eq 'Job', @{ $method->attributes };

@@ -1,12 +1,36 @@
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More tests => 6;
 use Test::Exception;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use Gearman::Driver;
 use POE;
+use Loader::Empty;
 
+{
+    my $e = Loader::Empty->new();
+    isa_ok( $e, 'Loader::Empty', 'Role works' );
+    lives_ok { $e->namespaces( [qw(Live)] ) } 'namespaces method/attribute';
+    is_deeply( [ $e->get_namespaces ], [qw(Live)], 'get_namespaces method/attribute' );
+    lives_ok {
+        $e->wanted(
+            sub {
+                return 1 if /Begin|Basic|AddJob/;
+                return 0;
+            }
+        );
+    }
+    'wanted method/attribute';
+    lives_ok { $e->load_namespaces } 'load_namespaces method/attribute';
+    is_deeply(
+        [ $e->get_modules ],
+        [ 'Live::NS1::Basic', 'Live::NS1::BasicChilds', 'Live::NS1::BeginEnd', 'Live::NS2::BeginEnd' ],
+        'get_modules method/attribute'
+    );
+
+}
+exit;
 POE::Kernel->run();
 
 {
