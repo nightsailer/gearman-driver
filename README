@@ -127,12 +127,14 @@ ATTRIBUTES
 
     See also: "wanted".
 
-    * isa: "ArrayRef"
-    * required: "True"
+    *   isa: "ArrayRef"
+
+    *   required: "True"
 
   wanted
-    * isa: "CodeRef"
-    * required: "False"
+    *   isa: "CodeRef"
+
+    *   required: "False"
 
     This CodeRef will be called on each of the modules found in your
     "namespace". The first and only parameter to this sub is the name of the
@@ -141,13 +143,19 @@ ATTRIBUTES
 
     Let's say you have a namespace called "My::Project":
 
-    * My::Project::Web
-    * My::Project::Web::Controller::Root
-    * My::Project::Web::Controller::Admin
-    * My::Project::Web::Controller::User
-    * My::Project::Web::Model::DBIC
-    * My::Project::Worker::ScaleImage
-    * My::Project::Worker::RemoveUser
+    *   My::Project::Web
+
+    *   My::Project::Web::Controller::Root
+
+    *   My::Project::Web::Controller::Admin
+
+    *   My::Project::Web::Controller::User
+
+    *   My::Project::Web::Model::DBIC
+
+    *   My::Project::Worker::ScaleImage
+
+    *   My::Project::Worker::RemoveUser
 
     To avoid every module being loaded and inspected being a
     Gearman::Driver::Worker subclass you can use "wanted" to only load
@@ -164,8 +172,9 @@ ATTRIBUTES
 
     This would only load:
 
-    * My::Project::Worker::ScaleImage
-    * My::Project::Worker::RemoveUser
+    *   My::Project::Worker::ScaleImage
+
+    *   My::Project::Worker::RemoveUser
 
   server
     A list of Gearman servers the workers should connect to. The format for
@@ -173,16 +182,18 @@ ATTRIBUTES
 
     See also: Gearman::XS
 
-    * default: "localhost:4730"
-    * isa: "Str"
+    *   default: "localhost:4730"
+
+    *   isa: "Str"
 
   console_port
     Gearman::Driver has a telnet management console, see also:
 
     Gearman::Driver::Console
 
-    * default: 47300
-    * isa: "Int"
+    *   default: 47300
+
+    *   isa: "Int"
 
     Set this to 0 to disable management console at all.
 
@@ -193,26 +204,30 @@ ATTRIBUTES
     MinProcesses/MaxProcesses attribute of the job method. See also:
     Gearman::Driver::Worker
 
-    * default: 5
-    * isa: "Int"
+    *   default: 5
+
+    *   isa: "Int"
 
   logfile
     Path to logfile.
 
-    * isa: "Str"
-    * default: "gearman_driver.log"
+    *   isa: "Str"
+
+    *   default: "gearman_driver.log"
 
   loglayout
     See also Log::Log4perl.
 
-    * isa: "Str"
-    * default: "[%d] %p %m%n"
+    *   isa: "Str"
+
+    *   default: "[%d] %p %m%n"
 
   loglevel
     See also Log::Log4perl.
 
-    * isa: "Str"
-    * default: "INFO"
+    *   isa: "Str"
+
+    *   default: "INFO"
 
   lib
     This is just for convenience to extend @INC from command line using
@@ -220,14 +235,15 @@ ATTRIBUTES
 
         gearman_driver.pl --lib ./lib --lib /custom/lib --namespaces My::Workers
 
-    * isa: "Str"
+    *   isa: "Str"
 
   unknown_job_callback
     Whenever Gearman::Driver::Observer sees a job that isnt handled it will
     call this CodeRef, passing following arguments:
 
-    * $driver
-    * $status
+    *   $driver
+
+    *   $status
 
         my $driver = Gearman::Driver->new(
             namespaces           => [qw(My::Workers)],
@@ -254,8 +270,9 @@ INTERNAL ATTRIBUTES
     Every worker module loaded by Module::Find will be added to this list.
     There are also two methods: get_modules and has_modules.
 
-    * isa: "ArrayRef"
-    * readonly: "True"
+    *   isa: "ArrayRef"
+
+    *   readonly: "True"
 
   jobs
     Stores all Gearman::Driver::Job instances. The key is the name the job
@@ -270,44 +287,54 @@ INTERNAL ATTRIBUTES
             'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Job' ),
         }
 
-    * isa: "HashRef"
-    * readonly: "True"
+    *   isa: "HashRef"
+
+    *   readonly: "True"
 
   observer
     Instance of Gearman::Driver::Observer.
 
-    * isa: "Gearman::Driver::Observer"
-    * readonly: "True"
+    *   isa: "Gearman::Driver::Observer"
+
+    *   readonly: "True"
 
   console
     Instance of Gearman::Driver::Console.
 
-    * isa: "Gearman::Driver::Console"
-    * readonly: "True"
+    *   isa: "Gearman::Driver::Console"
+
+    *   readonly: "True"
 
 METHODS
   add_job
     There's one mandatory param (hashref) with following keys:
 
-    * decode (optionally)
+    *   decode (optionally)
+
         Name of a decoder method in your worker object.
 
-    * encode (optionally)
+    *   encode (optionally)
+
         Name of a encoder method in your worker object.
 
-    * method (mandatory)
+    *   method (mandatory)
+
         Reference to a Class::MOP::Method object which will get invoked.
 
-    * min_processes (mandatory)
+    *   min_processes (mandatory)
+
         Minimum number of processes that should be forked.
 
-    * max_processes (mandatory)
+    *   max_processes (mandatory)
+
         Maximum number of processes that may be forked.
 
-    * name (mandatory)
+    *   name (mandatory)
+
         Job name/alias that method should be registered with Gearman.
 
-    * object (mandatory)
+    *   object (mandatory)
+
         Object that should be passed as first parameter to the job method.
 
     Basically you never really need this method if you use "namespaces". But
@@ -407,21 +434,35 @@ COPYRIGHT AND LICENSE
     under the same terms as Perl itself.
 
 SEE ALSO
-    * Gearman::Driver::Console
-    * Gearman::Driver::Console::Basic
-    * Gearman::Driver::Job
-    * Gearman::Driver::Observer
-    * Gearman::Driver::Worker
-    * Gearman::XS
-    * Log::Log4perl
-    * Module::Find
-    * Moose
-    * MooseX::Getopt
-    * MooseX::Log::Log4perl
-    * MooseX::MethodAttributes
-    * Net::Telnet::Gearman
-    * POE
-    * <http://www.gearman.org/>
+    *   Gearman::Driver::Console
+
+    *   Gearman::Driver::Console::Basic
+
+    *   Gearman::Driver::Job
+
+    *   Gearman::Driver::Observer
+
+    *   Gearman::Driver::Worker
+
+    *   Gearman::XS
+
+    *   Log::Log4perl
+
+    *   Module::Find
+
+    *   Moose
+
+    *   MooseX::Getopt
+
+    *   MooseX::Log::Log4perl
+
+    *   MooseX::MethodAttributes
+
+    *   Net::Telnet::Gearman
+
+    *   POE
+
+    *   <http://www.gearman.org/>
 
 REPOSITORY
     <http://github.com/plu/gearman-driver/>
