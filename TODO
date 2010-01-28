@@ -2,7 +2,6 @@
 * write more docs
 * add more examples
 * cleanup test mess
-* doc scripts/gearman_driver.pl somewhere
 * rework log messages
 * make MaxIdleTime configurable per job as new attribute
 * make client with readline support

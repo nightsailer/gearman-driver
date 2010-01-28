@@ -790,6 +790,23 @@ no Moose;
 
 __PACKAGE__->meta->make_immutable;
 
+=head1 SCRIPT
+
+There's also a script C<gearman_driver.pl> which is installed with
+this distribution. It just instantiates L<Gearman::Driver> with its
+default values, having most of the options exposed to the command
+line using L<MooseX::Getopt>.
+
+    usage: gearman_driver.pl [long options...]
+            --loglevel          Log level (default: INFO)
+            --lib               Example: --lib ./lib --lib /custom/lib
+            --server            Gearman host[:port][,host[:port]]
+            --logfile           Path to logfile (default: gearman_driver.log)
+            --console_port      Port of management console (default: 47300)
+            --interval          Interval in seconds (see Gearman::Driver::Observer)
+            --loglayout         Log message layout (default: [%d] %p %m%n)
+            --namespaces        Example: --namespaces My::Workers --namespaces My::OtherWorkers
+
 =head1 AUTHOR
 
 Johannes Plunien E<lt>plu@cpan.orgE<gt>
