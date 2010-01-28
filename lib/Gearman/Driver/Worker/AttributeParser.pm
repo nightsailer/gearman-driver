@@ -2,6 +2,18 @@ package Gearman::Driver::Worker::AttributeParser;
 
 use Moose::Role;
 
+=head1 NAME
+
+Gearman::Driver::Worker::AttributeParser - Parses worker attributes
+
+=head1 DESCRIPTION
+
+This module is responsible for parsing the
+L<method attributes|Gearman::Driver::Worker/METHODATTRIBUTES>
+of a worker. It currently has no public interface.
+
+=cut
+
 has 'parsed_attributes' => (
     builder => '_parse_attributes',
     handles => {
@@ -74,5 +86,37 @@ sub _parse_attributes {
 }
 
 no Moose::Role;
+
+=head1 AUTHOR
+
+See L<Gearman::Driver>.
+
+=head1 COPYRIGHT AND LICENSE
+
+See L<Gearman::Driver>.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item * L<Gearman::Driver>
+
+=item * L<Gearman::Driver::Console>
+
+=item * L<Gearman::Driver::Console::Basic>
+
+=item * L<Gearman::Driver::Job>
+
+=item * L<Gearman::Driver::Loader>
+
+=item * L<Gearman::Driver::Observer>
+
+=item * L<Gearman::Driver::Worker>
+
+=item * L<Gearman::Driver::Worker::Base>
+
+=back
+
+=cut
 
 1;

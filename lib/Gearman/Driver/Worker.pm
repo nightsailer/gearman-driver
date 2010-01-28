@@ -49,8 +49,6 @@ Gearman::Driver::Worker - Base class for workers
 
     1;
 
-=head1 DESCRIPTION
-
 =head1 ATTRIBUTES
 
 =head2 server
@@ -299,6 +297,10 @@ See L<Gearman::Driver>.
 =item * L<Gearman::Driver::Loader>
 
 =item * L<Gearman::Driver::Observer>
+
+=item * L<Gearman::Driver::Worker::AttributeParser>
+
+=item * L<Gearman::Driver::Worker::Base>
 
 =back
 

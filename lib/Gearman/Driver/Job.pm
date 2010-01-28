@@ -29,7 +29,15 @@ are written to a logfile. Possible events are:
 
 =back
 
-Currently there's no public interface.
+The current interface may only be interesting for people subclassing
+L<Gearman::Driver> or for people writing commands/extensions for
+L<Gearman::Driver::Console>.
+
+=head1 ATTRIBUTES
+
+=head2 driver
+
+Reference to the L<Gearman::Driver> instance.
 
 =cut
 
@@ -41,11 +49,24 @@ has 'driver' => (
     weak_ref => 1,
 );
 
+=head2 name
+
+The job's name.
+
+=cut
+
 has 'name' => (
     is       => 'rw',
     isa      => 'Str',
     required => 1,
 );
+
+=head2 method
+
+Code reference which is run called by L<Gearman::XS::Worker>.
+Actually it's not called directly by it, but in a wrapped coderef.
+
+=cut
 
 has 'method' => (
     is       => 'rw',
@@ -53,17 +74,38 @@ has 'method' => (
     required => 1,
 );
 
+=head2 worker
+
+Reference to the worker object.
+
+=cut
+
 has 'worker' => (
     is       => 'rw',
     isa      => 'Any',
     required => 1,
 );
 
+=head2 server
+
+A list of Gearman servers the workers should connect to. The format
+for the server list is: C<host[:port][,host[:port]]>
+
+It's the same value as in L<Gearman::Driver/server>.
+
+=cut
+
 has 'server' => (
     is       => 'rw',
     isa      => 'Str',
     required => 1,
 );
+
+=head2 max_processes
+
+Maximum number of concurrent processes this job may have.
+
+=cut
 
 has 'max_processes' => (
     default  => 1,
@@ -72,12 +114,29 @@ has 'max_processes' => (
     required => 1,
 );
 
+=head2 min_processes
+
+Minimum number of concurrent processes this job may have.
+
+=cut
+
 has 'min_processes' => (
     default  => 1,
     is       => 'rw',
     isa      => 'Int',
     required => 1,
 );
+
+=head2 encode
+
+This may be set to a method name which is implemented in the worker
+class or any subclass. If the method is not available, it will fail.
+The returned value of the job method is passed to this method and
+the return value of this method is sent back to the Gearman server.
+
+See also: L<Gearman::Driver::Worker/Encode>.
+
+=cut
 
 has 'encode' => (
     default  => '',
@@ -86,12 +145,49 @@ has 'encode' => (
     required => 1,
 );
 
+=head2 decode
+
+This may be set to a method name which is implemented in the worker
+class or any subclass. If the method is not available, it will fail.
+The workload from L<Gearman::XS::Job> is passed to this method and
+the return value is passed as argument C<$workload> to the job
+method.
+
+See also: L<Gearman::Driver::Worker/Decode>.
+
+=cut
+
 has 'decode' => (
     default  => '',
     is       => 'rw',
     isa      => 'Str',
     required => 1,
 );
+
+=head2 processes
+
+This attribute stores a key/value pair containing:
+C<$pid> => L<$job|Gearman::Driver::Job>
+
+It provides following methods:
+
+=over 4
+
+=item * C<count_processes()>
+
+=item * C<delete_process($pid)>
+
+=item * C<get_process($pid)>
+
+=item * C<get_processes()>
+
+=item * C<get_pids()>
+
+=item * C<set_process($pid => $job)>
+
+=back
+
+=cut
 
 has 'processes' => (
     default => sub { {} },
@@ -108,45 +204,36 @@ has 'processes' => (
     traits => [qw(Hash)],
 );
 
+=head2 gearman
+
+Instance of L<Gearman::XS::Worker>.
+
+=cut
+
 has 'gearman' => (
     is  => 'ro',
     isa => 'Gearman::XS::Worker',
 );
+
+=head2 session
+
+Instance of L<POE::Session>.
+
+=cut
 
 has 'session' => (
     is  => 'ro',
     isa => 'POE::Session',
 );
 
-has 'lastrun' => (
-    is      => 'rw',
-    isa     => 'Int',
-    trigger => sub {
-        my ( $self, $value ) = @_;
-        my $key = sprintf '%s_lastrun', $self->name;
-        $self->cache->set( $key => $value );
-    }
-);
+=head2 cache
 
-has 'lasterror' => (
-    is      => 'rw',
-    isa     => 'Int',
-    trigger => sub {
-        my ( $self, $value ) = @_;
-        my $key = sprintf '%s_lasterror', $self->name;
-        $self->cache->set( $key => $value );
-    }
-);
+An instance of L<Cache::FastMmap> is used to share data between the
+parent and child processes. This is necessary to set L<lastrun>,
+L<lasterror> and L<lasterror_msg> in the child processes and make
+the values available in the parent process.
 
-has 'lasterror_msg' => (
-    is      => 'rw',
-    isa     => 'Str',
-    trigger => sub {
-        my ( $self, $value ) = @_;
-        my $key = sprintf '%s_lasterror_msg', $self->name;
-        $self->cache->set( $key => $value );
-    }
-);
+=cut
 
 has 'cache' => (
     default => sub {
@@ -159,25 +246,108 @@ has 'cache' => (
     isa => 'Cache::FastMmap',
 );
 
+=head2 lastrun
+
+Each time this job is called it stores C<time()> in this attribute
+as well was in the L</cache>.
+
+=cut
+
+has 'lastrun' => (
+    is      => 'rw',
+    isa     => 'Int',
+    trigger => sub {
+        my ( $self, $value ) = @_;
+        my $key = sprintf '%s_lastrun', $self->name;
+        $self->cache->set( $key => $value );
+    }
+);
+
+=head2 lasterror
+
+Each time this job failed it stores C<time()> in this attribute
+as well was in the L</cache>.
+
+=cut
+
+has 'lasterror' => (
+    is      => 'rw',
+    isa     => 'Int',
+    trigger => sub {
+        my ( $self, $value ) = @_;
+        my $key = sprintf '%s_lasterror', $self->name;
+        $self->cache->set( $key => $value );
+    }
+);
+
+=head2 lasterror_msg
+
+Each time this job failed it stores the error message in this
+attribute as well was in the L</cache>.
+
+=cut
+
+has 'lasterror_msg' => (
+    is      => 'rw',
+    isa     => 'Str',
+    trigger => sub {
+        my ( $self, $value ) = @_;
+        my $key = sprintf '%s_lasterror_msg', $self->name;
+        $self->cache->set( $key => $value );
+    }
+);
+
+=head1 METHODS
+
+=head2 get_lastrun
+
+Getter for L</lastrun> which uses the L</cache>.
+
+=cut
+
 sub get_lastrun {
     my ($self) = @_;
     return $self->cache->get( $self->name . "_lastrun" ) || 0;
 }
+
+=head2 get_lasterror
+
+Getter for L</lasterror> which uses the L</cache>.
+
+=cut
 
 sub get_lasterror {
     my ( $self, $job ) = @_;
     return $self->cache->get( $self->name . "_lasterror" ) || 0;
 }
 
+=head2 get_lasterror_msg
+
+Getter for L</lasterror_msg> which uses the L</cache>.
+
+=cut
+
 sub get_lasterror_msg {
     my ( $self, $job ) = @_;
     return $self->cache->get( $self->name . "_lasterror_msg" ) || '';
 }
 
+=head2 add_process
+
+Starts/forks/adds another process of this job.
+
+=cut
+
 sub add_process {
     my ($self) = @_;
     POE::Kernel->post( $self->session => 'add_process' );
 }
+
+=head2 remove_process
+
+Removes/kills one process of this job.
+
+=cut
 
 sub remove_process {
     my ($self) = @_;
