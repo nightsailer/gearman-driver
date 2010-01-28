@@ -15,7 +15,7 @@ POE::Kernel->run();
         namespaces => [qw(Live)],
     );
 
-    $driver->_load_namespaces;
+    $driver->load_namespaces;
 
     is_deeply(
         [ $driver->get_modules ],
@@ -43,7 +43,7 @@ POE::Kernel->run();
         },
     );
 
-    $driver->_load_namespaces;
+    $driver->load_namespaces;
 
     is_deeply(
         [ $driver->get_modules ],
@@ -58,7 +58,7 @@ POE::Kernel->run();
         namespaces => [qw(DoesNotExist)],
     );
 
-    $driver->_load_namespaces;
+    $driver->load_namespaces;
 
     is_deeply( [ $driver->get_modules ], [], 'empty namespace' );
 }

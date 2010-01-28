@@ -118,63 +118,7 @@ DESCRIPTION
     See also: prefix
 
 ATTRIBUTES
-  namespaces
-    Will be passed to Module::Find "findallmod" method to load worker
-    modules. Each one of those modules has to be inherited from
-    Gearman::Driver::Worker or a subclass of it. It's also possible to use
-    the full package name to load a single module/file. There is also a
-    method get_namespaces which returns a sorted list of all namespaces.
-
-    See also: "wanted".
-
-    *   isa: "ArrayRef"
-
-    *   required: "True"
-
-  wanted
-    *   isa: "CodeRef"
-
-    *   required: "False"
-
-    This CodeRef will be called on each of the modules found in your
-    "namespace". The first and only parameter to this sub is the name of the
-    module. If a true value is returned, the module will be loaded and
-    checked if it's a valid Gearman::Driver::Worker subclass.
-
-    Let's say you have a namespace called "My::Project":
-
-    *   My::Project::Web
-
-    *   My::Project::Web::Controller::Root
-
-    *   My::Project::Web::Controller::Admin
-
-    *   My::Project::Web::Controller::User
-
-    *   My::Project::Web::Model::DBIC
-
-    *   My::Project::Worker::ScaleImage
-
-    *   My::Project::Worker::RemoveUser
-
-    To avoid every module being loaded and inspected being a
-    Gearman::Driver::Worker subclass you can use "wanted" to only load
-    classes having "Worker" in the package name:
-
-        my $driver = Gearman::Driver->new(
-            interval   => 0,
-            namespaces => [qw(My::Project)],
-            wanted     => sub {
-                return 1 if /Worker/;
-                return 0;
-            },
-        );
-
-    This would only load:
-
-    *   My::Project::Worker::ScaleImage
-
-    *   My::Project::Worker::RemoveUser
+    See also "ATTRIBUTES" in Gearman::Driver::Loader.
 
   server
     A list of Gearman servers the workers should connect to. The format for
@@ -244,14 +188,6 @@ ATTRIBUTES
 
     *   default: "INFO"
 
-  lib
-    This is just for convenience to extend @INC from command line using
-    "gearman_driver.pl":
-
-        gearman_driver.pl --lib ./lib --lib /custom/lib --namespaces My::Workers
-
-    *   isa: "Str"
-
   unknown_job_callback
     Whenever Gearman::Driver::Observer sees a job that isnt handled it will
     call this CodeRef, passing following arguments:
@@ -280,14 +216,6 @@ ATTRIBUTES
 
 INTERNAL ATTRIBUTES
     This might be interesting for subclassing Gearman::Driver.
-
-  modules
-    Every worker module loaded by Module::Find will be added to this list.
-    There are also two methods: get_modules and has_modules.
-
-    *   isa: "ArrayRef"
-
-    *   readonly: "True"
 
   jobs
     Stores all Gearman::Driver::Job instances. The key is the name the job
@@ -420,15 +348,6 @@ METHODS
   shutdown
     Sends TERM signal to all child processes and exits Gearman::Driver.
 
-  get_namespaces
-    Returns a sorted list of namespaces.
-
-  get_modules
-    Returns a sorted list of modules.
-
-  has_modules
-    Returns the count of modules.
-
   has_job
     Params: $name
 
@@ -457,6 +376,8 @@ SEE ALSO
     *   Gearman::Driver::Console::Basic
 
     *   Gearman::Driver::Job
+
+    *   Gearman::Driver::Loader
 
     *   Gearman::Driver::Observer
 

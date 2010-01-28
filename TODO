@@ -1,3 +1,5 @@
+* ADD MISSING DOCS TO Gearman::Driver::Loader
+
 * write more tests
 * write more docs
 * add more examples

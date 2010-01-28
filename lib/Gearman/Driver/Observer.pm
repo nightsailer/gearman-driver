@@ -126,6 +126,8 @@ See L<Gearman::Driver>.
 
 =item * L<Gearman::Driver::Job>
 
+=item * L<Gearman::Driver::Loader>
+
 =item * L<Gearman::Driver::Worker>
 
 =back

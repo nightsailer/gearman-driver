@@ -5,6 +5,7 @@ Revision history for Gearman-Driver
             - Tidied status output of Gearman::Driver::Console
             - Method get_jobs is sorted now
             - New option: max_idle_time
+            - Refactored worker loading: Gearman::Worker::Loader
 
 0.01014     Mon Jan 25 2010
             - Refactor console for being more extensible
