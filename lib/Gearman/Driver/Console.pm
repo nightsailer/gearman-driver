@@ -186,14 +186,11 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 
-Johannes Plunien E<lt>plu@cpan.orgE<gt>
+See L<Gearman::Driver>.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2009 by Johannes Plunien
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+See L<Gearman::Driver>.
 
 =head1 SEE ALSO
 
