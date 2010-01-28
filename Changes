@@ -1,5 +1,6 @@
 Revision history for Gearman-Driver
 
+0.01015     Thu Jan 28 2010
             - New console commands: show, kill, killall,
               set_processes
             - Tidied status output of Gearman::Driver::Console
