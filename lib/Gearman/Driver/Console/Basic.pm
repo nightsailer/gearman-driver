@@ -251,21 +251,40 @@ sub kill {
 
 Kills all childs/pids of given job.
 
-Parameters: C<job_name>
+Parameters: C<job_name> [<job_name> <job_name> ...]
 
     killall GDExamples::Sleeper::ZzZzZzzz
     OK
     .
 
+It also accepts C<*> as parameter to kill all jobs, so be careful
+with that!
+
 =cut
 
 sub killall {
-    my ( $self, $job_name ) = @_;
+    my ( $self, @job_names ) = @_;
 
-    my $job  = $self->get_job($job_name);
-    my @pids = $job->get_pids;
+    die "ERR invalid_value: no job_names given\n" unless scalar(@job_names);
 
-    CORE::kill 15, @pids;
+    my $kill = sub {
+        my ($job) = @_;
+        my @pids = $job->get_pids;
+        CORE::kill 15, @pids;
+    };
+
+    if ( defined $job_names[0] && $job_names[0] eq '*' && scalar(@job_names) == 1 ) {
+        foreach my $job ( $self->driver->get_jobs ) {
+            $kill->($job);
+        }
+    }
+
+    else {
+        foreach my $job_name (@job_names) {
+            my $job = $self->get_job($job_name);
+            $kill->($job);
+        }
+    }
 
     return "OK";
 }
