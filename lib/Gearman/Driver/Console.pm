@@ -77,12 +77,20 @@ sub BUILD {
             if ( $self->can($command) ) {
                 try {
                     my @result = $self->$command(@params);
-                    $heap->{client}->put($_) for @result;
-                    $heap->{client}->put('.');
+
+                    # the damn client may have disconnected before we can send something
+                    try {
+                        $heap->{client}->put($_) for @result;
+                        $heap->{client}->put('.');
+                    };
                 }
                 catch {
                     chomp($_);
-                    $heap->{client}->put($_);
+
+                    # the damn client may have disconnected before we can send something
+                    try {
+                        $heap->{client}->put($_);
+                    };
                 };
             }
 

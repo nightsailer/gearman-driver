@@ -74,7 +74,7 @@ sleep(5);
 {
     my @pids = ();
     my $test = sub {
-        my @expected = ( qr/^Live::NS1::BasicChilds::sleeper  2  6  2$/, qr/^\d+$/, qr/^\d+$/ );
+        my @expected = ( qr/^Live::NS1::BasicChilds::sleeper  2  6  2  1970-01-01T00:00:00  1970-01-01T00:00:00  $/, qr/^\d+$/, qr/^\d+$/ );
         $telnet->print('show Live::NS1::BasicChilds::sleeper');
         while ( my $line = $telnet->getline() ) {
             last if $line eq ".\n";
