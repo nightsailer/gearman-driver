@@ -18,9 +18,11 @@ C<quit>, C<shutdown>, ...
 
 Parameters: C<none>
 
-    GDExamples::Sleeper::ZzZzZzzz               3  6  3
-    GDExamples::Sleeper::long_running_ZzZzZzzz  1  2  1
-    GDExamples::WWW::is_online                  0  1  0
+    status
+    GDExamples::Sleeper::ZzZzZzzz               3  6  6  2010-01-29T20:37:17  1970-01-01T00:00:00
+    GDExamples::Sleeper::error                  1  1  1  2010-01-29T20:37:12  2010-01-29T20:37:12   some test at /Users/plu/Development/OpenSource/Gearman-Driver/examples/lib/GDExamples/Sleeper.pm line 30.
+    GDExamples::Sleeper::long_running_ZzZzZzzz  1  2  1  1970-01-01T00:00:00  1970-01-01T00:00:00
+    GDExamples::WWW::is_online                  0  1  1  2010-01-29T20:37:12  1970-01-01T00:00:00
     .
 
 Columns are separated by at least two spaces in this order:
@@ -34,6 +36,12 @@ Columns are separated by at least two spaces in this order:
 =item * max_processes
 
 =item * current_processes
+
+=item * last_run
+
+=item * last_error
+
+=item * last_error_message
 
 =back
 
