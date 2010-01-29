@@ -73,6 +73,7 @@ sub BUILD {
             my ( $session, $heap, $input ) = @_[ SESSION, HEAP, ARG0 ];
             my ( $command, @params ) = split /\s+/, $input;
             $command ||= '';
+
             if ( $self->can($command) ) {
                 try {
                     my @result = $self->$command(@params);
@@ -84,11 +85,17 @@ sub BUILD {
                     $heap->{client}->put($_);
                 };
             }
+
             elsif ( $command eq 'quit' ) {
                 delete $heap->{client};
             }
+
             else {
-                $heap->{client}->put("ERR unknown_command: $command");
+
+                # the damn client may have disconnected before we can send something
+                try {
+                    $heap->{client}->put("ERR unknown_command: $command");
+                };
             }
         }
     );

@@ -2,6 +2,7 @@ package Gearman::Driver::Console::Basic;
 
 use Moose::Role;
 use DateTime;
+use Time::HiRes;
 
 =head1 NAME
 
@@ -219,10 +220,12 @@ sub show {
     chomp $error;
 
     push @result,
-      sprintf( "%s  %d  %d  %d  %s  %s  %s",
+      sprintf(
+        "%s  %d  %d  %d  %s  %s  %s",
         $job->name, $job->min_processes, $job->max_processes, $job->count_processes,
         DateTime->from_epoch( epoch => $job->get_lastrun ),
-        DateTime->from_epoch( epoch => $job->get_lasterror ), $error );
+        DateTime->from_epoch( epoch => $job->get_lasterror ), $error
+      );
 
     push @result, $job->get_pids;
 
@@ -285,6 +288,7 @@ sub killall {
         my ($job) = @_;
         my @pids = $job->get_pids;
         CORE::kill 15, @pids;
+        Time::HiRes::usleep(50);    # prevent POE from freaking out
     };
 
     if ( defined $job_names[0] && $job_names[0] eq '*' && scalar(@job_names) == 1 ) {
