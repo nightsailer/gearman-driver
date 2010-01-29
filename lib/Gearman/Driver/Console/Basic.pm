@@ -196,13 +196,13 @@ sub set_processes {
 Parameters: C<job_name>
 
     show GDExamples::Sleeper::ZzZzZzzz
-    GDExamples::Sleeper::ZzZzZzzz   3       6       3
+    GDExamples::Sleeper::ZzZzZzzz  3  6  3  1970-01-01T00:00:00  1970-01-01T00:00:00
     3662
     3664
     3663
     .
     show GDExamples::Sleeper::long_running_ZzZzZzzz
-    GDExamples::Sleeper::long_running_ZzZzZzzz      1       2       1
+    GDExamples::Sleeper::long_running_ZzZzZzzz  1  2  1  1970-01-01T00:00:00  1970-01-01T00:00:00
     3665
     .
 
@@ -215,8 +215,14 @@ sub show {
 
     my @result = ();
 
+    my $error = $job->get_lasterror_msg;
+    chomp $error;
+
     push @result,
-      sprintf( "%s  %d  %d  %d", $job->name, $job->min_processes, $job->max_processes, $job->count_processes );
+      sprintf( "%s  %d  %d  %d  %s  %s  %s",
+        $job->name, $job->min_processes, $job->max_processes, $job->count_processes,
+        DateTime->from_epoch( epoch => $job->get_lastrun ),
+        DateTime->from_epoch( epoch => $job->get_lasterror ), $error );
 
     push @result, $job->get_pids;
 
