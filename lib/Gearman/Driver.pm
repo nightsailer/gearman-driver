@@ -341,7 +341,7 @@ C<$status> might look like:
     $VAR1 = {
         'busy'    => 0,
         'free'    => 0,
-        'name'    => 'GDExamples::Sleeper::unknown_job',
+        'name'    => 'GDExamples::Convert::unknown_job',
         'queue'   => 6,
         'running' => 0
     };

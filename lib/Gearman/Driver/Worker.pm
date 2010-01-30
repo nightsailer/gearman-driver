@@ -218,10 +218,8 @@ Example:
 
 This may look like:
 
-    plu       2034  0.0  1.7  22392 17948 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::ZzZzZzzz)
-    plu       2035  0.0  1.7  22392 17944 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::ZzZzZzzz)
-    plu       2036  0.0  1.7  22392 17948 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::ZzZzZzzz)
-    plu       2037  0.0  1.7  22392 17956 pts/2    S    21:17   0:00 ./examples/test.pl (GDExamples::Sleeper::long_running_ZzZzZzzz)
+    plu       2034  0.0  1.7  22392 17948 pts/2    S    21:17   0:00 gearman_driver.pl (GDExamples::Convert::convert_to_jpeg)
+    plu       2035  0.0  1.7  22392 17944 pts/2    S    21:17   0:00 gearman_driver.pl (GDExamples::Convert::convert_to_gif)
 
 =head2 override_attributes
 

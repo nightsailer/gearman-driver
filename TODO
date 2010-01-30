@@ -1,5 +1,4 @@
 * write more tests
-* add real examples
 * cleanup test mess
 * rework log messages
 * make MaxIdleTime configurable per job as new attribute

@@ -12,7 +12,7 @@ Gearman::Driver::Console - Management console
 
 =head1 SYNOPSIS
 
-    $ ~/Gearman-Driver$ ./examples/driver.pl --console_port 12345 &
+    $ ~/Gearman-Driver$ gearman_driver.pl --console_port 12345 &
     [1] 32890
     $ ~/Gearman-Driver$ telnet localhost 12345
     Trying ::1...
@@ -23,9 +23,8 @@ Gearman::Driver::Console - Management console
     Connected to localhost.
     Escape character is '^]'.
     status
-    GDExamples::Sleeper::ZzZzZzzz   3       6       3
-    GDExamples::Sleeper::long_running_ZzZzZzzz      1       2       1
-    GDExamples::WWW::is_online      0       1       0
+    GDExamples::Convert::convert_to_jpeg  0  5  0  2010-01-29T20:37:17  1970-01-01T00:00:00
+    GDExamples::Convert::convert_to_gif   0  5  0  2010-01-29T20:37:12  2010-01-29T20:37:12   some error
     .
 
 =head1 DESCRIPTION
@@ -174,15 +173,14 @@ Yes, that's all...
     Connected to localhost.
     Escape character is '^]'.
     list
-    GDExamples::Sleeper::ZzZzZzzz
-    GDExamples::Sleeper::long_running_ZzZzZzzz
-    GDExamples::WWW::is_online
+    GDExamples::Convert::convert_to_jpeg
+    GDExamples::Convert::convert_to_gif
     .
     broken
     ERR this is a broken command
     get_max_processes asdf
     ERR invalid_job_name: asdf
-    get_max_processes GDExamples::Sleeper::ZzZzZzzz
+    get_max_processes GDExamples::Convert::convert_to_jpeg
     6
     .
 

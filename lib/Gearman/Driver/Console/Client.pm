@@ -18,50 +18,44 @@ on all servers while runtime, this tool comes in handy:
             --server       A list of servers to connect to: "host1 host2 host3:47301 host4:47302"
             --history      Readline history, defaults to $HOME/.gearman_driver_history
 
-    $ ~/Gearman-Driver$ ./examples/driver.pl --console_port 47301 &
+    $ ~/Gearman-Driver$ gearman_driver.pl --console_port 47301 &
     [1] 89053
-    $ ~/Gearman-Driver$ ./examples/driver.pl --console_port 47302 &
+    $ ~/Gearman-Driver$ gearman_driver.pl --console_port 47302 &
     [2] 89066
-    $ ~/Gearman-Driver$ ./examples/driver.pl --console_port 47303 &
+    $ ~/Gearman-Driver$ gearman_driver.pl --console_port 47303 &
     [3] 89079
 
     $ ~/Gearman-Driver$ gearman_driver_console.pl --server "localhost:47301 localhost:47302 localhost:47303"
     console> status
-    localhost:47301> GDExamples::Sleeper::ZzZzZzzz               3  6  3  1970-01-01T00:00:00  1970-01-01T00:00:00
-    localhost:47301> GDExamples::Sleeper::error                  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00
-    localhost:47301> GDExamples::Sleeper::long_running_ZzZzZzzz  1  2  1  1970-01-01T00:00:00  1970-01-01T00:00:00
-    localhost:47301> GDExamples::WWW::is_online                  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00
+    localhost:47301> GDExamples::Convert::convert_to_jpeg  0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
+    localhost:47301> GDExamples::Convert::convert_to_gif   0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
     localhost:47301> .
-    localhost:47302> GDExamples::Sleeper::ZzZzZzzz               3  6  3  1970-01-01T00:00:00  1970-01-01T00:00:00
-    localhost:47302> GDExamples::Sleeper::error                  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00
-    localhost:47302> GDExamples::Sleeper::long_running_ZzZzZzzz  1  2  1  1970-01-01T00:00:00  1970-01-01T00:00:00
-    localhost:47302> GDExamples::WWW::is_online                  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00
+    localhost:47302> GDExamples::Convert::convert_to_jpeg  0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
+    localhost:47302> GDExamples::Convert::convert_to_gif   0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
     localhost:47302> .
-    localhost:47303> GDExamples::Sleeper::ZzZzZzzz               3  6  3  1970-01-01T00:00:00  1970-01-01T00:00:00
-    localhost:47303> GDExamples::Sleeper::error                  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00
-    localhost:47303> GDExamples::Sleeper::long_running_ZzZzZzzz  1  2  1  1970-01-01T00:00:00  1970-01-01T00:00:00
-    localhost:47303> GDExamples::WWW::is_online                  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00
+    localhost:47303> GDExamples::Convert::convert_to_jpeg  0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
+    localhost:47303> GDExamples::Convert::convert_to_gif   0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
     localhost:47303> .
-    console> show GDExamples::Sleeper::ZzZzZzzz
-    localhost:47301> GDExamples::Sleeper::ZzZzZzzz  3  6  3  1970-01-01T00:00:00  1970-01-01T00:00:00
+    console> show GDExamples::Convert::convert_to_jpeg
+    localhost:47301> GDExamples::Convert::convert_to_jpeg  0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
     localhost:47301> 89061
     localhost:47301> 89063
     localhost:47301> 89062
     localhost:47301> .
-    localhost:47302> GDExamples::Sleeper::ZzZzZzzz  3  6  3  1970-01-01T00:00:00  1970-01-01T00:00:00
+    localhost:47302> GDExamples::Convert::convert_to_jpeg  0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
     localhost:47302> 89074
     localhost:47302> 89075
     localhost:47302> 89076
     localhost:47302> .
-    localhost:47303> GDExamples::Sleeper::ZzZzZzzz  3  6  3  1970-01-01T00:00:00  1970-01-01T00:00:00
+    localhost:47303> GDExamples::Convert::convert_to_jpeg  0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
     localhost:47303> 89088
     localhost:47303> 89089
     localhost:47303> 89087
     localhost:47303> .
     console> shutdown
-    [1]   Done                    ./examples/driver.pl --console_port 47301
-    [2]-  Done                    ./examples/driver.pl --console_port 47302
-    [3]+  Done                    ./examples/driver.pl --console_port 47303
+    [1]   Done                    gearman_driver.pl --console_port 47301
+    [2]-  Done                    gearman_driver.pl --console_port 47302
+    [3]+  Done                    gearman_driver.pl --console_port 47303
     $ ~/Gearman-Driver$
 
 =cut

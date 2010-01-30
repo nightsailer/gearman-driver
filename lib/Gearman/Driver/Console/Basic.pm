@@ -20,10 +20,8 @@ C<quit>, C<shutdown>, ...
 Parameters: C<none>
 
     status
-    GDExamples::Sleeper::ZzZzZzzz               3  6  6  2010-01-29T20:37:17  1970-01-01T00:00:00
-    GDExamples::Sleeper::error                  1  1  1  2010-01-29T20:37:12  2010-01-29T20:37:12   some test at /Users/plu/Development/OpenSource/Gearman-Driver/examples/lib/GDExamples/Sleeper.pm line 30.
-    GDExamples::Sleeper::long_running_ZzZzZzzz  1  2  1  1970-01-01T00:00:00  1970-01-01T00:00:00
-    GDExamples::WWW::is_online                  0  1  1  2010-01-29T20:37:12  1970-01-01T00:00:00
+    GDExamples::Convert::convert_to_jpeg  0  5  0  2010-01-29T20:37:17  1970-01-01T00:00:00
+    GDExamples::Convert::convert_to_gif   0  5  0  2010-01-29T20:37:12  2010-01-29T20:37:12   some error
     .
 
 Columns are separated by at least two spaces in this order:
@@ -85,11 +83,11 @@ Parameters: C<job_name min_processes>
 
     set_min_processes asdf 5
     ERR invalid_job_name: asdf
-    set_min_processes GDExamples::Sleeper::ZzZzZzzz ten
+    set_min_processes GDExamples::Convert::convert_to_jpeg ten
     ERR invalid_value: min_processes must be >= 0
-    set_min_processes GDExamples::Sleeper::ZzZzZzzz 10
+    set_min_processes GDExamples::Convert::convert_to_jpeg 10
     ERR invalid_value: min_processes must be smaller than max_processes
-    set_min_processes GDExamples::Sleeper::ZzZzZzzz 5
+    set_min_processes GDExamples::Convert::convert_to_jpeg 5
     OK
     .
 
@@ -121,11 +119,11 @@ Parameters: C<job_name max_processes>
 
     set_max_processes asdf 5
     ERR invalid_job_name: asdf
-    set_max_processes GDExamples::Sleeper::ZzZzZzzz ten
+    set_max_processes GDExamples::Convert::convert_to_jpeg ten
     ERR invalid_value: max_processes must be >= 0
-    set_max_processes GDExamples::Sleeper::ZzZzZzzz 0
+    set_max_processes GDExamples::Convert::convert_to_jpeg 0
     ERR invalid_value: max_processes must be greater than min_processes
-    set_max_processes GDExamples::Sleeper::ZzZzZzzz 6
+    set_max_processes GDExamples::Convert::convert_to_jpeg 6
     OK
     .
 
@@ -157,13 +155,13 @@ Parameters: C<job_name min_processes max_processes>
 
     set_processes asdf 1 1
     ERR invalid_job_name: asdf
-    set_processes GDExamples::Sleeper::ZzZzZzzz ten ten
+    set_processes GDExamples::Convert::convert_to_jpeg ten ten
     ERR invalid_value: min_processes must be >= 0
-    set_processes GDExamples::Sleeper::ZzZzZzzz 1 ten
+    set_processes GDExamples::Convert::convert_to_jpeg 1 ten
     ERR invalid_value: max_processes must be >= 0
-    set_processes GDExamples::Sleeper::ZzZzZzzz 5 1
+    set_processes GDExamples::Convert::convert_to_jpeg 5 1
     ERR invalid_value: max_processes must be greater than min_processes
-    set_processes GDExamples::Sleeper::ZzZzZzzz 1 5
+    set_processes GDExamples::Convert::convert_to_jpeg 1 5
     OK
     .
 
@@ -196,14 +194,14 @@ sub set_processes {
 
 Parameters: C<job_name>
 
-    show GDExamples::Sleeper::ZzZzZzzz
-    GDExamples::Sleeper::ZzZzZzzz  3  6  3  1970-01-01T00:00:00  1970-01-01T00:00:00
+    show GDExamples::Convert::convert_to_jpeg
+    GDExamples::Convert::convert_to_jpeg  0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
     3662
     3664
     3663
     .
-    show GDExamples::Sleeper::long_running_ZzZzZzzz
-    GDExamples::Sleeper::long_running_ZzZzZzzz  1  2  1  1970-01-01T00:00:00  1970-01-01T00:00:00
+    show GDExamples::Convert::convert_to_gif
+    GDExamples::Convert::convert_to_gif  0  5  0  1970-01-01T00:00:00  1970-01-01T00:00:00
     3665
     .
 
@@ -270,7 +268,7 @@ Kills all childs/pids of given job.
 
 Parameters: C<job_name> [<job_name> <job_name> ...]
 
-    killall GDExamples::Sleeper::ZzZzZzzz
+    killall GDExamples::Convert::convert_to_jpeg
     OK
     .
 

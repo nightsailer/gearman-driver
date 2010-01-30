@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01017     Sat Jan 30 2010
+            - Add real world example to convert images
+
 0.01016     Sat Jan 30 2010
             - New tool: gearman_driver_console.pl (console client)
             - Every console command ends with ".\n", even errors
