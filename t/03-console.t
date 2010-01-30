@@ -6,6 +6,11 @@ use FindBin;
 use lib "$FindBin::Bin/lib";
 use TestLib;
 use Net::Telnet;
+use Try::Tiny;
+
+try {
+    unlink('/tmp/gearman_driver.cache');
+};
 
 my $test = TestLib->new();
 my $gc   = $test->gearman_client;
