@@ -19,8 +19,12 @@ my $driver = Gearman::Driver->new_with_options(
         my ( $driver, $status ) = @_;
         warn "UNKNOWN JOB:";
         use Data::Dumper;
-        $Data::Dumper::Sortkeys=1;
+        $Data::Dumper::Sortkeys = 1;
         warn Dumper $status;
+    },
+    wanted => sub {
+        return 1 if /GDExamples/;
+        return 0;
     }
 );
 $driver->run;
