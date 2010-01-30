@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 260;
+use Test::More tests => 272;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -74,7 +74,10 @@ sleep(5);
 {
     my @pids = ();
     my $test = sub {
-        my @expected = ( qr/^Live::NS1::BasicChilds::sleeper  2  6  2  1970-01-01T00:00:00  1970-01-01T00:00:00  $/, qr/^\d+$/, qr/^\d+$/ );
+        my @expected = (
+            qr/^Live::NS1::BasicChilds::sleeper  2  6  2  1970-01-01T00:00:00  1970-01-01T00:00:00  $/,
+            qr/^\d+$/, qr/^\d+$/
+        );
         $telnet->print('show Live::NS1::BasicChilds::sleeper');
         while ( my $line = $telnet->getline() ) {
             last if $line eq ".\n";
@@ -87,6 +90,7 @@ sleep(5);
     $test->();
     $telnet->print('kill 1');
     is( $telnet->getline(), "ERR invalid_value: the given PID(s) do not belong to us\n" );
+    is( $telnet->getline(), ".\n" );
 
     my @old_pids = @pids;
 
@@ -239,21 +243,27 @@ sleep(5);
 {
     $telnet->print("asdf");
     is( $telnet->getline(), "ERR unknown_command: asdf\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_min_processes asdf 5");
     is( $telnet->getline(), "ERR invalid_job_name: asdf\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_min_processes Live::job ten");
     is( $telnet->getline(), "ERR invalid_value: min_processes must be >= 0\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_min_processes Live::job 10");
     is( $telnet->getline(), "ERR invalid_value: min_processes must be smaller than max_processes\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_max_processes asdf 5");
     is( $telnet->getline(), "ERR invalid_job_name: asdf\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_max_processes Live::job ten");
     is( $telnet->getline(), "ERR invalid_value: max_processes must be >= 0\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_max_processes Live::job 5");
     is( $telnet->getline(), "OK\n" );
@@ -264,18 +274,23 @@ sleep(5);
 
     $telnet->print("set_max_processes Live::job 4");
     is( $telnet->getline(), "ERR invalid_value: max_processes must be greater than min_processes\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_processes asdf 1 1");
     is( $telnet->getline(), "ERR invalid_job_name: asdf\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_processes Live::job ten ten");
     is( $telnet->getline(), "ERR invalid_value: min_processes must be >= 0\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_processes Live::job 1 ten");
     is( $telnet->getline(), "ERR invalid_value: max_processes must be >= 0\n" );
+    is( $telnet->getline(), ".\n" );
 
     $telnet->print("set_processes Live::job 5 1");
     is( $telnet->getline(), "ERR invalid_value: max_processes must be greater than min_processes\n" );
+    is( $telnet->getline(), ".\n" );
 }
 
 $telnet->print(' shutdown ');

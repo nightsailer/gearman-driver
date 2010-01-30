@@ -1,9 +1,10 @@
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 BEGIN {
     use_ok('Gearman::Driver');
     use_ok('Gearman::Driver::Console');
     use_ok('Gearman::Driver::Console::Basic');
+    use_ok('Gearman::Driver::Console::Client');
     use_ok('Gearman::Driver::Job');
     use_ok('Gearman::Driver::Loader');
     use_ok('Gearman::Driver::Observer');

@@ -63,7 +63,7 @@ has 'driver' => (
 sub BUILD {
     my ($self) = @_;
 
-    my @commands = findallmod Gearman::Driver::Console;
+    my @commands = grep $_ ne 'Gearman::Driver::Console::Client', findallmod Gearman::Driver::Console;
     apply_all_roles( $self => @commands );
 
     $self->{server} = POE::Component::Server::TCP->new(
@@ -77,17 +77,12 @@ sub BUILD {
             if ( $self->can($command) ) {
                 try {
                     my @result = $self->$command(@params);
-
-                    # the damn client may have disconnected before we can send something
                     try {
                         $heap->{client}->put($_) for @result;
-                        $heap->{client}->put('.');
                     };
                 }
                 catch {
                     chomp($_);
-
-                    # the damn client may have disconnected before we can send something
                     try {
                         $heap->{client}->put($_);
                     };
@@ -96,15 +91,18 @@ sub BUILD {
 
             elsif ( $command eq 'quit' ) {
                 delete $heap->{client};
+                return;
             }
 
             else {
-
-                # the damn client may have disconnected before we can send something
                 try {
                     $heap->{client}->put("ERR unknown_command: $command");
                 };
             }
+
+            try {
+                $heap->{client}->put('.');
+            };
         }
     );
 }
@@ -214,6 +212,8 @@ See L<Gearman::Driver>.
 =item * L<Gearman::Driver>
 
 =item * L<Gearman::Driver::Console::Basic>
+
+=item * L<Gearman::Driver::Console::Client>
 
 =item * L<Gearman::Driver::Job>
 

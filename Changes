@@ -1,5 +1,11 @@
 Revision history for Gearman-Driver
 
+            - New tool: gearman_driver_console.pl
+            - Every console command ends with ".\n", even errors
+            - Show lastrun/lasterror/lasterror_msg in 'show' command
+            - Command 'killall' accepts 'magic' parameter '*' to kill
+              every job
+
 0.01015     Thu Jan 28 2010
             - New console commands: show, kill, killall,
               set_processes

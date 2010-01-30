@@ -275,6 +275,8 @@ See L<Gearman::Driver>.
 
 =item * L<Gearman::Driver::Console>
 
+=item * L<Gearman::Driver::Console::Client>
+
 =item * L<Gearman::Driver::Job>
 
 =item * L<Gearman::Driver::Observer>

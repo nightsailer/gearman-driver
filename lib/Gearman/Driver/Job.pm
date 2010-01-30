@@ -518,6 +518,8 @@ See L<Gearman::Driver>.
 
 =item * L<Gearman::Driver::Console::Basic>
 
+=item * L<Gearman::Driver::Console::Client>
+
 =item * L<Gearman::Driver::Loader>
 
 =item * L<Gearman::Driver::Observer>

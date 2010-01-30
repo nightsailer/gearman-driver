@@ -372,6 +372,7 @@ COPYRIGHT AND LICENSE
 SEE ALSO
     * Gearman::Driver::Console
     * Gearman::Driver::Console::Basic
+    * Gearman::Driver::Console::Client
     * Gearman::Driver::Job
     * Gearman::Driver::Loader
     * Gearman::Driver::Observer
