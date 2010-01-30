@@ -1,6 +1,6 @@
 Revision history for Gearman-Driver
 
-            - New tool: gearman_driver_console.pl
+            - New tool: gearman_driver_console.pl (console client)
             - Every console command ends with ".\n", even errors
             - Show lastrun/lasterror/lasterror_msg in 'show' command
             - Command 'killall' accepts 'magic' parameter '*' to kill
