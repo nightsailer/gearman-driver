@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - Make extended status optional
+
 0.01018     Mon Jan 01 2010
             - Remove crap dot-files from release # osx--
 

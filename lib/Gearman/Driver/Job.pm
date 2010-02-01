@@ -242,14 +242,17 @@ has 'cache' => (
             expire_time => 604800,
         );
     },
-    is  => 'ro',
-    isa => 'Cache::FastMmap',
+    is   => 'ro',
+    isa  => 'Cache::FastMmap',
+    lazy => 1,
 );
 
 =head2 lastrun
 
 Each time this job is called it stores C<time()> in this attribute
 as well was in the L</cache>.
+
+This depends on L<Gearman::Driver/extended_status>.
 
 =cut
 
@@ -268,6 +271,8 @@ has 'lastrun' => (
 Each time this job failed it stores C<time()> in this attribute
 as well was in the L</cache>.
 
+This depends on L<Gearman::Driver/extended_status>.
+
 =cut
 
 has 'lasterror' => (
@@ -284,6 +289,8 @@ has 'lasterror' => (
 
 Each time this job failed it stores the error message in this
 attribute as well was in the L</cache>.
+
+This depends on L<Gearman::Driver/extended_status>.
 
 =cut
 
@@ -307,6 +314,7 @@ Getter for L</lastrun> which uses the L</cache>.
 
 sub get_lastrun {
     my ($self) = @_;
+    return 0 unless $self->driver->extended_status;
     return $self->cache->get( $self->name . "_lastrun" ) || 0;
 }
 
@@ -318,6 +326,7 @@ Getter for L</lasterror> which uses the L</cache>.
 
 sub get_lasterror {
     my ( $self, $job ) = @_;
+    return 0 unless $self->driver->extended_status;
     return $self->cache->get( $self->name . "_lasterror" ) || 0;
 }
 
@@ -329,6 +338,7 @@ Getter for L</lasterror_msg> which uses the L</cache>.
 
 sub get_lasterror_msg {
     my ( $self, $job ) = @_;
+    return '' unless $self->driver->extended_status;
     return $self->cache->get( $self->name . "_lasterror_msg" ) || '';
 }
 
@@ -381,11 +391,11 @@ sub BUILD {
         }
         catch {
             $error = $_;
-            $self->lasterror(time);
-            $self->lasterror_msg($error);
+            $self->lasterror(time) if $self->driver->extended_status;
+            $self->lasterror_msg($error) if $self->driver->extended_status;
         };
 
-        $self->lastrun(time);
+        $self->lastrun(time) if $self->driver->extended_status;
 
         $self->worker->end(@args);
 
