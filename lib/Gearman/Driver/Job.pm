@@ -436,6 +436,8 @@ sub _add_process {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
     my $process = POE::Wheel::Run->new(
         Program => sub {
+            POE::Kernel->stop();
+
             if ( my $process_name = $self->worker->process_name( $0, $self->name ) ) {
                 $0 = $process_name;
             }
