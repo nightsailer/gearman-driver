@@ -14,6 +14,7 @@ requires(
     'MooseX::Types::Path::Class' => '0.05',
     'Net::Telnet::Gearman'       => '0.01000',
     'POE'                        => '1.280',
+    'Time::HiRes'                => '1.9715',
     'Try::Tiny'                  => '0.02',
 );
 
@@ -25,7 +26,6 @@ test_requires(
     'Test::Differences' => 0,
     'Test::Exception'   => 0,
     'Test::More'        => 0,
-    'Time::HiRes'       => 0,
 );
 
 sub has_xs {
