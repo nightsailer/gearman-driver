@@ -6,6 +6,7 @@ all_from 'lib/Gearman/Driver.pm';
 requires(
     'Cache::FastMmap'            => '1.34',
     'DateTime'                   => '0.4304',
+    'Gearman::Client'            => '1.11',
     'Module::Find'               => '0.08',
     'Moose'                      => '0.90',
     'MooseX::Getopt'             => '0.24',
@@ -27,21 +28,6 @@ test_requires(
     'Test::Exception'   => 0,
     'Test::More'        => 0,
 );
-
-sub has_xs {
-    eval "require Gearman::XS";
-    return 1 unless $@;
-    return 0;
-}
-
-unless (has_xs) {
-    requires 'Gearman::Client' => '1.11';
-}
-else {
-    feature 'Gearman',
-      -default          => 0,
-      'Gearman::Client' => '1.11';
-}
 
 feature 'Gearman::XS',
   -default      => 0,
