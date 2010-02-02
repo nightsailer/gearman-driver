@@ -209,6 +209,8 @@ See L<Gearman::Driver>.
 
 =item * L<Gearman::Driver>
 
+=item * L<Gearman::Driver::Adaptor>
+
 =item * L<Gearman::Driver::Console::Basic>
 
 =item * L<Gearman::Driver::Console::Client>

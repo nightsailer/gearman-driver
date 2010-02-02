@@ -3,17 +3,15 @@ package    # hide from PAUSE
 
 use base qw(Gearman::Driver::Worker);
 use Moose;
-use Gearman::XS::Client;
+use TestLib;
 
-has 'gc' => (
-    default => sub { Gearman::XS::Client->new },
-    is      => 'ro',
-    isa     => 'Gearman::XS::Client',
-);
+has 'gc' => ( is => 'ro' );
 
 sub BUILD {
     my ($self) = @_;
-    $self->gc->add_servers( $self->server );
+    my ( $host, $port ) = split /:/, $self->server;
+    my $test = TestLib->new();
+    $self->{gc} = $test->gearman_client( $host, $port );
 }
 
 sub main : Job {

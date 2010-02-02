@@ -377,6 +377,7 @@ COPYRIGHT AND LICENSE
     under the same terms as Perl itself.
 
 SEE ALSO
+    * Gearman::Driver::Adaptor
     * Gearman::Driver::Console
     * Gearman::Driver::Console::Basic
     * Gearman::Driver::Console::Client
@@ -385,6 +386,8 @@ SEE ALSO
     * Gearman::Driver::Observer
     * Gearman::Driver::Worker
     * Gearman::XS
+    * Gearman
+    * Gearman::Server
     * Log::Log4perl
     * Module::Find
     * Moose

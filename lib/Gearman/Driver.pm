@@ -856,6 +856,8 @@ it under the same terms as Perl itself.
 
 =over 4
 
+=item * L<Gearman::Driver::Adaptor>
+
 =item * L<Gearman::Driver::Console>
 
 =item * L<Gearman::Driver::Console::Basic>
@@ -871,6 +873,10 @@ it under the same terms as Perl itself.
 =item * L<Gearman::Driver::Worker>
 
 =item * L<Gearman::XS>
+
+=item * L<Gearman>
+
+=item * L<Gearman::Server>
 
 =item * L<Log::Log4perl>
 

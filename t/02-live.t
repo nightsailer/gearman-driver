@@ -8,12 +8,12 @@ use File::Slurp;
 use File::Temp qw(tempfile);
 
 my $test = TestLib->new();
-my $gc   = $test->gearman_client;
 
 $test->run_gearmand;
 $test->run_gearman_driver;
 
 my $telnet = $test->telnet_client;
+my $gc     = $test->gearman_client;
 
 # give gearmand + driver at least 5 seconds to settle
 foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
