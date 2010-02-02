@@ -45,7 +45,7 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
             $pids{$pid}++;
             last if scalar( keys(%pids) ) == 10;
         }
-        is( scalar( keys(%pids) ), 10, "10 different processes handled job 'ten_processes'" );
+        is( scalar( keys(%pids) ), 10, "10 different processes handled job '${namespace}::ten_processes'" );
     }
 }
 
