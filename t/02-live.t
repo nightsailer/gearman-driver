@@ -40,7 +40,7 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
 {
     foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
         my %pids = ();
-        for ( 1 .. 10000 ) {
+        for ( 1 .. 50000 ) {
             my ( $ret, $pid ) = $gc->do( "${namespace}::ten_processes" => '' );
             $pids{$pid}++;
             last if scalar( keys(%pids) ) == 10;
@@ -54,7 +54,7 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
     $telnet->print('set_min_processes Live::NS1::Basic::ten_processes 5');
     $telnet->print('set_max_processes Live::NS1::Basic::ten_processes 5');
     my %pids = ();
-    for ( 1 .. 10000 ) {
+    for ( 1 .. 50000 ) {
         my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_processes' => '' );
         $pids{$pid}++;
         last if scalar( keys(%pids) ) == 5;
