@@ -489,7 +489,7 @@ Name of a encoder method in your worker object.
 
 =item * method (mandatory)
 
-Reference to a L<Class::MOP::Method> object which will get invoked.
+Reference to a CodeRef which will get invoked.
 
 =item * min_processes (mandatory)
 
