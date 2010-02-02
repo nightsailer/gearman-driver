@@ -20,11 +20,12 @@ requires(
 test_requires(
     'File::Slurp'       => 0,
     'File::Temp'        => 0,
+    'Gearman::Server'   => '1.11',
     'Net::Telnet'       => 0,
     'Test::Differences' => 0,
     'Test::Exception'   => 0,
     'Test::More'        => 0,
-    'Gearman::Server'   => '1.11',
+    'Time::HiRes'       => 0,
 );
 
 sub has_xs {

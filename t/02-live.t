@@ -36,7 +36,7 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
 }
 
 # i hope this assumption is always true:
-# out of 10000 jobs all 10 processes handled at least one job
+# out of 50000 jobs all 10 processes handled at least one job
 {
     foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
         my %pids = ();
@@ -210,10 +210,10 @@ foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
     }
 
     # i hope this assumption is always true:
-    # out of 10000 jobs all 10 processes handled at least one job
+    # out of 50000 jobs all 10 processes handled at least one job
     {
         my %pids = ();
-        for ( 1 .. 10000 ) {
+        for ( 1 .. 50000 ) {
             my ( $ret, $pid ) = $gc->do( "${namespace}::ten_processes" => 'xxx' );
             $pids{$pid}++;
             last if scalar( keys(%pids) ) == 10;
