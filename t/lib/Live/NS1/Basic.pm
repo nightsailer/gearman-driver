@@ -33,8 +33,7 @@ sub get_pid : Job : MinChilds(0) {
 sub ten_processes : Job : MinProcesses(10) : MaxProcesses(10) {
     my ( $self, $job, $workload ) = @_;
     if ( $self->ten_processes_done ) {
-        $self->ten_processes_done(0);
-        die "done";
+        exit(1);
     }
     $self->ten_processes_done(1);
     return $self->pid;

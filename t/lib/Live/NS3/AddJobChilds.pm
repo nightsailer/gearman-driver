@@ -61,8 +61,7 @@ sub pid {
 sub ten_processes {
     my ( $self, $job, $workload ) = @_;
     if ( $self->ten_processes_done ) {
-        $self->ten_processes_done(0);
-        die "done";
+        exit(1);
     }
     $self->ten_processes_done(1);
     return $self->pid;
