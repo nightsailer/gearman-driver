@@ -3,6 +3,7 @@
 * rework log messages
 * make MaxIdleTime configurable per job as new attribute
 * rework status output if extended_status is disabled
+* Make Gearman::XS optional by writing adapter(s) for ::Job
 
 * implement some shared stash with different backends (e.g. memcached) to have
   shared data across multiple worker childs (running on multiple servers). Some
