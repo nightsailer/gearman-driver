@@ -75,7 +75,7 @@ sub gearman_client {
         $client->job_servers("${h}:${p}");
 
         # Fake Gearman::XS interface
-        *{"Gearman::Client::do"} = sub { my $result = shift->do_task(@_); return ( 0, $$result ); };
+        *{"Gearman::Client::do"} = sub { my $result = shift->do_task(@_); return ( 0, $result ? $$result : 0 ); };
         *{"Gearman::Client::do_background"} = sub { shift->dispatch_background(@_); };
     }
     return $client;

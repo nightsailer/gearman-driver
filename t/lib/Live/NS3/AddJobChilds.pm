@@ -9,6 +9,12 @@ use File::Temp qw(tempfile);
 has 'filename' => ( is => 'ro' );
 has 'fh'       => ( is => 'ro' );
 
+has 'ten_processes_done' => (
+    default => 0,
+    is      => 'rw',
+    isa     => 'Bool',
+);
+
 sub begin {
     my ( $self, $job, $workload ) = @_;
     return unless $job->function_name eq 'Live::NS3::AddJobChilds::begin_end';
@@ -54,6 +60,11 @@ sub pid {
 
 sub ten_processes {
     my ( $self, $job, $workload ) = @_;
+    if ( $self->ten_processes_done ) {
+        $self->ten_processes_done(0);
+        die "done";
+    }
+    $self->ten_processes_done(1);
     return $self->pid;
 }
 

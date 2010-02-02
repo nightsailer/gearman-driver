@@ -4,6 +4,12 @@ package    # hide from PAUSE
 use base qw(Gearman::Driver::Worker);
 use Moose;
 
+has 'ten_processes_done' => (
+    default => 0,
+    is      => 'rw',
+    isa     => 'Bool',
+);
+
 sub ping : Job {
     return 'pong';
 }
@@ -20,12 +26,17 @@ sub sleepy_pid : Job : MinChilds(0) {
 
 sub get_pid : Job : MinChilds(0) {
     my ( $self, $job, $workload ) = @_;
-    warn "get_pid: ". $self->pid;
+    warn "get_pid: " . $self->pid;
     return $self->pid;
 }
 
 sub ten_processes : Job : MinProcesses(10) : MaxProcesses(10) {
     my ( $self, $job, $workload ) = @_;
+    if ( $self->ten_processes_done ) {
+        $self->ten_processes_done(0);
+        die "done";
+    }
+    $self->ten_processes_done(1);
     return $self->pid;
 }
 

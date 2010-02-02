@@ -42,6 +42,7 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
         my %pids = ();
         for ( 1 .. 50000 ) {
             my ( $ret, $pid ) = $gc->do( "${namespace}::ten_processes" => '' );
+            next unless $pid;
             $pids{$pid}++;
             last if scalar( keys(%pids) ) == 10;
         }
@@ -56,6 +57,7 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
     my %pids = ();
     for ( 1 .. 50000 ) {
         my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_processes' => '' );
+        next unless $pid;
         $pids{$pid}++;
         last if scalar( keys(%pids) ) == 5;
     }
@@ -215,6 +217,7 @@ foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
         my %pids = ();
         for ( 1 .. 50000 ) {
             my ( $ret, $pid ) = $gc->do( "${namespace}::ten_processes" => 'xxx' );
+            next unless $pid;
             $pids{$pid}++;
             last if scalar( keys(%pids) ) == 10;
         }
