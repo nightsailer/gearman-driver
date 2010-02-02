@@ -1,14 +1,14 @@
 Revision history for Gearman-Driver
 
-0.01020     Tue Jan 02 2010
+0.01020     Tue Feb 02 2010
             - Write cache only if necessary
             - Add adaptors for pure perl Gearman and Gearman::XS
             - Stop POE::Kernel in childs
 
-0.01019     Mon Jan 01 2010
+0.01019     Mon Feb 01 2010
             - Make extended status optional
 
-0.01018     Mon Jan 01 2010
+0.01018     Mon Feb 01 2010
             - Remove crap dot-files from release # osx--
 
 0.01017     Sat Jan 30 2010
