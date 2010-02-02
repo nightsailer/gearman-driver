@@ -218,7 +218,7 @@ foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
             $pids{$pid}++;
             last if scalar( keys(%pids) ) == 10;
         }
-        is( scalar( keys(%pids) ), 10, "10 different processes handled job '{namespace}::ten_processes'" );
+        is( scalar( keys(%pids) ), 10, "10 different processes handled job '${namespace}::ten_processes'" );
     }
 
     {
