@@ -256,7 +256,7 @@ METHODS
         Name of a encoder method in your worker object.
 
     * method (mandatory)
-        Reference to a Class::MOP::Method object which will get invoked.
+        Reference to a CodeRef which will get invoked.
 
     * min_processes (mandatory)
         Minimum number of processes that should be forked.

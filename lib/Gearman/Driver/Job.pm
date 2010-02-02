@@ -239,7 +239,7 @@ has 'cache' => (
     default => sub {
         Cache::FastMmap->new(
             share_file  => '/tmp/gearman_driver.cache',
-            expire_time => 604800,
+            expire_time => 0,
         );
     },
     is   => 'ro',
@@ -260,7 +260,8 @@ has 'lastrun' => (
     is      => 'rw',
     isa     => 'Int',
     trigger => sub {
-        my ( $self, $value ) = @_;
+        my ( $self, $value, $old_value ) = @_;
+        return if $value == $old_value;
         my $key = sprintf '%s_lastrun', $self->name;
         $self->cache->set( $key => $value );
     }
@@ -279,7 +280,8 @@ has 'lasterror' => (
     is      => 'rw',
     isa     => 'Int',
     trigger => sub {
-        my ( $self, $value ) = @_;
+        my ( $self, $value, $old_value ) = @_;
+        return if $value == $old_value;
         my $key = sprintf '%s_lasterror', $self->name;
         $self->cache->set( $key => $value );
     }
@@ -298,7 +300,8 @@ has 'lasterror_msg' => (
     is      => 'rw',
     isa     => 'Str',
     trigger => sub {
-        my ( $self, $value ) = @_;
+        my ( $self, $value, $old_value ) = @_;
+        return if $value eq $old_value;
         my $key = sprintf '%s_lasterror_msg', $self->name;
         $self->cache->set( $key => $value );
     }
