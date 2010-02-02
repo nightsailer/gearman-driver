@@ -94,12 +94,11 @@ sub gearman_server_run {
 
 sub gearman_driver {
     return Gearman::Driver->new(
-        extended_status => 0,
-        max_idle_time   => 5,
-        interval        => 1,
-        loglevel        => 'DEBUG',
-        namespaces      => [qw(Live)],
-        server          => join( ':', $host, $port ),
+        max_idle_time => 5,
+        interval      => 1,
+        loglevel      => 'DEBUG',
+        namespaces    => [qw(Live)],
+        server        => join( ':', $host, $port ),
     );
 }
 
