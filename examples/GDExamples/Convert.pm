@@ -28,3 +28,5 @@ sub _convert {
     $img->write( data => \$out_data, type => $format ) or die;
     return $out_data;
 }
+
+1;
