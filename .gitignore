@@ -11,5 +11,5 @@
 /META.yml
 /MANIFEST
 /MANIFEST.bak
-/gearman_driver.log
+gearman_driver.log
 /examples/gearman_driver.log
