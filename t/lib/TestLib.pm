@@ -14,14 +14,14 @@ $|++;
 BEGIN {
     eval "require Gearman::XS";
     unless ($@) {
-        eval "require Gearman::XS qw(:constants);";
-        eval "require Gearman::XS::Client;";
-        eval "require Gearman::XS::Server;";
+        eval "require Gearman::XS qw(:constants)";
+        eval "require Gearman::XS::Client";
+        eval "require Gearman::XS::Server";
     }
     else {
-        eval "require Gearman::Client;";
-        eval "require Gearman::Server;";
-        eval "require Danga::Socket;";
+        eval "require Gearman::Client";
+        eval "require Gearman::Server";
+        eval "require Danga::Socket";
     }
 }
 

@@ -6,7 +6,6 @@ use Gearman::XS qw(:constants);
 
 has 'worker' => (
     builder => '_build_worker',
-    handles => [qw(add_servers)],
     is      => 'ro',
     isa     => 'Gearman::XS::Worker',
 );
@@ -31,6 +30,11 @@ sub work {
             die $self->worker->error;
         }
     }
+}
+
+sub add_servers {
+    my $self = shift;
+    return $self->worker->add_servers(@_);
 }
 
 1;
