@@ -4,7 +4,6 @@ use Moose;
 use Gearman::Driver::Adaptor;
 use POE qw(Wheel::Run);
 use Try::Tiny;
-use IPC::ShareLite;
 use IO::Socket;
 
 =head1 NAME
