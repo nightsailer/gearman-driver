@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+            - Child/parent communication using unix socket now
+              instead of Cache::FastMmap
+
 0.01021     Tue Feb 02 2010
             - Fix META.yml
 

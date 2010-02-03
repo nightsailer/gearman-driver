@@ -5,6 +5,7 @@ use POE qw(Component::Server::TCP);
 use Module::Find;
 use Moose::Util qw(apply_all_roles);
 use Try::Tiny;
+use Socket;
 
 =head1 NAME
 
@@ -51,6 +52,11 @@ has 'server' => (
     isa => 'POE::Component::Server::TCP',
 );
 
+has 'child_socket' => (
+    is  => 'ro',
+    isa => 'POE::Component::Server::TCP',
+);
+
 has 'driver' => (
     handles  => { log => 'log' },
     is       => 'rw',
@@ -59,11 +65,55 @@ has 'driver' => (
     weak_ref => 1,
 );
 
+has 'status' => (
+    default => sub { {} },
+    handles => {
+        set_status => 'set',
+        get_status => 'get',
+    },
+    is     => 'ro',
+    isa    => 'HashRef',
+    traits => [qw(Hash)],
+);
+
+sub get_lastrun {
+    my ( $self, $job_name ) = @_;
+    my $status = $self->get_status($job_name) || {};
+    return $status->{lastrun} || 0;
+}
+
+sub get_lasterror {
+    my ( $self, $job_name ) = @_;
+    my $status = $self->get_status($job_name) || {};
+    return $status->{lasterror} || 0;
+}
+
+sub get_lasterror_msg {
+    my ( $self, $job_name ) = @_;
+    my $status = $self->get_status($job_name) || {};
+    return $status->{lasterror_msg} || '';
+}
+
 sub BUILD {
     my ($self) = @_;
 
     my @commands = grep $_ ne 'Gearman::Driver::Console::Client', findallmod Gearman::Driver::Console;
     apply_all_roles( $self => @commands );
+
+    $self->{child_socket} = POE::Component::Server::TCP->new(
+        Address     => $self->driver->cc_socket,
+        Alias       => "child_socket",
+        Domain      => PF_UNIX,
+        Port        => 0,
+        ClientInput => sub {
+            my ( $session, $heap, $input ) = @_[ SESSION, HEAP, ARG0 ];
+            my ( $job_name, $key, $value ) = $input =~ /^(.*?) (\w+) (.*?)$/;
+            return unless $input;
+            my $status = $self->get_status($job_name) || {};
+            $status->{$key} = $value;
+            $self->set_status( $job_name => $status );
+        },
+    );
 
     $self->{server} = POE::Component::Server::TCP->new(
         Alias       => "server",

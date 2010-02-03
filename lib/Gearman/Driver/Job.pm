@@ -4,7 +4,8 @@ use Moose;
 use Gearman::Driver::Adaptor;
 use POE qw(Wheel::Run);
 use Try::Tiny;
-use Cache::FastMmap;
+use IPC::ShareLite;
+use IO::Socket;
 
 =head1 NAME
 
@@ -210,31 +211,16 @@ has 'session' => (
     isa => 'POE::Session',
 );
 
-=head2 cache
-
-An instance of L<Cache::FastMmap> is used to share data between the
-parent and child processes. This is necessary to set L<lastrun>,
-L<lasterror> and L<lasterror_msg> in the child processes and make
-the values available in the parent process.
-
-=cut
-
-has 'cache' => (
-    default => sub {
-        Cache::FastMmap->new(
-            share_file  => '/tmp/gearman_driver.cache',
-            expire_time => 0,
-        );
-    },
-    is   => 'ro',
-    isa  => 'Cache::FastMmap',
-    lazy => 1,
+has 'client' => (
+    builder => '_build_client',
+    is      => 'ro',
+    isa     => 'IO::Socket::UNIX',
+    lazy    => 1,
 );
 
 =head2 lastrun
 
-Each time this job is called it stores C<time()> in this attribute
-as well was in the L</cache>.
+Each time this job is called it stores C<time()> in this attribute.
 
 This depends on L<Gearman::Driver/extended_status>.
 
@@ -247,15 +233,14 @@ has 'lastrun' => (
         my ( $self, $value, $old_value ) = @_;
         $old_value ||= 0;
         return if $value == $old_value;
-        my $key = sprintf '%s_lastrun', $self->name;
-        $self->cache->set( $key => $value );
+        my $sock = $self->client;
+        print $sock $self->name . " lastrun $value\n";
     }
 );
 
 =head2 lasterror
 
-Each time this job failed it stores C<time()> in this attribute
-as well was in the L</cache>.
+Each time this job failed it stores C<time()> in this attribute.
 
 This depends on L<Gearman::Driver/extended_status>.
 
@@ -268,15 +253,15 @@ has 'lasterror' => (
         my ( $self, $value, $old_value ) = @_;
         $old_value ||= 0;
         return if $value == $old_value;
-        my $key = sprintf '%s_lasterror', $self->name;
-        $self->cache->set( $key => $value );
+        my $sock = $self->client;
+        print $sock $self->name . " lasterror $value\n";
     }
 );
 
 =head2 lasterror_msg
 
 Each time this job failed it stores the error message in this
-attribute as well was in the L</cache>.
+attribute.
 
 This depends on L<Gearman::Driver/extended_status>.
 
@@ -289,48 +274,12 @@ has 'lasterror_msg' => (
         my ( $self, $value, $old_value ) = @_;
         $old_value ||= '';
         return if $value eq $old_value;
-        my $key = sprintf '%s_lasterror_msg', $self->name;
-        $self->cache->set( $key => $value );
+        my $sock = $self->client;
+        print $sock $self->name . " lasterror_msg $value\n";
     }
 );
 
 =head1 METHODS
-
-=head2 get_lastrun
-
-Getter for L</lastrun> which uses the L</cache>.
-
-=cut
-
-sub get_lastrun {
-    my ($self) = @_;
-    return 0 unless $self->driver->extended_status;
-    return $self->cache->get( $self->name . "_lastrun" ) || 0;
-}
-
-=head2 get_lasterror
-
-Getter for L</lasterror> which uses the L</cache>.
-
-=cut
-
-sub get_lasterror {
-    my ( $self, $job ) = @_;
-    return 0 unless $self->driver->extended_status;
-    return $self->cache->get( $self->name . "_lasterror" ) || 0;
-}
-
-=head2 get_lasterror_msg
-
-Getter for L</lasterror_msg> which uses the L</cache>.
-
-=cut
-
-sub get_lasterror_msg {
-    my ( $self, $job ) = @_;
-    return '' unless $self->driver->extended_status;
-    return $self->cache->get( $self->name . "_lasterror_msg" ) || '';
-}
 
 =head2 add_process
 
@@ -365,7 +314,7 @@ sub BUILD {
         my @args = ($job);
 
         if ( my $decoder = $self->decode ) {
-            push @args, $self->worker->$decoder($job->workload);
+            push @args, $self->worker->$decoder( $job->workload );
         }
         else {
             push @args, $job->workload;
@@ -412,6 +361,15 @@ sub BUILD {
             }
         ]
     );
+}
+
+sub _build_client {
+    my ($self) = @_;
+    IO::Socket::UNIX->new(
+        Peer    => $self->driver->cc_socket,
+        Type    => SOCK_STREAM,
+        Timeout => 2,
+    ) or die $@;
 }
 
 sub _start {

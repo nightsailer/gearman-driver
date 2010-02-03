@@ -467,6 +467,20 @@ has 'session' => (
     traits => [qw(NoGetopt)],
 );
 
+# child communication socket
+has 'cc_socket' => (
+    default => "/tmp/gearman_driver-$$.sock",
+    is      => 'ro',
+    isa     => 'Str',
+    traits  => [qw(NoGetopt)],
+);
+
+has 'pid' => (
+    default => $$,
+    is      => 'ro',
+    isa     => 'Int',
+);
+
 has '+logger'  => ( traits => [qw(NoGetopt)] );
 has '+wanted'  => ( traits => [qw(NoGetopt)] );
 has '+modules' => ( traits => [qw(NoGetopt)] );
@@ -641,7 +655,10 @@ sub shutdown {
 
 sub DEMOLISH {
     my ($self) = @_;
-    $self->shutdown;
+    if ( $self->pid eq $$ ) {
+        $self->shutdown;
+        unlink $self->cc_socket;
+    }
 }
 
 =head2 has_job
@@ -714,7 +731,7 @@ sub _observer_callback {
             }
 
             elsif ( $job->count_processes && $job->count_processes > $job->min_processes && $row->{queue} == 0 ) {
-                my $idle = time - $job->get_lastrun;
+                my $idle = time - $self->console->get_lastrun( $job->name );
                 if ( $idle >= $self->max_idle_time ) {
                     my $stop = $job->count_processes - $job->min_processes;
                     $self->log->debug( sprintf "Stopping %d process(es) of type %s (idle: %d)",
