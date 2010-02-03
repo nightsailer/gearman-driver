@@ -12,7 +12,7 @@ use MooseX::Types::Path::Class;
 use POE;
 with qw(MooseX::Log::Log4perl MooseX::Getopt Gearman::Driver::Loader);
 
-our $VERSION = '0.01021';
+our $VERSION = '0.01022';
 
 =head1 NAME
 
