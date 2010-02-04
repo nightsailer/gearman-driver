@@ -131,13 +131,27 @@ sub _handle_user_input {
 
     $console->addhistory($input);
 
+    my ( $command, $pipe ) = split /\|/, $input;
+    my @lines = ();
+
     foreach my $server ( sort $self->servers ) {
         my $telnet = $self->get_telnet($server);
-        $telnet->print($input);
+        $telnet->print($command);
         while ( my $line = $telnet->getline() ) {
-            print "$server> $line";
+            if ($pipe) {
+                push @lines, "$server> $line";
+            }
+            else {
+                print "$server> $line";
+            }
             last if $line eq ".\n";
         }
+    }
+
+    if ($pipe) {
+        open CMD, "|$pipe";
+        print CMD $_ foreach @lines;
+        close CMD;
     }
 
     if ( $input eq 'quit' || $input eq 'shutdown' ) {
