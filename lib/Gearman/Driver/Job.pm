@@ -391,6 +391,7 @@ sub _add_process {
         StderrEvent => "got_process_stderr",
         CloseEvent  => "got_process_close",
     );
+    $process->shutdown_stdin;
     $kernel->sig_child( $process->PID, "got_process_signal" );
 
     # Wheel events include the wheel's ID.
