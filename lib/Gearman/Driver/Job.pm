@@ -306,17 +306,24 @@ sub BUILD {
 
     $self->{gearman} = Gearman::Driver::Adaptor->new( server => $self->driver->server );
 
+    my $extended_status = $self->driver->extended_status;
+
+    my $decoder = sub { return @_; };
+    my $encoder = sub { return @_; };
+
+    if ( my $decoder_method = $self->decode ) {
+        $decoder = sub { return $self->worker->$decoder_method(@_) };
+    }
+    if ( my $encoder_method = $self->encode ) {
+        $encoder = sub { return $self->worker->$encoder_method(@_) };
+    }
+
     my $wrapper = sub {
         my ($job) = @_;
 
         my @args = ($job);
 
-        if ( my $decoder = $self->decode ) {
-            push @args, $self->worker->$decoder( $job->workload );
-        }
-        else {
-            push @args, $job->workload;
-        }
+        push @args, $decoder->( $job->workload );
 
         $self->worker->begin(@args);
 
@@ -331,17 +338,13 @@ sub BUILD {
             $self->lasterror_msg($error) if $self->driver->extended_status;
         }
 
-        $self->lastrun(time) if $self->driver->extended_status;
+        $self->lastrun(time) if $extended_status;
 
         $self->worker->end(@args);
 
         die $error if $error;
 
-        if ( my $encoder = $self->encode ) {
-            $result = $self->worker->$encoder($result);
-        }
-
-        return $result;
+        return $encoder->($result);
     };
 
     $self->gearman->add_function( $self->name => $wrapper );
@@ -390,7 +393,6 @@ sub _add_process {
         StderrEvent => "got_process_stderr",
         CloseEvent  => "got_process_close",
     );
-    $process->shutdown_stdin;
     $kernel->sig_child( $process->PID, "got_process_signal" );
 
     # Wheel events include the wheel's ID.
