@@ -3,7 +3,6 @@ package Gearman::Driver::Job;
 use Moose;
 use Gearman::Driver::Adaptor;
 use POE qw(Wheel::Run);
-use Try::Tiny;
 use IO::Socket;
 
 =head1 NAME
@@ -323,14 +322,14 @@ sub BUILD {
 
         my $error;
         my $result;
-        try {
+        eval {
             $result = $self->method->( $self->worker, @args );
-        }
-        catch {
-            $error = $_;
+        };
+        if ($@) {
+            $error = $@;
             $self->lasterror(time) if $self->driver->extended_status;
             $self->lasterror_msg($error) if $self->driver->extended_status;
-        };
+        }
 
         $self->lastrun(time) if $self->driver->extended_status;
 
