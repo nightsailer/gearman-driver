@@ -308,8 +308,8 @@ sub BUILD {
 
     my $extended_status = $self->driver->extended_status;
 
-    my $decoder = sub { return @_; };
-    my $encoder = sub { return @_; };
+    my $decoder = sub { shift };
+    my $encoder = sub { shift };
 
     if ( my $decoder_method = $self->decode ) {
         $decoder = sub { return $self->worker->$decoder_method(@_) };
