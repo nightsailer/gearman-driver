@@ -14,6 +14,7 @@ requires(
     'MooseX::Types::Path::Class' => '0.05',
     'Net::Telnet::Gearman'       => '0.01000',
     'POE'                        => '1.280',
+    'Term::ReadKey'              => '2.30',
     'Time::HiRes'                => '1.9715',
     'Try::Tiny'                  => '0.02',
 );
