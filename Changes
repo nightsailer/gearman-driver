@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01023     Fri Feb 05 2010
+            - Remove Try::Tiny from wrapped job method
+
 0.01022     Wed Feb 03 2010
             - Child/parent communication using unix socket now
               instead of Cache::FastMmap
