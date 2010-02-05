@@ -126,16 +126,18 @@ ATTRIBUTES
 
     See also: Gearman::XS
 
-    * default: "localhost:4730"
-    * isa: "Str"
+    *   default: "localhost:4730"
+
+    *   isa: "Str"
 
   console_port
     Gearman::Driver has a telnet management console, see also:
 
     Gearman::Driver::Console
 
-    * default: 47300
-    * isa: "Int"
+    *   default: 47300
+
+    *   isa: "Int"
 
     Set this to 0 to disable management console at all.
 
@@ -146,8 +148,9 @@ ATTRIBUTES
     MinProcesses/MaxProcesses attribute of the job method. See also:
     Gearman::Driver::Worker
 
-    * default: 5
-    * isa: "Int"
+    *   default: 5
+
+    *   isa: "Int"
 
   max_idle_time
     Whenever Gearman::Driver::Observer notices that there are more processes
@@ -161,33 +164,38 @@ ATTRIBUTES
     "interval". Besides that it makes only sense when you have workers where
     "MinProcesses" in Gearman::Driver::Worker is set to 0.
 
-    * default: 0
-    * isa: "Int"
+    *   default: 0
+
+    *   isa: "Int"
 
   logfile
     Path to logfile.
 
-    * isa: "Str"
-    * default: "gearman_driver.log"
+    *   isa: "Str"
+
+    *   default: "gearman_driver.log"
 
   loglayout
     See also Log::Log4perl.
 
-    * isa: "Str"
-    * default: "[%d] %p %m%n"
+    *   isa: "Str"
+
+    *   default: "[%d] %p %m%n"
 
   loglevel
     See also Log::Log4perl.
 
-    * isa: "Str"
-    * default: "INFO"
+    *   isa: "Str"
+
+    *   default: "INFO"
 
   unknown_job_callback
     Whenever Gearman::Driver::Observer sees a job that isnt handled it will
     call this CodeRef, passing following arguments:
 
-    * $driver
-    * $status
+    *   $driver
+
+    *   $status
 
         my $driver = Gearman::Driver->new(
             namespaces           => [qw(My::Workers)],
@@ -223,51 +231,62 @@ INTERNAL ATTRIBUTES
             'My::Workers::TWO::scale_image'       => bless( {...}, 'Gearman::Driver::Job' ),
         }
 
-    * isa: "HashRef"
-    * readonly: "True"
+    *   isa: "HashRef"
+
+    *   readonly: "True"
 
   observer
     Instance of Gearman::Driver::Observer.
 
-    * isa: "Gearman::Driver::Observer"
-    * readonly: "True"
+    *   isa: "Gearman::Driver::Observer"
+
+    *   readonly: "True"
 
   console
     Instance of Gearman::Driver::Console.
 
-    * isa: "Gearman::Driver::Console"
-    * readonly: "True"
+    *   isa: "Gearman::Driver::Console"
+
+    *   readonly: "True"
 
   extended_status
     Enables/disables extended status information in management console like
     lastrun, lasterror and lasterror_msg.
 
-    * isa: "Bool"
-    * default: 1
+    *   isa: "Bool"
+
+    *   default: 1
 
 METHODS
   add_job
     There's one mandatory param (hashref) with following keys:
 
-    * decode (optionally)
+    *   decode (optionally)
+
         Name of a decoder method in your worker object.
 
-    * encode (optionally)
+    *   encode (optionally)
+
         Name of a encoder method in your worker object.
 
-    * method (mandatory)
+    *   method (mandatory)
+
         Reference to a CodeRef which will get invoked.
 
-    * min_processes (mandatory)
+    *   min_processes (mandatory)
+
         Minimum number of processes that should be forked.
 
-    * max_processes (mandatory)
+    *   max_processes (mandatory)
+
         Maximum number of processes that may be forked.
 
-    * name (mandatory)
+    *   name (mandatory)
+
         Job name/alias that method should be registered with Gearman.
 
-    * object (mandatory)
+    *   object (mandatory)
+
         Object that should be passed as first parameter to the job method.
 
     Basically you never really need this method if you use "namespaces". But
@@ -377,26 +396,45 @@ COPYRIGHT AND LICENSE
     under the same terms as Perl itself.
 
 SEE ALSO
-    * Gearman::Driver::Adaptor
-    * Gearman::Driver::Console
-    * Gearman::Driver::Console::Basic
-    * Gearman::Driver::Console::Client
-    * Gearman::Driver::Job
-    * Gearman::Driver::Loader
-    * Gearman::Driver::Observer
-    * Gearman::Driver::Worker
-    * Gearman::XS
-    * Gearman
-    * Gearman::Server
-    * Log::Log4perl
-    * Module::Find
-    * Moose
-    * MooseX::Getopt
-    * MooseX::Log::Log4perl
-    * MooseX::MethodAttributes
-    * Net::Telnet::Gearman
-    * POE
-    * <http://www.gearman.org/>
+    *   Gearman::Driver::Adaptor
+
+    *   Gearman::Driver::Console
+
+    *   Gearman::Driver::Console::Basic
+
+    *   Gearman::Driver::Console::Client
+
+    *   Gearman::Driver::Job
+
+    *   Gearman::Driver::Loader
+
+    *   Gearman::Driver::Observer
+
+    *   Gearman::Driver::Worker
+
+    *   Gearman::XS
+
+    *   Gearman
+
+    *   Gearman::Server
+
+    *   Log::Log4perl
+
+    *   Module::Find
+
+    *   Moose
+
+    *   MooseX::Getopt
+
+    *   MooseX::Log::Log4perl
+
+    *   MooseX::MethodAttributes
+
+    *   Net::Telnet::Gearman
+
+    *   POE
+
+    *   <http://www.gearman.org/>
 
 REPOSITORY
     <http://github.com/plu/gearman-driver/>
