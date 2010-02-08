@@ -118,6 +118,7 @@ sub BUILD {
     $self->{server} = POE::Component::Server::TCP->new(
         Alias       => "server",
         Port        => $self->port,
+        ClientError => sub { },
         ClientInput => sub {
             my ( $session, $heap, $input ) = @_[ SESSION, HEAP, ARG0 ];
             my ( $command, @params ) = split /\s+/, $input;
