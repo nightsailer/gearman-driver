@@ -30,6 +30,9 @@ sub run_gearmand {
 
         exit(0);
     }
+
+    sleep(5);
+    warn sprintf "gearmand started (%d)\n", $self->{gearmand_pid};
 }
 
 sub run_gearman_driver {
@@ -46,6 +49,7 @@ sub run_gearman_driver {
     }
 
     sleep(5);
+    warn sprintf "gearman-driver started (%d)\n", $self->{gearman_driver_pid};
 }
 
 sub gearman_client {
