@@ -49,14 +49,24 @@ has 'server' => (
 sub _build_backend {
     my ($self) = @_;
 
-    my $class = $ENV{GEARMAN_DRIVER_ADAPTOR} || 'Gearman::Driver::Adaptor::XS';
-    eval "require $class";
-    unless ($@) {
-        return $class->new( server => $self->server );
+    my @classes = qw(Gearman::Driver::Adaptor::XS Gearman::Driver::Adaptor::PP);
+
+    unshift @classes, $ENV{GEARMAN_DRIVER_ADAPTOR} if defined $ENV{GEARMAN_DRIVER_ADAPTOR};
+
+    foreach my $class (@classes) {
+        eval "require $class";
+        unless ($@) {
+            warn sprintf "using adaptor: %s\n", $class
+              if ( $ENV{AUTOMATED_TESTING} );
+            return $class->new( server => $self->server );
+        }
+        else {
+            warn sprintf "Could not load class: %s (%s)\n", $class, $@
+              if ( $ENV{AUTOMATED_TESTING} );
+        }
     }
 
-    Class::MOP::load_class('Gearman::Driver::Adaptor::PP');
-    return Gearman::Driver::Adaptor::PP->new( server => $self->server );
+    die "None of the supported adaptors could be loaded: %s\n", join ', ', @classes;
 }
 
 sub BUILD {
@@ -97,6 +107,5 @@ See L<Gearman::Driver>.
 =back
 
 =cut
-
 
 1;
