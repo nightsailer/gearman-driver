@@ -334,8 +334,8 @@ sub BUILD {
         };
         if ($@) {
             $error = $@;
-            $self->lasterror(time) if $self->driver->extended_status;
-            $self->lasterror_msg($error) if $self->driver->extended_status;
+            $self->lasterror(time) if $extended_status;
+            $self->lasterror_msg($error) if $extended_status;
         }
 
         $self->lastrun(time) if $extended_status;
