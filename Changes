@@ -1,5 +1,6 @@
 Revision history for Gearman-Driver
 
+0.01024     Mon Feb 08 2010
             - Do not use gearman-xs in testlib anymore
 
 0.01023     Fri Feb 05 2010
