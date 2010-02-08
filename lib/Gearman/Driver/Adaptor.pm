@@ -50,7 +50,7 @@ sub _build_backend {
     my ($self) = @_;
 
     my $class = $ENV{GEARMAN_DRIVER_ADAPTOR} || 'Gearman::Driver::Adaptor::XS';
-    eval "require $class;";
+    eval "require $class";
     unless ($@) {
         return $class->new( server => $self->server );
     }
