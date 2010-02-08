@@ -6,24 +6,13 @@ use warnings;
 use FindBin qw( $Bin );
 use Gearman::Driver;
 use Net::Telnet;
+use Gearman::Client;
+use Gearman::Server;
+use Danga::Socket;
 
 my ( $host, $port ) = ( '127.0.0.1', 4731 );
 
 $|++;
-
-BEGIN {
-    eval "require Gearman::XS";
-    unless ($@) {
-        eval "require Gearman::XS qw(:constants)";
-        eval "require Gearman::XS::Client";
-        eval "require Gearman::XS::Server";
-    }
-    else {
-        eval "require Gearman::Client";
-        eval "require Gearman::Server";
-        eval "require Danga::Socket";
-    }
-}
 
 sub new {
     return bless {}, shift;
@@ -61,35 +50,19 @@ sub run_gearman_driver {
 
 sub gearman_client {
     my ( $self, $h, $p ) = @_;
+
     $h ||= $host;
     $p ||= $port;
 
-    my $client;
-    if ( has_xs() ) {
-        $client = Gearman::XS::Client->new();
-        $client->add_server( $h, $p );
-    }
-    else {
-        no strict 'refs';
-        $client = Gearman::Client->new( exceptions => 1 );
-        $client->job_servers("${h}:${p}");
+    my $client = Gearman::Client->new( exceptions => 1 );
+    $client->job_servers("${h}:${p}");
 
-        # Fake Gearman::XS interface
-        *{"Gearman::Client::do"} = sub { my $result = shift->do_task(@_); return ( 0, $result ? $$result : 0 ); };
-        *{"Gearman::Client::do_background"} = sub { shift->dispatch_background(@_); };
-    }
     return $client;
 }
 
 sub gearman_server_run {
-    if ( has_xs() ) {
-        my $server = Gearman::XS::Server->new( $host, $port );
-        $server->run();
-    }
-    else {
-        my $server = Gearman::Server->new( port => $port );
-        Danga::Socket->EventLoop();
-    }
+    my $server = Gearman::Server->new( port => $port );
+    Danga::Socket->EventLoop();
 }
 
 sub gearman_driver {
@@ -110,12 +83,6 @@ sub telnet_client {
     );
     $telnet->open;
     return $telnet;
-}
-
-sub has_xs {
-    eval "require Gearman::XS";
-    return 1 unless $@;
-    return 0;
 }
 
 sub DESTROY {

@@ -18,8 +18,8 @@ sub main : Job {
     my ( $self, $job, $workload ) = @_;
     my $result = '';
     for ( 1 .. 5 ) {
-        my ( $ret, $res ) = $self->gc->do( "Live::NS1::Spread::some_job_$_" => '' );
-        $result .= $res;
+        my $res = $self->gc->do_task( "Live::NS1::Spread::some_job_$_" => '' );
+        $result .= $$res;
     }
     return $result;
 }

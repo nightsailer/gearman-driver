@@ -18,21 +18,21 @@ my $gc     = $test->gearman_client;
 # give gearmand + driver at least 5 seconds to settle
 foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
     for ( 1 .. 5 ) {
-        my ( $ret, $pong ) = $gc->do( "${namespace}::ping" => 'ping' );
+        my $pong = $gc->do_task( "${namespace}::ping" => 'ping' );
         sleep(1) && next unless $pong;
-        is( $pong, 'pong', "Job '${namespace}::ping' returned correct value" );
+        is( $$pong, 'pong', "Job '${namespace}::ping' returned correct value" );
         last;
     }
 }
 
 {
-    my ( $ret, $pong ) = $gc->do( 'something_custom_ping' => 'ping' );
-    is( $pong, 'p0nG', 'Job "something_custom_ping" returned correct value' );
+    my $pong = $gc->do_task( 'something_custom_ping' => 'ping' );
+    is( $$pong, 'p0nG', 'Job "something_custom_ping" returned correct value' );
 }
 
 {
-    my ( $ret, $pong ) = $gc->do( 'Live::NS2::Ping2::ping' => 'ping' );
-    is( $pong, 'PONG', 'Job "Live::NS2::Ping2::ping" returned correct value' );
+    my $pong = $gc->do_task( 'Live::NS2::Ping2::ping' => 'ping' );
+    is( $$pong, 'PONG', 'Job "Live::NS2::Ping2::ping" returned correct value' );
 }
 
 # i hope this assumption is always true:
@@ -41,9 +41,9 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
     foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
         my %pids = ();
         for ( 1 .. 50000 ) {
-            my ( $ret, $pid ) = $gc->do( "${namespace}::ten_processes" => '' );
+            my $pid = $gc->do_task( "${namespace}::ten_processes" => '' );
             next unless $pid;
-            $pids{$pid}++;
+            $pids{$$pid}++;
             last if scalar( keys(%pids) ) == 10;
         }
         is( scalar( keys(%pids) ), 10, "10 different processes handled job '${namespace}::ten_processes'" );
@@ -56,9 +56,9 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
     $telnet->print('set_max_processes Live::NS1::Basic::ten_processes 5');
     my %pids = ();
     for ( 1 .. 50000 ) {
-        my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::ten_processes' => '' );
+        my $pid = $gc->do_task( 'Live::NS1::Basic::ten_processes' => '' );
         next unless $pid;
-        $pids{$pid}++;
+        $pids{$$pid}++;
         last if scalar( keys(%pids) ) == 5;
     }
     is( scalar( keys(%pids) ), 5, "5 different processes handled job 'ten_processes'" );
@@ -67,77 +67,77 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
 }
 
 {
-    my ( $first_ret, $first_pid ) = $gc->do( 'Live::NS1::Basic::get_pid' => '' );
-    like( $first_pid, qr~^\d+$~, 'Job "get_pid" returned correct value' );
+    my $first_pid = $gc->do_task( 'Live::NS1::Basic::get_pid' => '' );
+    like( $$first_pid, qr~^\d+$~, 'Job "get_pid" returned correct value' );
 
     # test max_idle_time (5)
     for ( 1 .. 3 ) {
         sleep($_);
-        my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::get_pid' => '' );
-        is( $first_pid, $pid, 'Still the same PID' );
+        my $pid = $gc->do_task( 'Live::NS1::Basic::get_pid' => '' );
+        is( $$first_pid, $$pid, 'Still the same PID' );
     }
 
     sleep(6);
-    my ( $ret, $pid ) = $gc->do( 'Live::NS1::Basic::get_pid' => '' );
-    isnt( $first_pid, $pid, 'Got another PID' );
+    my $pid = $gc->do_task( 'Live::NS1::Basic::get_pid' => '' );
+    isnt( $$first_pid, $$pid, 'Got another PID' );
 
     # The worker really killed after it has been idle. Famous last words!
-    ( $ret, $first_pid ) = $gc->do( 'Live::NS1::Basic::sleepy_pid' => '10' );
-    like( $first_pid, qr/^\d+$/, 'Got PID' );
-    isnt( $first_pid, $pid, 'Got another PID' );
+    $first_pid = $gc->do_task( 'Live::NS1::Basic::sleepy_pid' => '10' );
+    like( $$first_pid, qr/^\d+$/, 'Got PID' );
+    isnt( $$first_pid, $$pid, 'Got another PID' );
 }
 
 {
     foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
         {
-            $gc->do_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
+            $gc->dispatch_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
 
-            my ( $ret, $time ) = $gc->do( "${namespace}::sleeper" => '0:' . time );
-            ok( $time <= 2, 'Job "sleeper" returned in less than 2 seconds' );
+            my $time= $gc->do_task( "${namespace}::sleeper" => '0:' . time );
+            ok( $$time <= 2, 'Job "sleeper" returned in less than 2 seconds' );
         }
         {
-            $gc->do_background( "${namespace}::sleeper" => '4:' . time );    # block last slot for another 4 secs
+            $gc->dispatch_background( "${namespace}::sleeper" => '4:' . time );    # block last slot for another 4 secs
 
-            my ( $ret, $time ) = $gc->do( "${namespace}::sleeper" => '0:' . time );
-            ok( $time >= 2, "Job '${namespace}::sleeper' returned in more than 2 seconds" );
+            my $time = $gc->do_task( "${namespace}::sleeper" => '0:' . time );
+            ok( $$time >= 2, "Job '${namespace}::sleeper' returned in more than 2 seconds" );
         }
     }
 }
 
 {
-    my ( $ret, $filename ) = $gc->do( 'Live::NS1::BeginEnd::job' => 'some workload ...' );
-    my $text = read_file($filename);
+    my $filename= $gc->do_task( 'Live::NS1::BeginEnd::job' => 'some workload ...' );
+    my $text = read_file($$filename);
     is(
         $text,
         "begin some workload ...\njob some workload ...\nend some workload ...\n",
         'Begin/end blocks in worker have been run'
     );
-    unlink $filename;
+    unlink $$filename;
 }
 
 {
-    my ( $ret, $string ) = $gc->do( 'Live::NS1::Spread::main' => 'some workload ...' );
-    is( $string, '12345', 'Spreading works (tests $worker->server attribute)' );
+    my $string = $gc->do_task( 'Live::NS1::Spread::main' => 'some workload ...' );
+    is( $$string, '12345', 'Spreading works (tests $worker->server attribute)' );
 }
 
 {
-    my ( $ret, $string ) = $gc->do( 'Live::NS1::Encode::job1' => 'some workload ...' );
-    is( $string, 'STANDARDENCODE::some workload ...::STANDARDENCODE', 'Standard encoding works' );
+    my $string = $gc->do_task( 'Live::NS1::Encode::job1' => 'some workload ...' );
+    is( $$string, 'STANDARDENCODE::some workload ...::STANDARDENCODE', 'Standard encoding works' );
 }
 
 {
-    my ( $ret, $string ) = $gc->do( 'Live::NS1::Encode::job2' => 'some workload ...' );
-    is( $string, 'CUSTOMENCODE::some workload ...::CUSTOMENCODE', 'Custom encoding works' );
+    my $string = $gc->do_task( 'Live::NS1::Encode::job2' => 'some workload ...' );
+    is( $$string, 'CUSTOMENCODE::some workload ...::CUSTOMENCODE', 'Custom encoding works' );
 }
 
 {
-    my ( $ret, $string ) = $gc->do( 'Live::NS1::Decode::job1' => 'some workload ...' );
-    is( $string, 'STANDARDDECODE::some workload ...::STANDARDDECODE', 'Standard decoding works' );
+    my $string = $gc->do_task( 'Live::NS1::Decode::job1' => 'some workload ...' );
+    is( $$string, 'STANDARDDECODE::some workload ...::STANDARDDECODE', 'Standard decoding works' );
 }
 
 {
     my ( $fh, $filename ) = tempfile( CLEANUP => 1 );
-    my ( $ret, $nothing ) = $gc->do_background( 'Live::NS2::BeginEnd::job' => $filename );
+    $gc->dispatch_background( 'Live::NS2::BeginEnd::job' => $filename );
     sleep(2);
     my $text = read_file($filename);
     is( $text, "begin ...\nend ...\n", 'Begin/end blocks in worker have been run, even if the job dies' );
@@ -145,23 +145,23 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
 }
 
 {
-    my ( $ret, $string ) = $gc->do( 'Live::NS1::Decode::job2' => 'some workload ...' );
-    is( $string, 'CUSTOMDECODE::some workload ...::CUSTOMDECODE', 'Custom decoding works' );
+    my $string = $gc->do_task( 'Live::NS1::Decode::job2' => 'some workload ...' );
+    is( $$string, 'CUSTOMDECODE::some workload ...::CUSTOMDECODE', 'Custom decoding works' );
 }
 
 {
     my ( $fh, $filename ) = tempfile( CLEANUP => 1 );
-    my ( $ret, $nothing ) = $gc->do( 'Live::NS2::UseBase::job' => $filename );
+    $gc->do_task( 'Live::NS2::UseBase::job' => $filename );
     my $text = read_file($filename);
     is( $text, "begin ...\njob ...\nend ...\n", 'Begin/end blocks in worker base class have been run' );
     unlink $filename;
 }
 
 {
-    my @nothing = $gc->do_background( 'Live::NS1::Basic::quit' => 'exit' );
+    $gc->dispatch_background( 'Live::NS1::Basic::quit' => 'exit' );
     sleep(3);    # wait for the worker being restarted
-    my ( $ret, $string ) = $gc->do( 'Live::NS1::Basic::quit' => 'foo' );
-    is( $string, 'i am back', 'Worker process restarted after exit' );
+    my $string = $gc->do_task( 'Live::NS1::Basic::quit' => 'foo' );
+    is( $$string, 'i am back', 'Worker process restarted after exit' );
 }
 
 {
@@ -174,9 +174,9 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
         )
       )
     {
-        my ( $ret, $string ) = $gc->do( "${namespace}::job" => 'workload' );
+        my $string = $gc->do_task( "${namespace}::job" => 'workload' );
         is(
-            $string,
+            $$string,
             "${namespace}::ENCODE::${namespace}::DECODE::workload::DECODE::${namespace}::ENCODE::${namespace}",
             'Encode/decode override attributes'
         );
@@ -184,8 +184,8 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
 }
 
 {
-    my ( $ret, $string ) = $gc->do( 'Live::job' => 'some workload ...' );
-    is( $string, 'ok', 'loaded root namespace' );
+    my $string = $gc->do_task( 'Live::job' => 'some workload ...' );
+    is( $$string, 'ok', 'loaded root namespace' );
 }
 
 #
@@ -196,19 +196,19 @@ foreach my $namespace (qw(Live::NS1::Basic Live::NS1::BasicChilds)) {
 
 foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
     {
-        my ( $ret, $string ) = $gc->do( "${namespace}::job1" => 'foo' );
-        is( $string, 'CUSTOMENCODE::foo::CUSTOMENCODE', 'Custom encoding works' );
+        my $string = $gc->do_task( "${namespace}::job1" => 'foo' );
+        is( $$string, 'CUSTOMENCODE::foo::CUSTOMENCODE', 'Custom encoding works' );
     }
 
     {
-        my ( $ret, $filename ) = $gc->do( "${namespace}::begin_end" => 'some workload ...' );
-        my $text = read_file($filename);
+        my $filename = $gc->do_task( "${namespace}::begin_end" => 'some workload ...' );
+        my $text = read_file($$filename);
         is(
             $text,
             "begin some workload ...\njob some workload ...\nend some workload ...\n",
             'Begin/end blocks in worker have been run'
         );
-        unlink $filename;
+        unlink $$filename;
     }
 
     # i hope this assumption is always true:
@@ -216,26 +216,26 @@ foreach my $namespace (qw(Live::NS3::AddJob Live::NS3::AddJobChilds)) {
     {
         my %pids = ();
         for ( 1 .. 50000 ) {
-            my ( $ret, $pid ) = $gc->do( "${namespace}::ten_processes" => 'xxx' );
+            my $pid = $gc->do_task( "${namespace}::ten_processes" => 'xxx' );
             next unless $pid;
-            $pids{$pid}++;
+            $pids{$$pid}++;
             last if scalar( keys(%pids) ) == 10;
         }
         is( scalar( keys(%pids) ), 10, "10 different processes handled job '${namespace}::ten_processes'" );
     }
 
     {
-        $gc->do_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
+        $gc->dispatch_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
 
-        my ( $ret, $time ) = $gc->do( "${namespace}::sleeper" => '0:' . time );
-        ok( $time <= 2, 'Job "Live::NS3::AddJob::sleeper" returned in less than 2 seconds' );
+        my $time = $gc->do_task( "${namespace}::sleeper" => '0:' . time );
+        ok( $$time <= 2, 'Job "Live::NS3::AddJob::sleeper" returned in less than 2 seconds' );
     }
 
     {
-        $gc->do_background( "${namespace}::sleeper" => '4:' . time );               # block last slot for another 4 secs
+        $gc->dispatch_background( "${namespace}::sleeper" => '4:' . time );               # block last slot for another 4 secs
 
-        my ( $ret, $time ) = $gc->do( "${namespace}::sleeper" => '0:' . time );
-        ok( $time >= 2, 'Job "Live::NS3::AddJob::sleeper" returned in more than 2 seconds' );
+        my $time = $gc->do_task( "${namespace}::sleeper" => '0:' . time );
+        ok( $$time >= 2, 'Job "Live::NS3::AddJob::sleeper" returned in more than 2 seconds' );
     }
 }
 

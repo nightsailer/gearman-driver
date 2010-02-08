@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - Do not use gearman-xs in testlib anymore
+
 0.01023     Fri Feb 05 2010
             - Remove Try::Tiny from wrapped job method
 
