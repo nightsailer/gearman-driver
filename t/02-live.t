@@ -7,6 +7,10 @@ use TestLib;
 use File::Slurp;
 use File::Temp qw(tempfile);
 
+BEGIN {
+    $ENV{GEARMAN_DRIVER_ADAPTOR} = 'Gearman::Driver::Adaptor::PP';
+}
+
 my $test = TestLib->new();
 
 $test->run_gearmand;

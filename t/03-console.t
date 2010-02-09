@@ -8,6 +8,10 @@ use TestLib;
 use Net::Telnet;
 use Try::Tiny;
 
+BEGIN {
+    $ENV{GEARMAN_DRIVER_ADAPTOR} = 'Gearman::Driver::Adaptor::PP';
+}
+
 my $test = TestLib->new();
 my $gc   = $test->gearman_client;
 
