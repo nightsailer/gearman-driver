@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01025     Tue Feb 09 2010
+            - Force usage of Gearman::Driver::Adaptor::PP in testsuite
+
 0.01024     Mon Feb 08 2010
             - Do not use gearman-xs in testlib anymore
 
