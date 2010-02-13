@@ -584,21 +584,20 @@ sub add_job {
     $params->{max_processes} = delete $params->{max_childs} if defined $params->{max_childs};
     $params->{min_processes} = delete $params->{min_childs} if defined $params->{min_childs};
 
+    foreach my $key ( keys %$params ) {
+        delete $params->{$key} unless defined $params->{$key};
+    }
+
     my $job = Gearman::Driver::Job->new(
-        driver        => $self,
-        decode        => $params->{decode} || '',
-        encode        => $params->{encode} || '',
-        max_processes => $params->{max_processes},
-        method        => $params->{method},
-        min_processes => $params->{min_processes},
-        name          => $params->{name},
-        server        => $self->server,
-        worker        => $params->{object},
+        driver => $self,
+        server => $self->server,
+        worker => delete $params->{object},
+        %$params
     );
 
     $self->_set_job( $params->{name} => $job );
 
-    $self->log->debug( sprintf "Added new job: %s (processes: %d)", $params->{name}, $params->{min_processes} );
+    $self->log->debug( sprintf "Added new job: %s (processes: %d)", $params->{name}, $params->{min_processes} || 1 );
 
     return 1;
 }

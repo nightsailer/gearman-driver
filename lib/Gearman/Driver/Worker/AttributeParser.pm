@@ -38,23 +38,31 @@ has 'override_attributes' => (
     isa     => 'HashRef',
 );
 
+has 'valid_attributes' => (
+    auto_deref => 1,
+    default    => sub {
+        [
+            qw(
+              Encode
+              Decode
+              Job
+              MaxChilds
+              MaxProcesses
+              MinChilds
+              MinProcesses
+              )
+        ];
+    },
+    is  => 'rw',
+    isa => 'ArrayRef',
+);
+
 sub _parse_attributes {
     my ($self) = @_;
 
     my $attributes = $self->attributes;
 
-    my @valid_attributes = qw(
-      Encode Decode Job MaxChilds
-      MaxProcesses MinChilds MinProcesses
-    );
-
-    my $result = {
-        Decode       => 0,
-        Encode       => 0,
-        Job          => 0,
-        MinProcesses => 1,
-        MaxProcesses => 1,
-    };
+    my $result = {};
 
     foreach my $attr ( keys %{ $self->default_attributes } ) {
         unshift @$attributes, sprintf '%s(%s)', $attr, $self->default_attributes->{$attr};
@@ -72,14 +80,14 @@ sub _parse_attributes {
         $value ||= 'decode' if $type eq 'Decode';
         $value = 1 unless defined $value;
 
-        unless ( grep $type eq $_, @valid_attributes ) {
+        unless ( grep $type eq $_, $self->valid_attributes ) {
             warn "Invalid attribute '$attr' in " . ref($self);
             next;
         }
 
         $type =~ s/^(Min|Max)Childs$/$1Processes/;
 
-        $result->{$type} = $value if defined $result->{$type};
+        $result->{$type} = $value if defined $value;
     }
 
     return $result;
