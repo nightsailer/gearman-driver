@@ -249,14 +249,6 @@ INTERNAL ATTRIBUTES
 
     *   readonly: "True"
 
-  extended_status
-    Enables/disables extended status information in management console like
-    lastrun, lasterror and lasterror_msg.
-
-    *   isa: "Bool"
-
-    *   default: 1
-
 METHODS
   add_job
     There's one mandatory param (hashref) with following keys:
