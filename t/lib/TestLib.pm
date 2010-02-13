@@ -9,6 +9,7 @@ use Net::Telnet;
 use Gearman::Client;
 use Gearman::Server;
 use Danga::Socket;
+use IO::Socket::INET;
 
 my ( $host, $port ) = ( '127.0.0.1', 4731 );
 
@@ -31,7 +32,6 @@ sub run_gearmand {
         exit(0);
     }
 
-    sleep(5);
     warn sprintf "gearmand started (%d)\n", $self->{gearmand_pid};
 }
 
@@ -48,8 +48,27 @@ sub run_gearman_driver {
         exit(0);
     }
 
-    sleep(5);
+    my $cnt = 0;
+    while ( !check_connection(47300) ) {
+        sleep(1);
+        $cnt++;
+        die "Could not connect to 47300 after $cnt seconds" if $cnt == 120;
+    }
+
     warn sprintf "gearman-driver started (%d)\n", $self->{gearman_driver_pid};
+}
+
+sub check_connection {
+    my ($port) = @_;
+    return do {
+        my $sock = IO::Socket::INET->new(
+            PeerAddr => '127.0.0.1',
+            PeerPort => '47300',
+            Proto    => 'tcp',
+        ) or return 0;
+        undef $sock;
+        return 1;
+    };
 }
 
 sub gearman_client {
