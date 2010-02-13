@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - Parent & childs talking via STDOUT
+
 0.01025_01  Sat Feb 13 2010
             - Check connection before running testsuite
 

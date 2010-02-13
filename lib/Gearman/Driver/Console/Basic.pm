@@ -52,30 +52,26 @@ sub status {
     # get maximum lengths
     my @max = ( 0, 1, 1, 1, 1, 1, 1 );
     foreach my $job ( $self->driver->get_jobs ) {
-        my $lastrun       = $self->get_lastrun( $job->name );
-        my $lasterror     = $self->get_lasterror( $job->name );
-        my $lasterror_msg = $self->get_lasterror_msg( $job->name );
+        my $lasterror_msg = $job->lasterror_msg;
         $max[0] = length $job->name            if $max[0] < length $job->name;
         $max[1] = length $job->min_processes   if $max[1] < length $job->min_processes;
         $max[2] = length $job->max_processes   if $max[2] < length $job->max_processes;
         $max[3] = length $job->count_processes if $max[3] < length $job->count_processes;
-        $max[4] = length $lastrun              if $max[4] < length $lastrun;
-        $max[5] = length $lasterror            if $max[5] < length $lasterror;
+        $max[4] = length $job->lastrun         if $max[4] < length $job->lastrun;
+        $max[5] = length $job->lasterror       if $max[5] < length $job->lasterror;
         $max[6] = length $lasterror_msg        if $max[6] < length $lasterror_msg;
     }
 
     my @result = ();
     foreach my $job ( $self->driver->get_jobs ) {
-        my $lastrun       = $self->get_lastrun( $job->name );
-        my $lasterror     = $self->get_lasterror( $job->name );
-        my $lasterror_msg = $self->get_lasterror_msg( $job->name );
+        my $lasterror_msg = $job->lasterror_msg;
         chomp $lasterror_msg;
         push @result,
           sprintf(
             "%-$max[0]s  %$max[1]d  %$max[2]d  %$max[3]d  %$max[4]s  %$max[5]s  %$max[6]s",
             $job->name, $job->min_processes, $job->max_processes, $job->count_processes,
-            DateTime->from_epoch( epoch => $lastrun ),
-            DateTime->from_epoch( epoch => $lasterror ),
+            DateTime->from_epoch( epoch => $job->lastrun ),
+            DateTime->from_epoch( epoch => $job->lasterror ),
             $lasterror_msg
           );
     }
@@ -220,18 +216,15 @@ sub show {
 
     my @result = ();
 
-    my $lastrun       = $self->get_lastrun( $job->name );
-    my $lasterror     = $self->get_lasterror( $job->name );
-    my $lasterror_msg = $self->get_lasterror_msg( $job->name );
-
+    my $lasterror_msg = $job->lasterror_msg;
     chomp $lasterror_msg;
 
     push @result,
       sprintf(
         "%s  %d  %d  %d  %s  %s  %s",
         $job->name, $job->min_processes, $job->max_processes, $job->count_processes,
-        DateTime->from_epoch( epoch => $lastrun ),
-        DateTime->from_epoch( epoch => $lasterror ),
+        DateTime->from_epoch( epoch => $job->lastrun ),
+        DateTime->from_epoch( epoch => $job->lasterror ),
         $lasterror_msg
       );
 

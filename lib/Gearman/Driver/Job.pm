@@ -3,7 +3,6 @@ package Gearman::Driver::Job;
 use Moose;
 use Gearman::Driver::Adaptor;
 use POE qw(Wheel::Run);
-use IO::Socket;
 
 =head1 NAME
 
@@ -209,13 +208,6 @@ has 'session' => (
     isa => 'POE::Session',
 );
 
-has 'client' => (
-    builder => '_build_client',
-    is      => 'ro',
-    isa     => 'IO::Socket::UNIX',
-    lazy    => 1,
-);
-
 =head2 lastrun
 
 Each time this job is called it stores C<time()> in this attribute.
@@ -225,15 +217,9 @@ This depends on L<Gearman::Driver/extended_status>.
 =cut
 
 has 'lastrun' => (
+    default => 0,
     is      => 'rw',
     isa     => 'Int',
-    trigger => sub {
-        my ( $self, $value, $old_value ) = @_;
-        $old_value ||= 0;
-        return if $value == $old_value;
-        my $sock = $self->client;
-        print $sock $self->name . " lastrun $value\n";
-    }
 );
 
 =head2 lasterror
@@ -245,15 +231,9 @@ This depends on L<Gearman::Driver/extended_status>.
 =cut
 
 has 'lasterror' => (
+    default => 0,
     is      => 'rw',
     isa     => 'Int',
-    trigger => sub {
-        my ( $self, $value, $old_value ) = @_;
-        $old_value ||= 0;
-        return if $value == $old_value;
-        my $sock = $self->client;
-        print $sock $self->name . " lasterror $value\n";
-    }
 );
 
 =head2 lasterror_msg
@@ -266,15 +246,9 @@ This depends on L<Gearman::Driver/extended_status>.
 =cut
 
 has 'lasterror_msg' => (
+    default => '',
     is      => 'rw',
     isa     => 'Str',
-    trigger => sub {
-        my ( $self, $value, $old_value ) = @_;
-        $old_value ||= '';
-        return if $value eq $old_value;
-        my $sock = $self->client;
-        print $sock $self->name . " lasterror_msg $value\n";
-    }
 );
 
 =head1 METHODS
@@ -329,16 +303,14 @@ sub BUILD {
 
         my $error;
         my $result;
-        eval {
-            $result = $self->method->( $self->worker, @args );
-        };
+        eval { $result = $self->method->( $self->worker, @args ); };
         if ($@) {
             $error = $@;
-            $self->lasterror(time) if $extended_status;
-            $self->lasterror_msg($error) if $extended_status;
+            printf "lasterror %d\n",     time   if $extended_status;
+            printf "lasterror_msg %s\n", $error if $extended_status;
         }
 
-        $self->lastrun(time) if $extended_status;
+        printf "lastrun %d\n", time if $extended_status;
 
         $self->worker->end(@args);
 
@@ -362,15 +334,6 @@ sub BUILD {
             }
         ]
     );
-}
-
-sub _build_client {
-    my ($self) = @_;
-    IO::Socket::UNIX->new(
-        Peer    => $self->driver->cc_socket,
-        Type    => SOCK_STREAM,
-        Timeout => 2,
-    ) or die $@;
 }
 
 sub _start {
@@ -414,7 +377,9 @@ sub _remove_process {
 sub _on_process_stdout {
     my ( $self, $heap, $stdout, $wid ) = @_[ OBJECT, HEAP, ARG0, ARG1 ];
     my $process = $heap->{wheels}{$wid};
-    $self->log->info( sprintf '(%d) [%s] STDOUT: %s', $process->PID, $self->name, $stdout );
+    my ( $attr, $value ) = $stdout =~ /^(\w+) (.*?)$/;
+    return if !defined $attr || !defined $value;
+    $self->$attr($value) if $self->can($attr);
 }
 
 sub _on_process_stderr {
