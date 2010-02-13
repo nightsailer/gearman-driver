@@ -1,6 +1,7 @@
 Revision history for Gearman-Driver
 
             - Parent & childs talking via STDOUT
+            - Remove (useless) extended_status feature
 
 0.01025_01  Sat Feb 13 2010
             - Check connection before running testsuite

@@ -212,8 +212,6 @@ has 'session' => (
 
 Each time this job is called it stores C<time()> in this attribute.
 
-This depends on L<Gearman::Driver/extended_status>.
-
 =cut
 
 has 'lastrun' => (
@@ -225,8 +223,6 @@ has 'lastrun' => (
 =head2 lasterror
 
 Each time this job failed it stores C<time()> in this attribute.
-
-This depends on L<Gearman::Driver/extended_status>.
 
 =cut
 
@@ -240,8 +236,6 @@ has 'lasterror' => (
 
 Each time this job failed it stores the error message in this
 attribute.
-
-This depends on L<Gearman::Driver/extended_status>.
 
 =cut
 
@@ -280,8 +274,6 @@ sub BUILD {
 
     $self->{gearman} = Gearman::Driver::Adaptor->new( server => $self->driver->server );
 
-    my $extended_status = $self->driver->extended_status;
-
     my $decoder = sub { shift };
     my $encoder = sub { shift };
 
@@ -306,11 +298,11 @@ sub BUILD {
         eval { $result = $self->method->( $self->worker, @args ); };
         if ($@) {
             $error = $@;
-            printf "lasterror %d\n",     time   if $extended_status;
-            printf "lasterror_msg %s\n", $error if $extended_status;
+            printf "lasterror %d\n",     time;
+            printf "lasterror_msg %s\n", $error;
         }
 
-        printf "lastrun %d\n", time if $extended_status;
+        printf "lastrun %d\n", time;
 
         $self->worker->end(@args);
 
