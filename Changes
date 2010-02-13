@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - Possible to group many job methods into one single
+              process (see ProcessGroup)
             - Parent & childs talking via STDOUT
             - Remove (useless) extended_status feature
 

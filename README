@@ -54,6 +54,8 @@ SYNOPSIS
         $driver->run;
 
 DESCRIPTION
+    Warning: This framework is still EXPERIMENTAL!
+
     Having hundreds of Gearman workers running in separate processes can
     consume a lot of RAM. Often many of these workers share the same
     code/objects, like the database layer using DBIx::Class for example.
@@ -219,9 +221,11 @@ INTERNAL ATTRIBUTES
     This might be interesting for subclassing Gearman::Driver.
 
   jobs
-    Stores all Gearman::Driver::Job instances. The key is the name the job
-    gets registered with gearmand. There are also two methods: get_job and
-    has_job.
+    Stores all Gearman::Driver::Job instances. There are also two methods:
+
+    *   get_job
+
+    *   has_job
 
     Example:
 
@@ -253,36 +257,45 @@ METHODS
   add_job
     There's one mandatory param (hashref) with following keys:
 
-    *   decode (optionally)
+    *   max_processes (mandatory)
 
-        Name of a decoder method in your worker object.
-
-    *   encode (optionally)
-
-        Name of a encoder method in your worker object.
-
-    *   method (mandatory)
-
-        Reference to a CodeRef which will get invoked.
+        Maximum number of processes that may be forked.
 
     *   min_processes (mandatory)
 
         Minimum number of processes that should be forked.
 
-    *   max_processes (mandatory)
-
-        Maximum number of processes that may be forked.
-
     *   name (mandatory)
 
         Job name/alias that method should be registered with Gearman.
 
-    *   object (mandatory)
+    *   methods (mandatory)
 
-        Object that should be passed as first parameter to the job method.
+        ArrayRef of HashRefs containing following keys:
+
+        *   body (mandatory)
+
+            CodeRef to the job method.
+
+        *   name (mandatory)
+
+            The name this method should be registered with gearmand.
+
+        *   decode (optionally)
+
+            Name of a decoder method in your worker object.
+
+        *   encode (optionally)
+
+            Name of a encoder method in your worker object.
+
+    *   worker (mandatory)
+
+        Worker object that should be passed as first parameter to the job
+        method.
 
     Basically you never really need this method if you use "namespaces". But
-    "namespaces" depend on method attributes which some people do hate. In
+    "namespaces" depends on method attributes which some people do hate. In
     this case, feel free to setup your $driver this way:
 
         package My::Workers::One;
@@ -291,6 +304,7 @@ METHODS
         use JSON::XS;
         extends 'Gearman::Driver::Worker::Base';
 
+        # this method will be registered with gearmand as 'My::Workers::One::scale_image'
         sub scale_image {
             my ( $self, $job, $workload ) = @_;
             # do something
@@ -326,17 +340,49 @@ METHODS
 
         my $worker = My::Workers::One->new();
 
+        # run each method in an own process
         foreach my $method (qw(scale_image do_something_else)) {
             $driver->add_job(
-                decode        => 'decode_json',
-                encode        => 'encode_json',
-                max_processes => 5,
-                method        => $worker->meta->find_method_by_name($method)->body,
-                min_processes => 1,
-                name          => $method,
-                object        => $worker,
+                {
+                    max_processes => 5,
+                    min_processes => 1,
+                    name          => $method,
+                    worker        => $worker,
+                    methods       => [
+                        {
+                            body   => $w1->meta->find_method_by_name($method)->body,
+                            decode => 'decode_json',
+                            encode => 'encode_json',
+                            name   => $method,
+                        },
+                    ]
+                }
             );
         }
+
+        # share both methods in a single process
+        $driver->add_job(
+            {
+                max_processes => 5,
+                min_processes => 1,
+                name          => 'some_alias',
+                worker        => $worker,
+                methods       => [
+                    {
+                        body   => $w1->meta->find_method_by_name('scale_image')->body,
+                        decode => 'decode_json',
+                        encode => 'encode_json',
+                        name   => 'scale_image',
+                    },
+                    {
+                        body   => $w1->meta->find_method_by_name('do_something_else')->body,
+                        decode => 'decode_json',
+                        encode => 'encode_json',
+                        name   => 'do_something_else',
+                    },
+                ]
+            }
+        );
 
         $driver->run;
 
@@ -397,6 +443,8 @@ SEE ALSO
     *   Gearman::Driver::Console::Client
 
     *   Gearman::Driver::Job
+
+    *   Gearman::Driver::Job::Method
 
     *   Gearman::Driver::Loader
 

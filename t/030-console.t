@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 272;
+use Test::More tests => 260;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -53,12 +53,10 @@ sleep(5);
         "Live::NS2::BeginEnd::job                   1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS2::Ping2::ping                     1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS2::UseBase::job                    1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJob::begin_end               1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJob::job1                    1   5   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Live::NS3::AddJob::job_group_1             1   5   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJob::sleeper                 2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJob::ten_processes          10  10  10  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJobChilds::begin_end         1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJobChilds::job1              1   5   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Live::NS3::AddJobChilds::job_group_2       1   5   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJobChilds::sleeper           2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJobChilds::ten_processes    10  10  10  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::job                                  1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
@@ -167,12 +165,10 @@ sleep(5);
         "Live::NS2::BeginEnd::job                  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS2::Ping2::ping                    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS2::UseBase::job                   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJob::begin_end              0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJob::job1                   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Live::NS3::AddJob::job_group_1            0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJob::sleeper                0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJob::ten_processes          0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJobChilds::begin_end        0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJobChilds::job1             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Live::NS3::AddJobChilds::job_group_2      0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJobChilds::sleeper          0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJobChilds::ten_processes    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::job                                 0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
@@ -223,12 +219,10 @@ sleep(5);
         "Live::NS2::BeginEnd::job                  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS2::Ping2::ping                    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS2::UseBase::job                   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJob::begin_end              1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJob::job1                   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Live::NS3::AddJob::job_group_1            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJob::sleeper                1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJob::ten_processes          1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJobChilds::begin_end        1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Live::NS3::AddJobChilds::job1             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Live::NS3::AddJobChilds::job_group_2      1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJobChilds::sleeper          1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::NS3::AddJobChilds::ten_processes    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Live::job                                 1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",

@@ -10,7 +10,7 @@ Gearman::Driver::Worker::AttributeParser - Parses worker attributes
 
 This module is responsible for parsing the
 L<method attributes|Gearman::Driver::Worker/METHODATTRIBUTES>
-of a worker. It currently has no public interface.
+of a worker. It has no public interface currently.
 
 =cut
 
@@ -50,6 +50,7 @@ has 'valid_attributes' => (
               MaxProcesses
               MinChilds
               MinProcesses
+              ProcessGroup
               )
         ];
     },
@@ -76,8 +77,9 @@ sub _parse_attributes {
         my ( $type, $value ) = $attr =~ / (\w+) (?: \( (.*?) \) )*/x;
 
         # Default values
-        $value ||= 'encode' if $type eq 'Encode';
-        $value ||= 'decode' if $type eq 'Decode';
+        $value ||= 'encode'    if $type eq 'Encode';
+        $value ||= 'decode'    if $type eq 'Decode';
+        $value ||= $self->name if $type eq 'ProcessGroup';
         $value = 1 unless defined $value;
 
         unless ( grep $type eq $_, $self->valid_attributes ) {
@@ -118,6 +120,8 @@ See L<Gearman::Driver>.
 =item * L<Gearman::Driver::Console::Client>
 
 =item * L<Gearman::Driver::Job>
+
+=item * L<Gearman::Driver::Job::Method>
 
 =item * L<Gearman::Driver::Loader>
 

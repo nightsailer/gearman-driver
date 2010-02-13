@@ -58,28 +58,15 @@ has 'name' => (
     required => 1,
 );
 
-=head2 method
+=head2 methods
 
-Code reference which is run called by L<Gearman::XS::Worker>.
-Actually it's not called directly by it, but in a wrapped coderef.
-
-=cut
-
-has 'method' => (
-    is       => 'rw',
-    isa      => 'CodeRef',
-    required => 1,
-);
-
-=head2 worker
-
-Reference to the worker object.
+ArrayRef of L<Gearman::Driver::Job::Method> objects.
 
 =cut
 
-has 'worker' => (
+has 'methods' => (
     is       => 'rw',
-    isa      => 'Any',
+    isa      => 'ArrayRef[Gearman::Driver::Job::Method]',
     required => 1,
 );
 
@@ -106,43 +93,6 @@ has 'min_processes' => (
     default  => 1,
     is       => 'rw',
     isa      => 'Int',
-    required => 1,
-);
-
-=head2 encode
-
-This may be set to a method name which is implemented in the worker
-class or any subclass. If the method is not available, it will fail.
-The returned value of the job method is passed to this method and
-the return value of this method is sent back to the Gearman server.
-
-See also: L<Gearman::Driver::Worker/Encode>.
-
-=cut
-
-has 'encode' => (
-    default  => '',
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
-);
-
-=head2 decode
-
-This may be set to a method name which is implemented in the worker
-class or any subclass. If the method is not available, it will fail.
-The workload from L<Gearman::XS::Job> is passed to this method and
-the return value is passed as argument C<$workload> to the job
-method.
-
-See also: L<Gearman::Driver::Worker/Decode>.
-
-=cut
-
-has 'decode' => (
-    default  => '',
-    is       => 'rw',
-    isa      => 'Str',
     required => 1,
 );
 
@@ -245,6 +195,18 @@ has 'lasterror_msg' => (
     isa     => 'Str',
 );
 
+=head2 worker
+
+Reference to the worker object.
+
+=cut
+
+has 'worker' => (
+    is       => 'rw',
+    isa      => 'Any',
+    required => 1,
+);
+
 =head1 METHODS
 
 =head2 add_process
@@ -274,44 +236,9 @@ sub BUILD {
 
     $self->{gearman} = Gearman::Driver::Adaptor->new( server => $self->driver->server );
 
-    my $decoder = sub { shift };
-    my $encoder = sub { shift };
-
-    if ( my $decoder_method = $self->decode ) {
-        $decoder = sub { return $self->worker->$decoder_method(@_) };
+    foreach my $method ( @{ $self->methods } ) {
+        $self->gearman->add_function( $method->name => $method->wrapper );
     }
-    if ( my $encoder_method = $self->encode ) {
-        $encoder = sub { return $self->worker->$encoder_method(@_) };
-    }
-
-    my $wrapper = sub {
-        my ($job) = @_;
-
-        my @args = ($job);
-
-        push @args, $decoder->( $job->workload );
-
-        $self->worker->begin(@args);
-
-        my $error;
-        my $result;
-        eval { $result = $self->method->( $self->worker, @args ); };
-        if ($@) {
-            $error = $@;
-            printf "lasterror %d\n",     time;
-            printf "lasterror_msg %s\n", $error;
-        }
-
-        printf "lastrun %d\n", time;
-
-        $self->worker->end(@args);
-
-        die $error if $error;
-
-        return $encoder->($result);
-    };
-
-    $self->gearman->add_function( $self->name => $wrapper );
 
     $self->{session} = POE::Session->create(
         object_states => [
@@ -361,6 +288,7 @@ sub _add_process {
 sub _remove_process {
     my ( $self, $kernel, $heap ) = @_[ OBJECT, KERNEL, HEAP ];
     my ($pid) = ( $self->get_pids )[0];
+    return unless $pid;
     my $process = $self->delete_process($pid);
     $process->kill();
     $self->log->info( sprintf '(%d) [%s] Process killed', $process->PID, $self->name );
@@ -429,6 +357,8 @@ See L<Gearman::Driver>.
 =item * L<Gearman::Driver::Console::Basic>
 
 =item * L<Gearman::Driver::Console::Client>
+
+=item * L<Gearman::Driver::Job::Method>
 
 =item * L<Gearman::Driver::Loader>
 

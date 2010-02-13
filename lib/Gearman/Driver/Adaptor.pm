@@ -13,7 +13,7 @@ L<Gearman::Driver> works with L<Gearman::XS> as well as with the pure
 Perl modules L<Gearman> and L<Gearman::Server>. By default it tries
 to use L<Gearman::XS>. If that fails L<Gearman> is used. You can
 also export an environment variable C<GEARMAN_DRIVER_ADAPTOR> to
-force usage of L<Gearman> even if you have L<Gearman::XS> installed.
+force usage of L<Gearman> even if you have L<Gearman::XS>.
 
 Example:
 
@@ -95,6 +95,8 @@ See L<Gearman::Driver>.
 =item * L<Gearman::Driver::Console::Client>
 
 =item * L<Gearman::Driver::Job>
+
+=item * L<Gearman::Driver::Job::Method>
 
 =item * L<Gearman::Driver::Loader>
 

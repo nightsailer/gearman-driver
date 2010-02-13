@@ -7,6 +7,7 @@ use Carp qw(croak);
 use Gearman::Driver::Observer;
 use Gearman::Driver::Console;
 use Gearman::Driver::Job;
+use Gearman::Driver::Job::Method;
 use Log::Log4perl qw(:easy);
 use MooseX::Types::Path::Class;
 use POE;
@@ -72,6 +73,8 @@ Gearman::Driver - Manages Gearman workers
     $driver->run;
 
 =head1 DESCRIPTION
+
+Warning: This framework is still B<EXPERIMENTAL>!
 
 Having hundreds of Gearman workers running in separate processes can
 consume a lot of RAM. Often many of these workers share the same
@@ -363,10 +366,16 @@ This might be interesting for subclassing L<Gearman::Driver>.
 
 =head2 jobs
 
-Stores all L<Gearman::Driver::Job> instances. The key is the name
-the job gets registered with gearmand. There are also two methods:
-L<get_job|Gearman::Driver/get_job> and
-L<has_job|Gearman::Driver/has_job>.
+Stores all L<Gearman::Driver::Job> instances. There are also two
+methods:
+
+=over 4
+
+=item * L<get_job|Gearman::Driver/get_job>
+
+=item * L<has_job|Gearman::Driver/has_job>
+
+=back
 
 Example:
 
@@ -392,6 +401,7 @@ has 'jobs' => (
         _set_job => 'set',
         get_job  => 'get',
         has_job  => 'defined',
+        all_jobs => 'values',
     },
     is     => 'ro',
     isa    => 'HashRef',
@@ -462,6 +472,32 @@ There's one mandatory param (hashref) with following keys:
 
 =over 4
 
+=item * max_processes (mandatory)
+
+Maximum number of processes that may be forked.
+
+=item * min_processes (mandatory)
+
+Minimum number of processes that should be forked.
+
+=item * name (mandatory)
+
+Job name/alias that method should be registered with Gearman.
+
+=item * methods (mandatory)
+
+ArrayRef of HashRefs containing following keys:
+
+=over 4
+
+=item * body (mandatory)
+
+CodeRef to the job method.
+
+=item * name (mandatory)
+
+The name this method should be registered with gearmand.
+
 =item * decode (optionally)
 
 Name of a decoder method in your worker object.
@@ -470,30 +506,17 @@ Name of a decoder method in your worker object.
 
 Name of a encoder method in your worker object.
 
-=item * method (mandatory)
+=back
 
-Reference to a CodeRef which will get invoked.
+=item * worker (mandatory)
 
-=item * min_processes (mandatory)
-
-Minimum number of processes that should be forked.
-
-=item * max_processes (mandatory)
-
-Maximum number of processes that may be forked.
-
-=item * name (mandatory)
-
-Job name/alias that method should be registered with Gearman.
-
-=item * object (mandatory)
-
-Object that should be passed as first parameter to the job method.
+Worker object that should be passed as first parameter to the job
+method.
 
 =back
 
 Basically you never really need this method if you use
-L</namespaces>. But L</namespaces> depend on method attributes which
+L</namespaces>. But L</namespaces> depends on method attributes which
 some people do hate. In this case, feel free to setup your C<$driver>
 this way:
 
@@ -503,6 +526,7 @@ this way:
     use JSON::XS;
     extends 'Gearman::Driver::Worker::Base';
 
+    # this method will be registered with gearmand as 'My::Workers::One::scale_image'
     sub scale_image {
         my ( $self, $job, $workload ) = @_;
         # do something
@@ -538,20 +562,51 @@ this way:
 
     my $worker = My::Workers::One->new();
 
+    # run each method in an own process
     foreach my $method (qw(scale_image do_something_else)) {
         $driver->add_job(
-            decode        => 'decode_json',
-            encode        => 'encode_json',
-            max_processes => 5,
-            method        => $worker->meta->find_method_by_name($method)->body,
-            min_processes => 1,
-            name          => $method,
-            object        => $worker,
+            {
+                max_processes => 5,
+                min_processes => 1,
+                name          => $method,
+                worker        => $worker,
+                methods       => [
+                    {
+                        body   => $w1->meta->find_method_by_name($method)->body,
+                        decode => 'decode_json',
+                        encode => 'encode_json',
+                        name   => $method,
+                    },
+                ]
+            }
         );
     }
 
-    $driver->run;
+    # share both methods in a single process
+    $driver->add_job(
+        {
+            max_processes => 5,
+            min_processes => 1,
+            name          => 'some_alias',
+            worker        => $worker,
+            methods       => [
+                {
+                    body   => $w1->meta->find_method_by_name('scale_image')->body,
+                    decode => 'decode_json',
+                    encode => 'encode_json',
+                    name   => 'scale_image',
+                },
+                {
+                    body   => $w1->meta->find_method_by_name('do_something_else')->body,
+                    decode => 'decode_json',
+                    encode => 'encode_json',
+                    name   => 'do_something_else',
+                },
+            ]
+        }
+    );
 
+    $driver->run;
 
 =cut
 
@@ -560,15 +615,24 @@ sub add_job {
 
     $params->{max_processes} = delete $params->{max_childs} if defined $params->{max_childs};
     $params->{min_processes} = delete $params->{min_childs} if defined $params->{min_childs};
+    $params->{name}          = $params->{worker}->prefix . $params->{name};
 
     foreach my $key ( keys %$params ) {
         delete $params->{$key} unless defined $params->{$key};
     }
 
+    my @methods = ();
+    foreach my $args ( @{ delete $params->{methods} } ) {
+        foreach my $key ( keys %$args ) {
+            delete $args->{$key} unless defined $args->{$key};
+        }
+        $args->{name} = $params->{worker}->prefix . $args->{name};
+        push @methods, Gearman::Driver::Job::Method->new( %$args, worker => $params->{worker} );
+    }
+
     my $job = Gearman::Driver::Job->new(
-        driver => $self,
-        server => $self->server,
-        worker => delete $params->{object},
+        driver  => $self,
+        methods => \@methods,
         %$params
     );
 
@@ -686,7 +750,7 @@ sub _start_console {
 sub _observer_callback {
     my ( $self, $status ) = @_;
     foreach my $row (@$status) {
-        if ( my $job = $self->get_job( $row->{name} ) ) {
+        if ( my $job = $self->_find_job( $row->{name} ) ) {
             if ( $job->count_processes <= $row->{busy} && $row->{queue} ) {
                 my $diff = $row->{queue} - $row->{busy};
                 my $free = $job->max_processes - $job->count_processes;
@@ -711,6 +775,16 @@ sub _observer_callback {
             $self->unknown_job_callback->( $self, $row ) if $row->{queue} > 0;
         }
     }
+}
+
+sub _find_job {
+    my ( $self, $name ) = @_;
+    foreach my $job ( $self->all_jobs ) {
+        foreach my $method ( @{ $job->methods } ) {
+            return $job if $method->name eq $name;
+        }
+    }
+    return 0;
 }
 
 sub _start_session {
@@ -754,6 +828,7 @@ sub _add_jobs {
     foreach my $module ( $self->get_modules ) {
         my $worker = $module->new( server => $self->server );
 
+        my %methods = ();
         foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
             apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
 
@@ -762,19 +837,46 @@ sub _add_jobs {
 
             next unless $method->has_attribute('Job');
 
+            my $name = $method->get_attribute('ProcessGroup') || $method->name;
+            $methods{$name} ||= [];
+            push @{ $methods{$name} }, $method;
+        }
+
+        foreach my $name ( keys %methods ) {
+            my @methods = ();
+            my ( $min_processes, $max_processes );
+
+            foreach my $method ( @{ $methods{$name} } ) {
+                die sprintf "MinProcesses redefined in ProcessGroup(%s) at %s::%s",
+                  $method->get_attribute('ProcessGroup'), ref($worker), $method->name
+                  if defined $min_processes && $method->has_attribute('MinProcesses');
+
+                die sprintf "MaxProcesses redefined in ProcessGroup(%s) at %s::%s",
+                  $method->get_attribute('ProcessGroup'), ref($worker), $method->name
+                  if defined $max_processes && $method->has_attribute('MaxProcesses');
+
+                $min_processes ||= $method->get_attribute('MinProcesses');
+                $max_processes ||= $method->get_attribute('MaxProcesses');
+
+                push @methods,
+                  {
+                    body   => $method->body,
+                    name   => $method->name,
+                    decode => $method->get_attribute('Decode'),
+                    encode => $method->get_attribute('Encode'),
+                  };
+            }
+
             $self->add_job(
                 {
-                    decode        => $method->get_attribute('Decode'),
-                    encode        => $method->get_attribute('Encode'),
-                    max_processes => $method->get_attribute('MaxProcesses'),
-                    method        => $method->body,
-                    min_processes => $method->get_attribute('MinProcesses'),
-                    name          => $worker->prefix . $method->name,
-                    object        => $worker,
+                    max_processes => $max_processes,
+                    min_processes => $min_processes,
+                    methods       => \@methods,
+                    name          => $name,
+                    worker        => $worker,
                 }
             );
         }
-
     }
 }
 
@@ -849,6 +951,8 @@ it under the same terms as Perl itself.
 =item * L<Gearman::Driver::Console::Client>
 
 =item * L<Gearman::Driver::Job>
+
+=item * L<Gearman::Driver::Job::Method>
 
 =item * L<Gearman::Driver::Loader>
 

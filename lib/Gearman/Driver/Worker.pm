@@ -148,6 +148,65 @@ Example, workload is this string: C<{"status":1,"message":"OK"}>
         # $workload = { status => 1, message => 'OK' }
     }
 
+=head2 ProcessGroup
+
+Forking each job method in an own process may not always be the way
+to go. It's possible to run many job methods in a single process by
+defining C<ProcessGroup> attribute. This process group alias will
+also show up in L<Gearman::Driver::Console> instead of the single
+method names. The workers process name will also be affected.
+
+    sub process_name {
+        my ( $self, $orig, $job_name ) = @_;
+        return "$orig ($job_name)";
+    }
+
+    sub scale_image : Job : ProcessGroup(image_worker) {
+        my ( $self, $job, $workload ) = @_;
+    }
+
+    sub convert_image : Job : ProcessGroup(image_worker) {
+        my ( $self, $job, $workload ) = @_;
+    }
+
+    # $ ~/Gearman-Driver$ ps ux|grep image_worker
+    # plu   2608   0.0  0.1  2466720   4200 s001  S    12:46PM   0:00.01 script/gearman_driver.pl (XxX::image_worker)
+
+    # $ ~/Gearman-Driver$ telnet localhost 47300
+    # Trying ::1...
+    # telnet: connect to address ::1: Connection refused
+    # Trying fe80::1...
+    # telnet: connect to address fe80::1: Connection refused
+    # Trying 127.0.0.1...
+    # Connected to localhost.
+    # Escape character is '^]'.
+    # status
+    # XxX::image_worker  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00
+
+It's possible to combine C<ProcessGroup> and C<MinProcesses> +
+C<MaxProcesses>. But there's one small caveat: Because one single
+process shares many methods, you can only set the min/max process
+amount once per C<ProcessGroup>:
+
+    sub scale_image : Job : ProcessGroup(image_worker) : MinProcesses(5) : MaxProcesses(10) {
+        my ( $self, $job, $workload ) = @_;
+    }
+
+    sub convert_image : Job : ProcessGroup(image_worker) {
+        my ( $self, $job, $workload ) = @_;
+    }
+
+If you do not obey this restriction, L<Gearman::Driver> will barf:
+
+    sub scale_image : Job : ProcessGroup(image_worker) : MinProcesses(5) : MaxProcesses(10) {
+        my ( $self, $job, $workload ) = @_;
+    }
+
+    sub convert_image : Job : ProcessGroup(image_worker) : MinProcesses(6) : MaxProcesses(12) {
+        my ( $self, $job, $workload ) = @_;
+    }
+
+C<MinProcesses redefined in ProcessGroup(image_worker) at XxX::convert_image at lib/Gearman/Driver.pm line 850.>
 
 =head1 METHODS
 
@@ -295,6 +354,8 @@ See L<Gearman::Driver>.
 =item * L<Gearman::Driver::Console::Client>
 
 =item * L<Gearman::Driver::Job>
+
+=item * L<Gearman::Driver::Job::Method>
 
 =item * L<Gearman::Driver::Loader>
 
