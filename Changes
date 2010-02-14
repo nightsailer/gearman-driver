@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01999_01  Sun Feb 14 2010
+            - Be careful, this release has a different add_job()
+              signature!
             - Possible to group many job methods into one single
               process (see ProcessGroup)
             - Parent & childs talking via STDOUT
