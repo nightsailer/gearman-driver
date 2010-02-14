@@ -613,9 +613,7 @@ this way:
 sub add_job {
     my ( $self, $params ) = @_;
 
-    $params->{max_processes} = delete $params->{max_childs} if defined $params->{max_childs};
-    $params->{min_processes} = delete $params->{min_childs} if defined $params->{min_childs};
-    $params->{name}          = $params->{worker}->prefix . $params->{name};
+    $params->{name} = $params->{worker}->prefix . $params->{name};
 
     foreach my $key ( keys %$params ) {
         delete $params->{$key} unless defined $params->{$key};

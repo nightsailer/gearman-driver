@@ -95,8 +95,6 @@ Parameters: C<job_name min_processes>
 
 =cut
 
-*set_min_childs = \&set_min_processes;
-
 sub set_min_processes {
     my ( $self, $job_name, $min_processes ) = @_;
 
@@ -130,8 +128,6 @@ Parameters: C<job_name max_processes>
     .
 
 =cut
-
-*set_max_childs = \&set_max_processes;
 
 sub set_max_processes {
     my ( $self, $job_name, $max_processes ) = @_;

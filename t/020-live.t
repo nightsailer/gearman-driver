@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 42;
+use Test::More tests => 31;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use Gearman::Driver::Test;
@@ -20,7 +20,7 @@ my $telnet = $test->telnet_client;
 my $gc     = $test->gearman_client;
 
 # give gearmand + driver at least 5 seconds to settle
-foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic Gearman::Driver::Test::Live::NS1::BasicChilds)) {
+foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
     for ( 1 .. 5 ) {
         my $pong = $gc->do_task( "${namespace}::ping" => 'ping' );
         sleep(1) && next unless $pong;
@@ -42,7 +42,7 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic Gearman::Drive
 # i hope this assumption is always true:
 # out of 50000 jobs all 10 processes handled at least one job
 {
-    foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic Gearman::Driver::Test::Live::NS1::BasicChilds)) {
+    foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
         my %pids = ();
         for ( 1 .. 50000 ) {
             my $pid = $gc->do_task( "${namespace}::ten_processes" => '' );
@@ -92,11 +92,11 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic Gearman::Drive
 }
 
 {
-    foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic Gearman::Driver::Test::Live::NS1::BasicChilds)) {
+    foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
         {
-            $gc->dispatch_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
+            $gc->dispatch_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5; # blocks 5/6 slots for 5 secs
 
-            my $time= $gc->do_task( "${namespace}::sleeper" => '0:' . time );
+            my $time = $gc->do_task( "${namespace}::sleeper" => '0:' . time );
             ok( $$time <= 2, 'Job "sleeper" returned in less than 2 seconds' );
         }
         {
@@ -109,7 +109,7 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic Gearman::Drive
 }
 
 {
-    my $filename= $gc->do_task( 'Gearman::Driver::Test::Live::NS1::BeginEnd::job' => 'some workload ...' );
+    my $filename = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::BeginEnd::job' => 'some workload ...' );
     my $text = read_file($$filename);
     is(
         $text,
@@ -172,9 +172,7 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic Gearman::Drive
     foreach my $namespace (
         qw(
         Gearman::Driver::Test::Live::NS1::DefaultAttributes
-        Gearman::Driver::Test::Live::NS1::DefaultAttributesChilds
         Gearman::Driver::Test::Live::NS1::OverrideAttributes
-        Gearman::Driver::Test::Live::NS1::OverrideAttributesChilds
         )
       )
     {
@@ -198,7 +196,7 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic Gearman::Drive
 #
 #
 
-foreach my $namespace (qw(Gearman::Driver::Test::Live::NS3::AddJob Gearman::Driver::Test::Live::NS3::AddJobChilds)) {
+foreach my $namespace (qw(Gearman::Driver::Test::Live::NS3::AddJob)) {
     {
         my $string = $gc->do_task( "${namespace}::job1" => 'foo' );
         is( $$string, 'CUSTOMENCODE::foo::CUSTOMENCODE', 'Custom encoding works' );
@@ -236,7 +234,7 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS3::AddJob Gearman::Driv
     }
 
     {
-        $gc->dispatch_background( "${namespace}::sleeper" => '4:' . time );               # block last slot for another 4 secs
+        $gc->dispatch_background( "${namespace}::sleeper" => '4:' . time );    # block last slot for another 4 secs
 
         my $time = $gc->do_task( "${namespace}::sleeper" => '0:' . time );
         ok( $$time >= 2, 'Job "Gearman::Driver::Test::Live::NS3::AddJob::sleeper" returned in more than 2 seconds' );

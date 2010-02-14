@@ -46,9 +46,7 @@ has 'valid_attributes' => (
               Encode
               Decode
               Job
-              MaxChilds
               MaxProcesses
-              MinChilds
               MinProcesses
               ProcessGroup
               )
@@ -86,8 +84,6 @@ sub _parse_attributes {
             warn "Invalid attribute '$attr' in " . ref($self);
             next;
         }
-
-        $type =~ s/^(Min|Max)Childs$/$1Processes/;
 
         $result->{$type} = $value if defined $value;
     }

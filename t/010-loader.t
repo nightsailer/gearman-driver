@@ -32,8 +32,8 @@ use Gearman::Driver::Test::Loader::Empty;
     is_deeply(
         [ $e->get_modules ],
         [
-            'Gearman::Driver::Test::Live::NS1::Basic',    'Gearman::Driver::Test::Live::NS1::BasicChilds',
-            'Gearman::Driver::Test::Live::NS1::BeginEnd', 'Gearman::Driver::Test::Live::NS2::BeginEnd'
+            'Gearman::Driver::Test::Live::NS1::Basic', 'Gearman::Driver::Test::Live::NS1::BeginEnd',
+            'Gearman::Driver::Test::Live::NS2::BeginEnd'
         ],
         'get_modules method/attribute'
     );

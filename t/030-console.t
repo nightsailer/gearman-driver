@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 260;
+use Test::More tests => 212;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -26,41 +26,33 @@ sleep(5);
 
 {
     my @expected = (
-        "Gearman::Driver::Test::Live::NS1::Basic::get_pid                  0   1   0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::ping                     1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::quit                     1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::sleeper                  2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid               0   1   0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::ten_processes           10  10  10  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BasicChilds::ping               1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BasicChilds::sleeper            2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BasicChilds::ten_processes     10  10  10  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BeginEnd::job                   1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Decode::job1                    1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Decode::job2                    1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job          3   1   3  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::DefaultAttributesChilds::job    3   1   3  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Encode::job1                    1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Encode::job2                    1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::OverrideAttributes::job         1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::OverrideAttributesChilds::job   1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::main                    1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_1              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_2              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_3              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_4              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_5              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS2::BeginEnd::job                   1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS2::Ping2::ping                     1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS2::UseBase::job                    1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::job_group_1             1   5   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::sleeper                 2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::ten_processes          10  10  10  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJobChilds::job_group_2       1   5   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJobChilds::sleeper           2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJobChilds::ten_processes    10  10  10  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::job                                  1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "something_custom_ping                                             1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::get_pid            0   1   0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::ping               1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::quit               1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::sleeper            2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid         0   1   0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::ten_processes     10  10  10  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::BeginEnd::job             1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Decode::job1              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Decode::job2              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job    3   1   3  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Encode::job1              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Encode::job2              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::OverrideAttributes::job   1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::main              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_1        1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_2        1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_3        1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_4        1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_5        1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS2::BeginEnd::job             1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS2::Ping2::ping               1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS2::UseBase::job              1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS3::AddJob::job_group_1       1   5   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS3::AddJob::sleeper           2   6   2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS3::AddJob::ten_processes    10  10  10  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::job                            1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "something_custom_ping                                       1   1   1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
     );
     $telnet->print('status');
     my @lines = ();
@@ -78,10 +70,10 @@ sleep(5);
     my @pids = ();
     my $test = sub {
         my @expected = (
-            qr/^Gearman::Driver::Test::Live::NS1::BasicChilds::sleeper  2  6  2  1970-01-01T00:00:00  1970-01-01T00:00:00  $/,
+            qr/^Gearman::Driver::Test::Live::NS1::Basic::sleeper  2  6  2  1970-01-01T00:00:00  1970-01-01T00:00:00  $/,
             qr/^\d+$/, qr/^\d+$/
         );
-        $telnet->print('show Gearman::Driver::Test::Live::NS1::BasicChilds::sleeper');
+        $telnet->print('show Gearman::Driver::Test::Live::NS1::Basic::sleeper');
         while ( my $line = $telnet->getline() ) {
             last if $line eq ".\n";
             chomp $line;
@@ -115,7 +107,7 @@ sleep(5);
         isnt( shift(@pids), shift(@old_pids) );
     }
 
-    $telnet->print('killall Gearman::Driver::Test::Live::NS1::BasicChilds::sleeper');
+    $telnet->print('killall Gearman::Driver::Test::Live::NS1::Basic::sleeper');
     is( $telnet->getline(), "OK\n" );
     is( $telnet->getline(), ".\n" );
 
@@ -138,41 +130,33 @@ sleep(5);
     sleep(6);
 
     my @expected = (
-        "Gearman::Driver::Test::Live::NS1::Basic::get_pid                 0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::ping                    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::quit                    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::sleeper                 0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid              0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::ten_processes           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BasicChilds::ping              0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BasicChilds::sleeper           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BasicChilds::ten_processes     0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BeginEnd::job                  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Decode::job1                   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Decode::job2                   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job         0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::DefaultAttributesChilds::job   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Encode::job1                   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Encode::job2                   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::OverrideAttributes::job        0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::OverrideAttributesChilds::job  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::main                   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_1             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_2             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_3             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_4             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_5             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS2::BeginEnd::job                  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS2::Ping2::ping                    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS2::UseBase::job                   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::job_group_1            0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::sleeper                0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::ten_processes          0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJobChilds::job_group_2      0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJobChilds::sleeper          0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJobChilds::ten_processes    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::job                                 0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "something_custom_ping                                            0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::get_pid           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::ping              0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::quit              0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::sleeper           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid        0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::ten_processes     0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::BeginEnd::job            0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Decode::job1             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Decode::job2             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Encode::job1             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Encode::job2             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::OverrideAttributes::job  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::main             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_1       0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_2       0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_3       0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_4       0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_5       0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS2::BeginEnd::job            0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS2::Ping2::ping              0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS2::UseBase::job             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS3::AddJob::job_group_1      0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS3::AddJob::sleeper          0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS3::AddJob::ten_processes    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::job                           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "something_custom_ping                                      0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
     );
 
     $telnet->print('status');
@@ -192,41 +176,33 @@ sleep(5);
     sleep(6);
 
     @expected = (
-        "Gearman::Driver::Test::Live::NS1::Basic::get_pid                 1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::ping                    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::quit                    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::sleeper                 1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid              1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::ten_processes           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BasicChilds::ping              1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BasicChilds::sleeper           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BasicChilds::ten_processes     1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::BeginEnd::job                  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Decode::job1                   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Decode::job2                   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job         1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::DefaultAttributesChilds::job   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Encode::job1                   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Encode::job2                   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::OverrideAttributes::job        1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::OverrideAttributesChilds::job  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::main                   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_1             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_2             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_3             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_4             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Spread::some_job_5             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS2::BeginEnd::job                  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS2::Ping2::ping                    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS2::UseBase::job                   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::job_group_1            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::sleeper                1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::ten_processes          1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJobChilds::job_group_2      1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJobChilds::sleeper          1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJobChilds::ten_processes    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::job                                 1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "something_custom_ping                                            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::get_pid           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::ping              1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::quit              1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::sleeper           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid        1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Basic::ten_processes     1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::BeginEnd::job            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Decode::job1             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Decode::job2             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Encode::job1             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Encode::job2             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::OverrideAttributes::job  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::main             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_1       1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_2       1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_3       1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_4       1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::Spread::some_job_5       1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS2::BeginEnd::job            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS2::Ping2::ping              1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS2::UseBase::job             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS3::AddJob::job_group_1      1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS3::AddJob::sleeper          1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS3::AddJob::ten_processes    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::job                           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "something_custom_ping                                      1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
     );
 
     $telnet->print('status');

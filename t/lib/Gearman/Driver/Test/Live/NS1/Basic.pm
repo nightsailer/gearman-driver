@@ -14,7 +14,7 @@ sub ping : Job {
     return 'pong';
 }
 
-sub sleepy_pid : Job : MinChilds(0) {
+sub sleepy_pid : Job : MinProcesses(0) {
     my ( $self, $job, $workload ) = @_;
     $workload ||= 0;
     for ( 0 .. $workload ) {
@@ -24,7 +24,7 @@ sub sleepy_pid : Job : MinChilds(0) {
     return $self->pid;
 }
 
-sub get_pid : Job : MinChilds(0) {
+sub get_pid : Job : MinProcesses(0) {
     my ( $self, $job, $workload ) = @_;
     warn "get_pid: " . $self->pid;
     return $self->pid;

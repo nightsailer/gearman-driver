@@ -1,6 +1,8 @@
 Revision history for Gearman-Driver
 
 0.01999_01  Sun Feb 14 2010
+            - Do not support deprecated (Min|Max)Childs attribute
+              anymore, please use (Min|Max)Processes instead
             - Be careful, this release has a different add_job()
               signature!
             - Possible to group many job methods into one single
