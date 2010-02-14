@@ -2,7 +2,7 @@
 * cleanup test mess
 * rework log messages
 * make MaxIdleTime configurable per job as new attribute
-* rework status output if extended_status is disabled
+* use Module::Refresh or something to auto-reload changed workers
 
 * implement some shared stash with different backends (e.g. memcached) to have
   shared data across multiple worker childs (running on multiple servers). Some
