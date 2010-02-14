@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 14;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -18,6 +18,14 @@ use Gearman::Driver::Test::Live::NS1::OverrideAttributes;
             'MinProcesses' => '0'
         },
         'ping' => {
+            'Job'          => 1,
+            'ProcessGroup' => 'group1'
+        },
+        'pid1' => {
+            'Job'          => 1,
+            'ProcessGroup' => 'group1'
+        },
+        'pid2' => {
             'Job'          => 1,
             'ProcessGroup' => 'group1'
         },

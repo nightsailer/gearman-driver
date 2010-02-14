@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 31;
+use Test::More tests => 32;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use Gearman::Driver::Test;
@@ -68,6 +68,12 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
     is( scalar( keys(%pids) ), 2, "2 different processes handled job 'four_processes'" );
     $telnet->print('set_min_processes Gearman::Driver::Test::Live::NS1::Basic::four_processes 4');
     $telnet->print('set_max_processes Gearman::Driver::Test::Live::NS1::Basic::four_processes 4');
+}
+
+{
+    my $pid1 = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Basic::pid1' => '' );
+    my $pid2 = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Basic::pid2' => '' );
+    is( $$pid1, $$pid2, 'Got some pid for different jobs of same ProcessGroup' );
 }
 
 {

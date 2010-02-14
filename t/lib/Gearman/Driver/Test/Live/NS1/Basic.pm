@@ -50,6 +50,16 @@ sub ping : Job : ProcessGroup(group1) {
     return 'pong';
 }
 
+sub pid1 : Job : ProcessGroup(group1) {
+    my ( $self, $job, $workload ) = @_;
+    return $self->pid;
+}
+
+sub pid2 : Job : ProcessGroup(group1) {
+    my ( $self, $job, $workload ) = @_;
+    return $self->pid;
+}
+
 sub quit : Job : ProcessGroup(group1) {
     my ( $self, $job, $workload ) = @_;
     exit(0) if $workload eq 'exit';
