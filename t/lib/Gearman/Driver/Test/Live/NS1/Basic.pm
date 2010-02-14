@@ -1,18 +1,14 @@
 package    # hide from PAUSE
   Gearman::Driver::Test::Live::NS1::Basic;
 
-use base qw(Gearman::Driver::Worker);
+use base qw(Gearman::Driver::Test::Base::All);
 use Moose;
 
-has 'ten_processes_done' => (
+has 'four_processes_done' => (
     default => 0,
     is      => 'rw',
     isa     => 'Bool',
 );
-
-sub ping : Job {
-    return 'pong';
-}
 
 sub sleepy_pid : Job : MinProcesses(0) {
     my ( $self, $job, $workload ) = @_;
@@ -30,12 +26,12 @@ sub get_pid : Job : MinProcesses(0) {
     return $self->pid;
 }
 
-sub ten_processes : Job : MinProcesses(10) : MaxProcesses(10) {
+sub four_processes : Job : MinProcesses(4) : MaxProcesses(4) {
     my ( $self, $job, $workload ) = @_;
-    if ( $self->ten_processes_done ) {
+    if ( $self->four_processes_done ) {
         exit(1);
     }
-    $self->ten_processes_done(1);
+    $self->four_processes_done(1);
     return $self->pid;
 }
 
@@ -50,7 +46,11 @@ sub pid {
     return $$;
 }
 
-sub quit : Job {
+sub ping : Job : ProcessGroup(group1) {
+    return 'pong';
+}
+
+sub quit : Job : ProcessGroup(group1) {
     my ( $self, $job, $workload ) = @_;
     exit(0) if $workload eq 'exit';
     return 'i am back';

@@ -7,8 +7,7 @@ use lib "$FindBin::Bin/lib";
 use Gearman::Driver::Worker::AttributeParser;
 use Moose::Util qw(apply_all_roles);
 use Gearman::Driver::Test::Live::NS1::Basic;
-use Gearman::Driver::Test::Live::NS1::Decode;
-use Gearman::Driver::Test::Live::NS1::Encode;
+use Gearman::Driver::Test::Live::NS1::EncodeDecode;
 use Gearman::Driver::Test::Live::NS1::DefaultAttributes;
 use Gearman::Driver::Test::Live::NS1::OverrideAttributes;
 
@@ -18,8 +17,14 @@ use Gearman::Driver::Test::Live::NS1::OverrideAttributes;
             'Job'          => 1,
             'MinProcesses' => '0'
         },
-        'ping'    => { 'Job' => 1 },
-        'quit'    => { 'Job' => 1 },
+        'ping' => {
+            'Job'          => 1,
+            'ProcessGroup' => 'group1'
+        },
+        'quit' => {
+            'Job'          => 1,
+            'ProcessGroup' => 'group1'
+        },
         'sleeper' => {
             'Job'          => 1,
             'MaxProcesses' => '6',
@@ -29,10 +34,10 @@ use Gearman::Driver::Test::Live::NS1::OverrideAttributes;
             'Job'          => 1,
             'MinProcesses' => '0'
         },
-        'ten_processes' => {
+        'four_processes' => {
             'Job'          => 1,
-            'MaxProcesses' => '10',
-            'MinProcesses' => '10'
+            'MaxProcesses' => '4',
+            'MinProcesses' => '4'
         }
     );
     my $worker = Gearman::Driver::Test::Live::NS1::Basic->new();
@@ -45,33 +50,27 @@ use Gearman::Driver::Test::Live::NS1::OverrideAttributes;
 {
     my %expected = (
         'job1' => {
-            'Decode' => 'decode',
-            'Job'    => 1
+            'Decode'       => 'decode',
+            'Job'          => 1,
+            'ProcessGroup' => 'group1',
         },
         'job2' => {
-            'Decode' => 'custom_decode',
-            'Job'    => 1
-        }
-    );
-    my $worker = Gearman::Driver::Test::Live::NS1::Decode->new();
-    foreach my $method ( $worker->meta->get_nearest_methods_with_attributes ) {
-        apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
-        eq_or_diff( $method->parsed_attributes, $expected{ $method->name } );
-    }
-}
-
-{
-    my %expected = (
-        'job1' => {
-            'Encode' => 'encode',
-            'Job'    => 1
+            'Decode'       => 'custom_decode',
+            'Job'          => 1,
+            'ProcessGroup' => 'group1',
         },
-        'job2' => {
-            'Encode' => 'custom_encode',
-            'Job'    => 1
+        'job3' => {
+            'Encode'       => 'encode',
+            'Job'          => 1,
+            'ProcessGroup' => 'group1',
+        },
+        'job4' => {
+            'Encode'       => 'custom_encode',
+            'Job'          => 1,
+            'ProcessGroup' => 'group1',
         }
     );
-    my $worker = Gearman::Driver::Test::Live::NS1::Encode->new();
+    my $worker = Gearman::Driver::Test::Live::NS1::EncodeDecode->new();
     foreach my $method ( $worker->meta->get_nearest_methods_with_attributes ) {
         apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
         eq_or_diff( $method->parsed_attributes, $expected{ $method->name } );
@@ -84,7 +83,7 @@ use Gearman::Driver::Test::Live::NS1::OverrideAttributes;
             'Decode'       => 'decode',
             'Encode'       => 'encode',
             'Job'          => 1,
-            'MinProcesses' => '3'
+            'MinProcesses' => '0'
         }
     );
     my $worker = Gearman::Driver::Test::Live::NS1::DefaultAttributes->new();

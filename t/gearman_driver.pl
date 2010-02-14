@@ -33,14 +33,14 @@ $driver->add_job(
 
 $driver->add_job(
     {
-        max_processes => 10,
-        min_processes => 10,
-        name          => 'ten_processes',
+        max_processes => 4,
+        min_processes => 4,
+        name          => 'four_processes',
         worker        => $w1,
         methods       => [
             {
-                body => $w1->meta->find_method_by_name('ten_processes')->body,
-                name => 'ten_processes',
+                body => $w1->meta->find_method_by_name('four_processes')->body,
+                name => 'four_processes',
             }
         ]
     }

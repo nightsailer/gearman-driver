@@ -1,15 +1,15 @@
 package    # hide from PAUSE
   Gearman::Driver::Test::Live::NS3::AddJob;
 
+use base qw(Gearman::Driver::Test::Base::All);
 use Moose;
-extends 'Gearman::Driver::Worker::Base';
 
 use File::Temp qw(tempfile);
 
 has 'filename' => ( is => 'ro' );
 has 'fh'       => ( is => 'ro' );
 
-has 'ten_processes_done' => (
+has 'four_processes_done' => (
     default => 0,
     is      => 'rw',
     isa     => 'Bool',
@@ -58,12 +58,12 @@ sub pid {
     return $$;
 }
 
-sub ten_processes {
+sub four_processes {
     my ( $self, $job, $workload ) = @_;
-    if ( $self->ten_processes_done ) {
+    if ( $self->four_processes_done ) {
         exit(1);
     }
-    $self->ten_processes_done(1);
+    $self->four_processes_done(1);
     return $self->pid;
 }
 

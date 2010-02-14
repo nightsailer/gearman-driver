@@ -1,12 +1,12 @@
 package    # hide from PAUSE
   Gearman::Driver::Test::Live::NS1::DefaultAttributes;
 
-use base qw(Gearman::Driver::Worker);
+use base qw(Gearman::Driver::Test::Base::All);
 use Moose;
 
 sub default_attributes {
     return {
-        MinProcesses => 3,
+        MinProcesses => 0,
         Encode       => 'encode',
         Decode       => 'decode',
     };

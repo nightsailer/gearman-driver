@@ -1,7 +1,7 @@
 package    # hide from PAUSE
   Gearman::Driver::Test::Live::NS2::BeginEnd;
 
-use base qw(Gearman::Driver::Worker);
+use base qw(Gearman::Driver::Test::Base::All);
 use Moose;
 
 sub begin {

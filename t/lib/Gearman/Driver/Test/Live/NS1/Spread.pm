@@ -1,7 +1,7 @@
 package    # hide from PAUSE
   Gearman::Driver::Test::Live::NS1::Spread;
 
-use base qw(Gearman::Driver::Worker);
+use base qw(Gearman::Driver::Test::Base::All);
 use Moose;
 use Gearman::Driver::Test;
 
@@ -24,23 +24,23 @@ sub main : Job {
     return $result;
 }
 
-sub some_job_1 : Job {
+sub some_job_1 : Job : ProcessGroup(group1) {
     return 1;
 }
 
-sub some_job_2 : Job {
+sub some_job_2 : Job : ProcessGroup(group1) {
     return 2;
 }
 
-sub some_job_3 : Job {
+sub some_job_3 : Job : ProcessGroup(group1) {
     return 3;
 }
 
-sub some_job_4 : Job {
+sub some_job_4 : Job : ProcessGroup(group1) {
     return 4;
 }
 
-sub some_job_5 : Job {
+sub some_job_5 : Job : ProcessGroup(group1) {
     return 5;
 }
 

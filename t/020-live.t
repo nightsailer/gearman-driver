@@ -40,34 +40,34 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
 }
 
 # i hope this assumption is always true:
-# out of 50000 jobs all 10 processes handled at least one job
+# out of 1000 jobs all 4 processes handled at least one job
 {
     foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
         my %pids = ();
-        for ( 1 .. 50000 ) {
-            my $pid = $gc->do_task( "${namespace}::ten_processes" => '' );
+        for ( 1 .. 1000 ) {
+            my $pid = $gc->do_task( "${namespace}::four_processes" => '' );
             next unless $pid;
             $pids{$$pid}++;
             last if scalar( keys(%pids) ) == 10;
         }
-        is( scalar( keys(%pids) ), 10, "10 different processes handled job '${namespace}::ten_processes'" );
+        is( scalar( keys(%pids) ), 10, "10 different processes handled job '${namespace}::four_processes'" );
     }
 }
 
 # Let's change min/max processes via console
 {
-    $telnet->print('set_min_processes Gearman::Driver::Test::Live::NS1::Basic::ten_processes 5');
-    $telnet->print('set_max_processes Gearman::Driver::Test::Live::NS1::Basic::ten_processes 5');
+    $telnet->print('set_min_processes Gearman::Driver::Test::Live::NS1::Basic::four_processes 2');
+    $telnet->print('set_max_processes Gearman::Driver::Test::Live::NS1::Basic::four_processes 2');
     my %pids = ();
-    for ( 1 .. 50000 ) {
-        my $pid = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Basic::ten_processes' => '' );
+    for ( 1 .. 1000 ) {
+        my $pid = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Basic::four_processes' => '' );
         next unless $pid;
         $pids{$$pid}++;
-        last if scalar( keys(%pids) ) == 5;
+        last if scalar( keys(%pids) ) == 2;
     }
-    is( scalar( keys(%pids) ), 5, "5 different processes handled job 'ten_processes'" );
-    $telnet->print('set_min_processes Gearman::Driver::Test::Live::NS1::Basic::ten_processes 10');
-    $telnet->print('set_max_processes Gearman::Driver::Test::Live::NS1::Basic::ten_processes 10');
+    is( scalar( keys(%pids) ), 2, "2 different processes handled job 'four_processes'" );
+    $telnet->print('set_min_processes Gearman::Driver::Test::Live::NS1::Basic::four_processes 4');
+    $telnet->print('set_max_processes Gearman::Driver::Test::Live::NS1::Basic::four_processes 4');
 }
 
 {
@@ -125,17 +125,17 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
 }
 
 {
-    my $string = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Encode::job1' => 'some workload ...' );
+    my $string = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::EncodeDecode::job3' => 'some workload ...' );
     is( $$string, 'STANDARDENCODE::some workload ...::STANDARDENCODE', 'Standard encoding works' );
 }
 
 {
-    my $string = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Encode::job2' => 'some workload ...' );
+    my $string = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::EncodeDecode::job4' => 'some workload ...' );
     is( $$string, 'CUSTOMENCODE::some workload ...::CUSTOMENCODE', 'Custom encoding works' );
 }
 
 {
-    my $string = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Decode::job1' => 'some workload ...' );
+    my $string = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::EncodeDecode::job1' => 'some workload ...' );
     is( $$string, 'STANDARDDECODE::some workload ...::STANDARDDECODE', 'Standard decoding works' );
 }
 
@@ -149,7 +149,7 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
 }
 
 {
-    my $string = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Decode::job2' => 'some workload ...' );
+    my $string = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::EncodeDecode::job2' => 'some workload ...' );
     is( $$string, 'CUSTOMDECODE::some workload ...::CUSTOMDECODE', 'Custom decoding works' );
 }
 
@@ -214,16 +214,16 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS3::AddJob)) {
     }
 
     # i hope this assumption is always true:
-    # out of 50000 jobs all 10 processes handled at least one job
+    # out of 1000 jobs all 4 processes handled at least one job
     {
         my %pids = ();
-        for ( 1 .. 50000 ) {
-            my $pid = $gc->do_task( "${namespace}::ten_processes" => 'xxx' );
+        for ( 1 .. 1000 ) {
+            my $pid = $gc->do_task( "${namespace}::four_processes" => 'xxx' );
             next unless $pid;
             $pids{$$pid}++;
-            last if scalar( keys(%pids) ) == 10;
+            last if scalar( keys(%pids) ) == 4;
         }
-        is( scalar( keys(%pids) ), 10, "10 different processes handled job '${namespace}::ten_processes'" );
+        is( scalar( keys(%pids) ), 4, "4 different processes handled job '${namespace}::four_processes'" );
     }
 
     {
