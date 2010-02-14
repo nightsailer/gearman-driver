@@ -6,11 +6,11 @@ use FindBin;
 use lib "$FindBin::Bin/lib";
 use Gearman::Driver::Worker::AttributeParser;
 use Moose::Util qw(apply_all_roles);
-use Live::NS1::Basic;
-use Live::NS1::Decode;
-use Live::NS1::Encode;
-use Live::NS1::DefaultAttributes;
-use Live::NS1::OverrideAttributes;
+use Gearman::Driver::Test::Live::NS1::Basic;
+use Gearman::Driver::Test::Live::NS1::Decode;
+use Gearman::Driver::Test::Live::NS1::Encode;
+use Gearman::Driver::Test::Live::NS1::DefaultAttributes;
+use Gearman::Driver::Test::Live::NS1::OverrideAttributes;
 
 {
     my %expected = (
@@ -35,7 +35,7 @@ use Live::NS1::OverrideAttributes;
             'MinProcesses' => '10'
         }
     );
-    my $worker = Live::NS1::Basic->new();
+    my $worker = Gearman::Driver::Test::Live::NS1::Basic->new();
     foreach my $method ( $worker->meta->get_nearest_methods_with_attributes ) {
         apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
         eq_or_diff( $method->parsed_attributes, $expected{ $method->name } );
@@ -53,7 +53,7 @@ use Live::NS1::OverrideAttributes;
             'Job'    => 1
         }
     );
-    my $worker = Live::NS1::Decode->new();
+    my $worker = Gearman::Driver::Test::Live::NS1::Decode->new();
     foreach my $method ( $worker->meta->get_nearest_methods_with_attributes ) {
         apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
         eq_or_diff( $method->parsed_attributes, $expected{ $method->name } );
@@ -71,7 +71,7 @@ use Live::NS1::OverrideAttributes;
             'Job'    => 1
         }
     );
-    my $worker = Live::NS1::Encode->new();
+    my $worker = Gearman::Driver::Test::Live::NS1::Encode->new();
     foreach my $method ( $worker->meta->get_nearest_methods_with_attributes ) {
         apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
         eq_or_diff( $method->parsed_attributes, $expected{ $method->name } );
@@ -87,7 +87,7 @@ use Live::NS1::OverrideAttributes;
             'MinProcesses' => '3'
         }
     );
-    my $worker = Live::NS1::DefaultAttributes->new();
+    my $worker = Gearman::Driver::Test::Live::NS1::DefaultAttributes->new();
     foreach my $method ( $worker->meta->get_nearest_methods_with_attributes ) {
         apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
         $method->default_attributes( $worker->default_attributes );
@@ -105,7 +105,7 @@ use Live::NS1::OverrideAttributes;
             'MinProcesses' => '1'
         }
     );
-    my $worker = Live::NS1::OverrideAttributes->new();
+    my $worker = Gearman::Driver::Test::Live::NS1::OverrideAttributes->new();
     foreach my $method ( $worker->meta->get_nearest_methods_with_attributes ) {
         apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
         $method->default_attributes( $worker->default_attributes );

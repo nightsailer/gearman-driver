@@ -3,6 +3,6 @@ use strict;
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/lib";
-use TestLib;
+use Gearman::Driver::Test;
 
-my $server = TestLib->gearman_server_run;
+my $server = Gearman::Driver::Test->gearman_server_run;

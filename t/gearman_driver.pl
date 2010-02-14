@@ -3,15 +3,15 @@ use strict;
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/lib";
-use TestLib;
-use Live::NS3::AddJob;
-use Live::NS3::AddJobChilds;
+use Gearman::Driver::Test;
+use Gearman::Driver::Test::Live::NS3::AddJob;
+use Gearman::Driver::Test::Live::NS3::AddJobChilds;
 use Gearman::Driver::Job::Method;
 
-my $driver = TestLib->gearman_driver;
+my $driver = Gearman::Driver::Test->gearman_driver;
 
-my $w1 = Live::NS3::AddJob->new();
-my $w2 = Live::NS3::AddJobChilds->new();
+my $w1 = Gearman::Driver::Test::Live::NS3::AddJob->new();
+my $w2 = Gearman::Driver::Test::Live::NS3::AddJobChilds->new();
 
 $driver->add_job(
     {
