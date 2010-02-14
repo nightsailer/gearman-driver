@@ -7,7 +7,7 @@ Revision history for Gearman-Driver
               signature!
             - Possible to group many job methods into one single
               process (see ProcessGroup)
-            - Parent & childs talking via STDOUT
+            - Parent & childs communication via STDOUT
             - Remove (useless) extended_status feature
 
 0.01025_01  Sat Feb 13 2010
