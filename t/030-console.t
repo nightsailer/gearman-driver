@@ -29,7 +29,6 @@ sleep(5);
         "Gearman::Driver::Test::Live::NS1::Basic::four_processes    4  4  4  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Basic::get_pid           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Basic::group1            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::sleeper           2  6  2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid        0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::BeginEnd::job            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
@@ -42,7 +41,6 @@ sleep(5);
         "Gearman::Driver::Test::Live::NS2::UseBase::job             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS3::AddJob::four_processes   4  4  4  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS3::AddJob::job_group_1      1  5  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::sleeper          2  6  2  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::job                           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "something_custom_ping                                      1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
     );
@@ -62,10 +60,10 @@ sleep(5);
     my @pids = ();
     my $test = sub {
         my @expected = (
-            qr/^Gearman::Driver::Test::Live::NS1::Basic::sleeper  2  6  2  1970-01-01T00:00:00  1970-01-01T00:00:00  $/,
-            qr/^\d+$/, qr/^\d+$/
+            qr/^Gearman::Driver::Test::Live::NS1::Basic::four_processes  4  4  4  1970-01-01T00:00:00  1970-01-01T00:00:00  $/,
+            qr/^\d+$/, qr/^\d+$/, qr/^\d+$/, qr/^\d+$/
         );
-        $telnet->print('show Gearman::Driver::Test::Live::NS1::Basic::sleeper');
+        $telnet->print('show Gearman::Driver::Test::Live::NS1::Basic::four_processes');
         while ( my $line = $telnet->getline() ) {
             last if $line eq ".\n";
             chomp $line;
@@ -81,13 +79,11 @@ sleep(5);
 
     my @old_pids = @pids;
 
-    $telnet->print( 'kill ' . shift(@pids) );
-    is( $telnet->getline(), "OK\n" );
-    is( $telnet->getline(), ".\n" );
-
-    $telnet->print( 'kill ' . shift(@pids) );
-    is( $telnet->getline(), "OK\n" );
-    is( $telnet->getline(), ".\n" );
+    for ( 1 .. 4) {
+        $telnet->print( 'kill ' . shift(@pids) );
+        is( $telnet->getline(), "OK\n" );
+        is( $telnet->getline(), ".\n" );
+    }
 
     sleep(6);
 
@@ -95,11 +91,11 @@ sleep(5);
 
     is( scalar(@pids), scalar(@old_pids) );
 
-    for ( 0 .. 1 ) {
+    for ( 0 .. 3 ) {
         isnt( shift(@pids), shift(@old_pids) );
     }
 
-    $telnet->print('killall Gearman::Driver::Test::Live::NS1::Basic::sleeper');
+    $telnet->print('killall Gearman::Driver::Test::Live::NS1::Basic::four_processes');
     is( $telnet->getline(), "OK\n" );
     is( $telnet->getline(), ".\n" );
 
@@ -107,7 +103,7 @@ sleep(5);
 
     $test->();
 
-    is( scalar(@pids), 2 );
+    is( scalar(@pids), 4 );
 }
 
 {
@@ -125,7 +121,6 @@ sleep(5);
         "Gearman::Driver::Test::Live::NS1::Basic::four_processes    0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Basic::get_pid           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Basic::group1            0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::sleeper           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid        0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::BeginEnd::job            0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
@@ -138,7 +133,6 @@ sleep(5);
         "Gearman::Driver::Test::Live::NS2::UseBase::job             0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS3::AddJob::four_processes   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS3::AddJob::job_group_1      0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::sleeper          0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::job                           0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "something_custom_ping                                      0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
     );
@@ -163,7 +157,6 @@ sleep(5);
         "Gearman::Driver::Test::Live::NS1::Basic::four_processes    1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Basic::get_pid           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Basic::group1            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::Basic::sleeper           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid        1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::BeginEnd::job            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
@@ -176,7 +169,6 @@ sleep(5);
         "Gearman::Driver::Test::Live::NS2::UseBase::job             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS3::AddJob::four_processes   1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS3::AddJob::job_group_1      1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS3::AddJob::sleeper          1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::job                           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "something_custom_ping                                      1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
     );

@@ -46,19 +46,4 @@ $driver->add_job(
     }
 );
 
-$driver->add_job(
-    {
-        max_processes => 6,
-        min_processes => 2,
-        name          => 'sleeper',
-        worker        => $w1,
-        methods       => [
-            {
-                body => $w1->meta->find_method_by_name('sleeper')->body,
-                name => 'sleeper',
-            }
-        ]
-    }
-);
-
 $driver->run;

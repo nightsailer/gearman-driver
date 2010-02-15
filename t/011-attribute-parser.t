@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 14;
+use Test::More tests => 13;
 use Test::Differences;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -32,11 +32,6 @@ use Gearman::Driver::Test::Live::NS1::OverrideAttributes;
         'quit' => {
             'Job'          => 1,
             'ProcessGroup' => 'group1'
-        },
-        'sleeper' => {
-            'Job'          => 1,
-            'MaxProcesses' => '6',
-            'MinProcesses' => '2'
         },
         'sleepy_pid' => {
             'Job'          => 1,

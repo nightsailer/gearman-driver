@@ -35,13 +35,6 @@ sub four_processes : Job : MinProcesses(4) : MaxProcesses(4) {
     return $self->pid;
 }
 
-sub sleeper : Job : MinProcesses(2) : MaxProcesses(6) {
-    my ( $self, $job, $workload ) = @_;
-    my ( $sleep, $time ) = split /:/, $job->workload;
-    sleep($sleep) if $sleep;
-    return time - $time;
-}
-
 sub pid {
     return $$;
 }

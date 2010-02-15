@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 32;
+use Test::More tests => 28;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use Gearman::Driver::Test;
@@ -95,23 +95,6 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
     $first_pid = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Basic::sleepy_pid' => '10' );
     like( $$first_pid, qr/^\d+$/, 'Got PID' );
     isnt( $$first_pid, $$pid, 'Got another PID' );
-}
-
-{
-    foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
-        {
-            $gc->dispatch_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5; # blocks 5/6 slots for 5 secs
-
-            my $time = $gc->do_task( "${namespace}::sleeper" => '0:' . time );
-            ok( $$time <= 2, 'Job "sleeper" returned in less than 2 seconds' );
-        }
-        {
-            $gc->dispatch_background( "${namespace}::sleeper" => '4:' . time );    # block last slot for another 4 secs
-
-            my $time = $gc->do_task( "${namespace}::sleeper" => '0:' . time );
-            ok( $$time >= 2, "Job '${namespace}::sleeper' returned in more than 2 seconds" );
-        }
-    }
 }
 
 {
@@ -230,20 +213,6 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS3::AddJob)) {
             last if scalar( keys(%pids) ) == 4;
         }
         is( scalar( keys(%pids) ), 4, "4 different processes handled job '${namespace}::four_processes'" );
-    }
-
-    {
-        $gc->dispatch_background( "${namespace}::sleeper" => '5:' . time ) for 1 .. 5;    # blocks 5/6 slots for 5 secs
-
-        my $time = $gc->do_task( "${namespace}::sleeper" => '0:' . time );
-        ok( $$time <= 2, 'Job "Gearman::Driver::Test::Live::NS3::AddJob::sleeper" returned in less than 2 seconds' );
-    }
-
-    {
-        $gc->dispatch_background( "${namespace}::sleeper" => '4:' . time );    # block last slot for another 4 secs
-
-        my $time = $gc->do_task( "${namespace}::sleeper" => '0:' . time );
-        ok( $$time >= 2, 'Job "Gearman::Driver::Test::Live::NS3::AddJob::sleeper" returned in more than 2 seconds' );
     }
 }
 

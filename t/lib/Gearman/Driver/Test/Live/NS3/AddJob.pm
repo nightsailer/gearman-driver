@@ -67,11 +67,4 @@ sub four_processes {
     return $self->pid;
 }
 
-sub sleeper {
-    my ( $self, $job, $workload ) = @_;
-    my ( $sleep, $time ) = split /:/, $job->workload;
-    sleep($sleep) if $sleep;
-    return time - $time;
-}
-
 1;
