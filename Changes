@@ -1,5 +1,8 @@
 Revision history for Gearman-Driver
 
+0.01999_02  Tue Feb 16 2010
+            - Remove crappy tests
+
 0.01999_01  Sun Feb 14 2010
             - Do not support deprecated (Min|Max)Childs attribute
               anymore, please use (Min|Max)Processes instead
