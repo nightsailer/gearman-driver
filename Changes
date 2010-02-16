@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - Remove smoker debugging
+
 0.01999_02  Tue Feb 16 2010
             - Remove crappy tests
 

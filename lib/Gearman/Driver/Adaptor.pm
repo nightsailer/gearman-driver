@@ -56,13 +56,7 @@ sub _build_backend {
     foreach my $class (@classes) {
         eval "require $class";
         unless ($@) {
-            warn sprintf "using adaptor: %s\n", $class
-              if ( $ENV{AUTOMATED_TESTING} );
             return $class->new( server => $self->server );
-        }
-        else {
-            warn sprintf "Could not load class: %s (%s)\n", $class, $@
-              if ( $ENV{AUTOMATED_TESTING} );
         }
     }
 
