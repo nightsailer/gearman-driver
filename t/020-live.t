@@ -82,9 +82,9 @@ foreach my $namespace (qw(Gearman::Driver::Test::Live::NS1::Basic)) {
 
     # test max_idle_time (5)
     for ( 1 .. 3 ) {
-        sleep($_);
         my $pid = $gc->do_task( 'Gearman::Driver::Test::Live::NS1::Basic::get_pid' => '' );
         is( $$first_pid, $$pid, 'Still the same PID' );
+        sleep(2);
     }
 
     sleep(6);
