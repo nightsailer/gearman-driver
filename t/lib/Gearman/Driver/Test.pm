@@ -100,7 +100,7 @@ sub gearman_driver {
 
 sub telnet_client {
     my $telnet = Net::Telnet->new(
-        Timeout => 5,
+        Timeout => 30,
         Host    => '127.0.0.1',
         Port    => 47300,
     );
