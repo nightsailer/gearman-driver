@@ -104,7 +104,7 @@ use Gearman::Driver::Test::Live::NS1::OverrideAttributes;
             'Decode'       => 'decode',
             'Encode'       => 'encode',
             'Job'          => 1,
-            'MinProcesses' => '1'
+            'MinProcesses' => '0'
         }
     );
     my $worker = Gearman::Driver::Test::Live::NS1::OverrideAttributes->new();

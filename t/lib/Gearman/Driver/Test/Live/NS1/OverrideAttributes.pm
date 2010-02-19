@@ -6,7 +6,7 @@ use Moose;
 
 sub override_attributes {
     return {
-        MinProcesses => 1,
+        MinProcesses => 0,
         Encode       => 'encode',
         Decode       => 'decode',
     };

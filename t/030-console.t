@@ -33,7 +33,7 @@ sleep(5);
         "Gearman::Driver::Test::Live::NS1::BeginEnd::job            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::DefaultAttributes::job   0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::EncodeDecode::group1     1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
-        "Gearman::Driver::Test::Live::NS1::OverrideAttributes::job  1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
+        "Gearman::Driver::Test::Live::NS1::OverrideAttributes::job  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Spread::group1           1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS1::Spread::main             1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
         "Gearman::Driver::Test::Live::NS2::BeginEnd::job            1  1  1  1970-01-01T00:00:00  1970-01-01T00:00:00   ",
