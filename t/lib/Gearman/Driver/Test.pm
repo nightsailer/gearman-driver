@@ -40,8 +40,6 @@ sub run_gearmand {
 
         exit(0);
     }
-
-    printf STDERR " " x 10 . "gearmand started (%d) ", $self->{gearmand_pid};
 }
 
 sub run_gearman_driver {
@@ -63,8 +61,6 @@ sub run_gearman_driver {
         $cnt++;
         die "Could not connect to 47300 after $cnt seconds" if $cnt == 120;
     }
-
-    printf STDERR "gearman-driver started (%d)", $self->{gearman_driver_pid};
 }
 
 sub check_connection {
