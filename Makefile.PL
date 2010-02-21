@@ -33,7 +33,7 @@ feature 'Gearman::XS',
   -default      => 0,
   'Gearman::XS' => '0.7';
 
-my @tests = ('t/*.t');
+my @tests = ( 't/*.t', 't/*/*.t' );
 
 if ( -e 'MANIFEST.SKIP' ) {
     system('pod2text lib/Gearman/Driver.pm > README');

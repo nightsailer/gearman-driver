@@ -1,5 +1,5 @@
 package    # hide from PAUSE
-  Gearman::Driver::Test::Live::NS1::OverrideAttributes;
+  Gearman::Driver::Test::Live::OverrideAttributes;
 
 use base qw(Gearman::Driver::Test::Base::All);
 use Moose;
@@ -12,21 +12,26 @@ sub override_attributes {
     };
 }
 
-sub job : Job : MinProcesses(5) : Encode(invalid) : Decode(invalid) {
+sub job1 : Job : MinProcesses(5) : Encode(invalid) : Decode(invalid) {
     my ( $self, $job, $workload ) = @_;
     return $workload;
+}
+
+sub job2 : Job : MinProcesses(5) : Encode(invalid) : Decode(invalid) {
+    my ( $self, $job, $workload ) = @_;
+    return $job->workload;
 }
 
 sub encode {
     my ( $self, $result ) = @_;
     my $package = ref($self);
-    return "${package}::ENCODE::${result}::ENCODE::${package}";
+    return "ENCODE::${result}::ENCODE";
 }
 
 sub decode {
     my ( $self, $workload ) = @_;
     my $package = ref($self);
-    return "${package}::DECODE::${workload}::DECODE::${package}";
+    return "DECODE::${workload}::DECODE";
 }
 
 1;

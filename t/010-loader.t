@@ -20,7 +20,7 @@ use Gearman::Driver::Test::Loader::Empty;
     lives_ok {
         $e->wanted(
             sub {
-                return 1 if /Begin|Basic|AddJob/;
+                return 1 if /Begin|Max|Spread/;
                 return 0;
             }
         );
@@ -32,8 +32,8 @@ use Gearman::Driver::Test::Loader::Empty;
     is_deeply(
         [ $e->get_modules ],
         [
-            'Gearman::Driver::Test::Live::NS1::Basic', 'Gearman::Driver::Test::Live::NS1::BeginEnd',
-            'Gearman::Driver::Test::Live::NS2::BeginEnd'
+            'Gearman::Driver::Test::Live::BeginEnd', 'Gearman::Driver::Test::Live::MaxIdleTime',
+            'Gearman::Driver::Test::Live::Spread'
         ],
         'get_modules method/attribute'
     );
@@ -41,7 +41,7 @@ use Gearman::Driver::Test::Loader::Empty;
 
 {
     my $e = Gearman::Driver::Test::Loader::Empty->new();
-    $e->namespaces( [qw(Gearman::Driver::Test::Live::NS1::Basic)] );
+    $e->namespaces( [qw(Gearman::Driver::Test::Live::Prefix)] );
     lives_ok { $e->load_namespaces } 'load_namespaces method/attribute';
-    is_deeply( [ $e->get_modules ], [ 'Gearman::Driver::Test::Live::NS1::Basic' ], 'loading a module directly works' );
+    is_deeply( [ $e->get_modules ], ['Gearman::Driver::Test::Live::Prefix'], 'loading a module directly works' );
 }

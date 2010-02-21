@@ -11,12 +11,21 @@ use Gearman::Server;
 use Danga::Socket;
 use IO::Socket::INET;
 
+BEGIN {
+    $ENV{GEARMAN_DRIVER_ADAPTOR} = 'Gearman::Driver::Adaptor::PP';
+}
+
 my ( $host, $port ) = ( '127.0.0.1', 4731 );
 
 $|++;
 
 sub new {
     return bless {}, shift;
+}
+
+sub run_gearman_server {
+    my $server = Gearman::Server->new( port => $port );
+    Danga::Socket->EventLoop();
 }
 
 sub run_gearmand {
@@ -36,12 +45,12 @@ sub run_gearmand {
 }
 
 sub run_gearman_driver {
-    my ($self) = @_;
+    my ( $self, @args ) = @_;
 
     unless ( $self->{gearman_driver_pid} = fork ) {
         die "cannot fork: $!" unless defined $self->{gearman_driver_pid};
 
-        my @cmd = ( $^X, "$Bin/gearman_driver.pl" );
+        my @cmd = ( $^X, "$Bin/gearman_driver.pl", @args );
 
         exec @cmd or die "Could not exec $Bin/gearman_driver.pl";
 
@@ -83,19 +92,20 @@ sub gearman_client {
     return $client;
 }
 
-sub gearman_server_run {
-    my $server = Gearman::Server->new( port => $port );
-    Danga::Socket->EventLoop();
-}
-
 sub gearman_driver {
     return Gearman::Driver->new(
         max_idle_time => 5,
         interval      => 1,
         loglevel      => 'DEBUG',
-        namespaces    => [qw(Gearman::Driver::Test::Live)],
+        namespaces    => \@ARGV,
         server        => join( ':', $host, $port ),
     );
+}
+
+sub prepare {
+    my ( $self, @args ) = @_;
+    $self->run_gearmand;
+    $self->run_gearman_driver(@args);
 }
 
 sub telnet_client {

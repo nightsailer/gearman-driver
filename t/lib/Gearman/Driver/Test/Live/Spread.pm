@@ -1,5 +1,5 @@
 package    # hide from PAUSE
-  Gearman::Driver::Test::Live::NS1::Spread;
+  Gearman::Driver::Test::Live::Spread;
 
 use base qw(Gearman::Driver::Test::Base::All);
 use Moose;
@@ -18,7 +18,7 @@ sub main : Job {
     my ( $self, $job, $workload ) = @_;
     my $result = '';
     for ( 1 .. 5 ) {
-        my $res = $self->gc->do_task( "Gearman::Driver::Test::Live::NS1::Spread::some_job_$_" => '' );
+        my $res = $self->gc->do_task( "Gearman::Driver::Test::Live::Spread::some_job_$_" => '' );
         $result .= $$res;
     }
     return $result;

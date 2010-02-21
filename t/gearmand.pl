@@ -5,4 +5,4 @@ use FindBin;
 use lib "$FindBin::Bin/lib";
 use Gearman::Driver::Test;
 
-my $server = Gearman::Driver::Test->gearman_server_run;
+Gearman::Driver::Test->run_gearman_server;
