@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 8;
 use Test::Exception;
 use FindBin;
 use lib "$FindBin::Bin/lib";
@@ -37,4 +37,11 @@ use Gearman::Driver::Test::Loader::Empty;
         ],
         'get_modules method/attribute'
     );
+}
+
+{
+    my $e = Gearman::Driver::Test::Loader::Empty->new();
+    $e->namespaces( [qw(Gearman::Driver::Test::Live::NS1::Basic)] );
+    lives_ok { $e->load_namespaces } 'load_namespaces method/attribute';
+    is_deeply( [ $e->get_modules ], [ 'Gearman::Driver::Test::Live::NS1::Basic' ], 'loading a module directly works' );
 }
