@@ -2,7 +2,6 @@ package Gearman::Driver;
 
 use Moose;
 use Moose::Util qw(apply_all_roles);
-use Class::MOP;
 use Carp qw(croak);
 use Gearman::Driver::Observer;
 use Gearman::Driver::Console;
