@@ -52,15 +52,7 @@ has 'session' => (
 sub BUILD {
     my ($self) = @_;
 
-    foreach my $server ( split /,/, $self->server ) {
-        my ( $host, $port ) = split /:/, $server;
-
-        push @{ $self->{telnet} },
-          Net::Telnet::Gearman->new(
-            Host => $host || 'localhost',
-            Port => $port || 4730,
-          );
-    }
+    $self->_connect();
 
     $self->{session} = POE::Session->create(
         object_states => [
@@ -74,6 +66,23 @@ sub BUILD {
 
 sub _start {
     $_[KERNEL]->delay( fetch_status => $_[OBJECT]->interval );
+}
+
+sub _connect {
+    my ($self) = @_;
+
+    $self->{telnet} = [];
+
+    foreach my $server ( split /,/, $self->server ) {
+        my ( $host, $port ) = split /:/, $server;
+
+        my $telnet = Net::Telnet::Gearman->new(
+            Host => $host || 'localhost',
+            Port => $port || 4730,
+        );
+
+        push @{ $self->{telnet} }, $telnet;
+    }
 }
 
 sub _fetch_status {
