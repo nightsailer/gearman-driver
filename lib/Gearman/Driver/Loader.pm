@@ -250,9 +250,7 @@ sub load_namespaces {
     }
 
     foreach my $module (@modules) {
-        try {
-            Class::MOP::load_class($module);
-        };
+        Class::MOP::load_class($module);
         next unless $self->is_valid_worker_subclass($module);
         next unless $self->has_job_method($module);
         $self->add_module($module);

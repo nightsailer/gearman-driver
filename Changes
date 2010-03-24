@@ -1,5 +1,6 @@
 Revision history for Gearman-Driver
 
+            - Do not hide class loading errors
             - Refactor testsuite to be less resource intensive
 
 0.02000     Thu Feb 18 2010
