@@ -86,27 +86,36 @@ sub _connect {
 }
 
 sub _fetch_status {
-    my %data = ();
+    my %data  = ();
+    my @error = ();
 
     foreach my $telnet ( $_[OBJECT]->telnet ) {
-        my $status = $telnet->status;
+        eval {
+            my $status = $telnet->status;
 
-        foreach my $row (@$status) {
-            $data{ $row->name } ||= {
-                name    => $row->name,
-                busy    => 0,
-                free    => 0,
-                queue   => 0,
-                running => 0,
-            };
-            $data{ $row->name }{busy}    += $row->busy;
-            $data{ $row->name }{free}    += $row->free;
-            $data{ $row->name }{queue}   += $row->queue;
-            $data{ $row->name }{running} += $row->running;
+            foreach my $row (@$status) {
+                $data{ $row->name } ||= {
+                    name    => $row->name,
+                    busy    => 0,
+                    free    => 0,
+                    queue   => 0,
+                    running => 0,
+                };
+                $data{ $row->name }{busy}    += $row->busy;
+                $data{ $row->name }{free}    += $row->free;
+                $data{ $row->name }{queue}   += $row->queue;
+                $data{ $row->name }{running} += $row->running;
+            }
+        };
+
+        # Try to re-open the telnet connection
+        if ($@) {
+            push @error, $@ if $@;
+            eval { $telnet->open };
         }
     }
 
-    $_[OBJECT]->callback->( [ values %data ] );
+    $_[OBJECT]->callback->( { data => [ values %data ], error => \@error } );
 
     $_[KERNEL]->delay( fetch_status => $_[OBJECT]->interval );
 }

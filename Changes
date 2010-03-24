@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - Log error if observer gets disconnected from gearmand
+              and auto-reconnect it
             - Do not hide class loading errors
             - Refactor testsuite to be less resource intensive
 
