@@ -82,8 +82,8 @@ my $telnet = $test->telnet_client;
 
 {
     my @expected = (
-        'Gearman::Driver::Test::Live::Console::ping  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ',
-        'Gearman::Driver::Test::Live::Console::pong  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00   ',
+        'Gearman::Driver::Test::Live::Console::ping  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00  ',
+        'Gearman::Driver::Test::Live::Console::pong  0  1  0  1970-01-01T00:00:00  1970-01-01T00:00:00  ',
     );
     my @status = fetch_status();
     eq_or_diff( \@status, \@expected );

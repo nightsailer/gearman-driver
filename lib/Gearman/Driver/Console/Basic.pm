@@ -59,7 +59,6 @@ sub status {
         $max[3] = length $job->count_processes if $max[3] < length $job->count_processes;
         $max[4] = length $job->lastrun         if $max[4] < length $job->lastrun;
         $max[5] = length $job->lasterror       if $max[5] < length $job->lasterror;
-        $max[6] = length $lasterror_msg        if $max[6] < length $lasterror_msg;
     }
 
     my @result = ();
@@ -68,11 +67,11 @@ sub status {
         chomp $lasterror_msg;
         push @result,
           sprintf(
-            "%-$max[0]s  %$max[1]d  %$max[2]d  %$max[3]d  %$max[4]s  %$max[5]s  %$max[6]s",
+            "%-$max[0]s  %$max[1]d  %$max[2]d  %$max[3]d  %$max[4]s  %$max[5]s  %s",
             $job->name, $job->min_processes, $job->max_processes, $job->count_processes,
             DateTime->from_epoch( epoch => $job->lastrun ),
             DateTime->from_epoch( epoch => $job->lasterror ),
-            $lasterror_msg
+            $lasterror_msg ? "ERROR: $lasterror_msg" : ""
           );
     }
 
@@ -221,7 +220,7 @@ sub show {
         $job->name, $job->min_processes, $job->max_processes, $job->count_processes,
         DateTime->from_epoch( epoch => $job->lastrun ),
         DateTime->from_epoch( epoch => $job->lasterror ),
-        $lasterror_msg
+        $lasterror_msg ? "ERROR: $lasterror_msg" : ""
       );
 
     push @result, $job->get_pids;
