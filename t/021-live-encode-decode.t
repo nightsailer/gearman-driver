@@ -52,3 +52,5 @@ $test->prepare('Gearman::Driver::Test::Live::EncodeDecode');
         'Job has custom encode -and- decode attribute'
     );
 }
+
+$test->shutdown;

@@ -68,7 +68,7 @@ sub check_connection {
     return do {
         my $sock = IO::Socket::INET->new(
             PeerAddr => '127.0.0.1',
-            PeerPort => '47300',
+            PeerPort => $port,
             Proto    => 'tcp',
         ) or return 0;
         undef $sock;
@@ -105,13 +105,22 @@ sub prepare {
 }
 
 sub telnet_client {
-    my $telnet = Net::Telnet->new(
-        Timeout => 30,
-        Host    => '127.0.0.1',
-        Port    => 47300,
-    );
-    $telnet->open;
-    return $telnet;
+    my ($self) = @_;
+    unless ( defined $self->{telnet} ) {
+        $self->{telnet} = Net::Telnet->new(
+            Timeout => 30,
+            Host    => '127.0.0.1',
+            Port    => 47300,
+        );
+        $self->{telnet}->open;
+    }
+    return $self->{telnet};
+}
+
+sub shutdown {
+    my ($self) = @_;
+    $self->telnet_client->print('shutdown');
+    sleep 3;
 }
 
 sub DESTROY {

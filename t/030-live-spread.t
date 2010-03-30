@@ -16,3 +16,5 @@ $test->prepare('Gearman::Driver::Test::Live::Spread');
     my $string = $gc->do_task( 'Gearman::Driver::Test::Live::Spread::main' => 'some workload ...' );
     is( $$string, '12345', 'Spreading works (tests $worker->server attribute)' );
 }
+
+$test->shutdown;

@@ -153,7 +153,7 @@ my $telnet = $test->telnet_client;
     is( $telnet->getline(), ".\n" );
 }
 
-$telnet->print(' shutdown ');
+$test->shutdown;
 
 sub fetch_status {
     $telnet->print('status');

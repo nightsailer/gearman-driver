@@ -33,3 +33,5 @@ $test->prepare('Gearman::Driver::Test::Live::Quit');
     like( $$pid2, qr/^\d+$/, 'Got again some number (pid)' );
     is( $$pid2, $$pid1, 'Worker did not die' );
 }
+
+$test->shutdown;

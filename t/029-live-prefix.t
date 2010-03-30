@@ -16,3 +16,5 @@ $test->prepare('Gearman::Driver::Test::Live::Prefix');
     my $pong = $gc->do_task( 'ping' => '' );
     is( $$pong, 'pong', 'Custom worker prefix working' );
 }
+
+$test->shutdown;

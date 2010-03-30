@@ -25,3 +25,5 @@ $test->prepare('Gearman::Driver::Test::Live::WithBaseClass');
     my $text = read_file($filename);
     is( $text, "begin ...\nend ...\n", 'Worker died, but begin -and- end blocks have been run' );
 }
+
+$test->shutdown;

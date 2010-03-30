@@ -19,3 +19,5 @@ $test->prepare('Gearman::Driver::Test::Live::OverrideAttributes');
     my $string = $gc->do_task( "Gearman::Driver::Test::Live::OverrideAttributes::job2" => 'workload' );
     is( $$string, 'ENCODE::workload::ENCODE', 'Job method returns $job->workload instead of $workload' );
 }
+
+$test->shutdown;

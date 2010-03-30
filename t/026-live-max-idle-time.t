@@ -27,3 +27,5 @@ $test->prepare('Gearman::Driver::Test::Live::MaxIdleTime');
     my $pid2 = $gc->do_task( 'Gearman::Driver::Test::Live::MaxIdleTime::get_pid' => '' );
     isnt( $$pid2, $$pid1, 'Got another PID' );
 }
+
+$test->shutdown;

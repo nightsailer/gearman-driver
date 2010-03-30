@@ -23,3 +23,5 @@ $test->prepare('Gearman::Driver::Test::Live::ProcessGroup');
     is( $$pid1, $$pid4, 'Same pid for all jobs of ProcessGroup group1 #3' );
     isnt( $$pid1, $$pid5, 'Not same pid because job5 doesnt use ProcessGroup' );
 }
+
+$test->shutdown;

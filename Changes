@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+            - Graceful shutdown between tests
+
 0.02001     Wed Mar 24 2010
             - Log error if observer gets disconnected from gearmand
               and auto-reconnect it

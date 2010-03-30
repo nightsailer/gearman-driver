@@ -25,3 +25,5 @@ $test->prepare('Gearman::Driver::Test::Live::DefaultAttributes');
     my $pid2 = $gc->do_task( "Gearman::Driver::Test::Live::DefaultAttributes::job3" => '' );
     is( $$pid1, $$pid2, 'DefaultAttributes ProcessGroup works, got same pid for different jobs' );
 }
+
+$test->shutdown;
