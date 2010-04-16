@@ -851,11 +851,11 @@ sub _add_jobs {
             my ( $min_processes, $max_processes );
 
             foreach my $method ( @{ $methods{$name} } ) {
-                die sprintf "MinProcesses redefined in ProcessGroup(%s) at %s::%s",
+                warn sprintf "MinProcesses redefined in ProcessGroup(%s) at %s::%s",
                   $method->get_attribute('ProcessGroup'), ref($worker), $method->name
                   if defined $min_processes && $method->has_attribute('MinProcesses');
 
-                die sprintf "MaxProcesses redefined in ProcessGroup(%s) at %s::%s",
+                warn sprintf "MaxProcesses redefined in ProcessGroup(%s) at %s::%s",
                   $method->get_attribute('ProcessGroup'), ref($worker), $method->name
                   if defined $max_processes && $method->has_attribute('MaxProcesses');
 
