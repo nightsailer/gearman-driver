@@ -1,5 +1,7 @@
 Revision history for Gearman-Driver
 
+0.02002     Fri Apr 16 2010
+            - Only show warning when (Max|Min)Processes are redefined
             - Graceful shutdown between tests
             - Add 'ERROR: ' label to console
 
