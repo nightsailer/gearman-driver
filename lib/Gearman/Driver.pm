@@ -747,16 +747,22 @@ sub _start_console {
 sub _observer_callback {
     my ( $self, $response ) = @_;
 
+    # When $job->add_process is called and ProcessGroup is used
+    # this may end up in a race condition and more processes than
+    # wanted are started. To fix that we remember what kind of
+    # processes we need to start in each single run of this callback.
+    my %to_start = ();
+
     my $status = $response->{data};
     foreach my $row (@$status) {
         if ( my $job = $self->_find_job( $row->{name} ) ) {
+            $to_start{$job->name} ||= 0;
             if ( $job->count_processes <= $row->{busy} && $row->{queue} ) {
                 my $diff = $row->{queue} - $row->{busy};
                 my $free = $job->max_processes - $job->count_processes;
                 if ($free) {
                     my $start = $diff > $free ? $free : $diff;
-                    $self->log->debug( sprintf "Starting %d new process(es) of type %s", $start, $job->name );
-                    $job->add_process for 1 .. $start;
+                    $to_start{$job->name} += $start;
                 }
             }
 
@@ -772,6 +778,17 @@ sub _observer_callback {
         }
         else {
             $self->unknown_job_callback->( $self, $row ) if $row->{queue} > 0;
+        }
+    }
+
+    foreach my $name (keys %to_start) {
+        my $job = $self->get_job($name);
+        my $start = $to_start{$name};
+        my $free = $job->max_processes - $job->count_processes;
+        $start = $free if $start > $free;
+        if ($start) {
+            $self->log->debug( sprintf "Starting %d new process(es) of type %s", $start, $job->name );
+            $job->add_process for 1 .. $start;
         }
     }
 
