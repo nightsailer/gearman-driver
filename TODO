@@ -1,5 +1,4 @@
 * write more tests
-* cleanup test mess
 * rework log messages
 * make MaxIdleTime configurable per job as new attribute
 * use Module::Refresh or something to auto-reload changed workers
