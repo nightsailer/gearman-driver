@@ -40,6 +40,21 @@ sub run_gearmand {
 
         exit(0);
     }
+
+    my $cnt = 0;
+    while ( !check_connection($port) ) {
+        sleep(1);
+        $cnt++;
+        die "Could not connect to $port after $cnt seconds" if $cnt == 30;
+    }
+}
+
+sub stop_gearmand {
+    my ($self) = @_;
+    if ( my $pid = $self->{gearmand_pid} ) {
+        kill 15, $pid;
+        waitpid $pid, 0;
+    }
 }
 
 sub run_gearman_driver {
@@ -59,7 +74,15 @@ sub run_gearman_driver {
     while ( !check_connection(47300) ) {
         sleep(1);
         $cnt++;
-        die "Could not connect to 47300 after $cnt seconds" if $cnt == 120;
+        die "Could not connect to 47300 after $cnt seconds" if $cnt == 60;
+    }
+}
+
+sub stop_gearman_driver {
+    my ($self) = @_;
+    if ( my $pid = $self->{gearman_driver_pid} ) {
+        kill 15, $pid;
+        waitpid $pid, 0;
     }
 }
 
@@ -125,10 +148,8 @@ sub shutdown {
 
 sub DESTROY {
     my ($self) = @_;
-
-    foreach my $proc (qw/gearmand_pid gearman_driver_pid/) {
-        system 'kill', $self->{$proc} if $self->{$proc};
-    }
+    $self->stop_gearmand();
+    $self->stop_gearman_driver();
 }
 
 1;
