@@ -1,5 +1,6 @@
 Revision history for Gearman-Driver
 
+0.02003     Sat Apr 24 2010
             - Fix race condition when using ProcessGroup
 
 0.02002     Fri Apr 16 2010
