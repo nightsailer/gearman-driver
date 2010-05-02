@@ -1063,6 +1063,7 @@ Johannes Plunien E<lt>plu@cpan.orgE<gt>
 =head1 CONTRIBUTORS
 
 Uwe Voelker, <uwe.voelker@gmx.de>
+Night Sailer <nightsailer@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -1122,6 +1123,7 @@ it under the same terms as Perl itself.
 =head1 REPOSITORY
 
 L<http://github.com/plu/gearman-driver/>
+L<http://github.com/nightsailer/gearman-driver/>
 
 =cut
 

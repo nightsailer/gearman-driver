@@ -495,7 +495,7 @@ AUTHOR
     Johannes Plunien <plu@cpan.org>
 
 CONTRIBUTORS
-    Uwe Voelker, <uwe.voelker@gmx.de>
+    Uwe Voelker, <uwe.voelker@gmx.de> Night Sailer <nightsailer@gmail.com>
 
 COPYRIGHT AND LICENSE
     Copyright 2009 by Johannes Plunien
@@ -548,4 +548,5 @@ SEE ALSO
 
 REPOSITORY
     <http://github.com/plu/gearman-driver/>
+    <http://github.com/nightsailer/gearman-driver/>
 
