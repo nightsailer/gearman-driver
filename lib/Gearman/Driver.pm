@@ -405,22 +405,22 @@ has 'worker_options' => (
 
 =head2 Job runtime attributes
 
-You can override a job attribute by its name here. This help to tuning job some runtime-related options(like max_processes,min_processes) handy.
+You can override a job attribute by its name here. This help to tuning job some runtime-related options(like MaxProcesses,MinProcesses) handy.
 You just change the options in a config file, no need to modify the worker code anymore.
 
-Currently only 'max_processes','min_processes' make sense. The hash key is "worker_module::job_key", job_key is ProcessGroup attribute or 
+Currently only 'MaxProcesses','MinProcesses' make sense. The hash key is "worker_module::job_key", job_key is ProcessGroup attribute or 
 job method name.
 
     #in your config file: /etc/gearman-driver.yml (YAML)
     ---
     job_runtime_attributes:
         'My::App::Worker::job1':
-            max_processes: 25
-            min_processes: 2
+            MaxProcesses: 25
+            MinProcesses: 2
         #job has a ProcessGroup attribute named 'group1'
         'My::App::Worker::group1':
-            max_processes: 10
-            min_processes: 2
+            MaxProcesses: 10
+            MinProcesses: 2
     #then run as:
     gearman_driver.pl -configfile /etc/gearman_driver.yml
 
