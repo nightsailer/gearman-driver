@@ -50,6 +50,9 @@ SYNOPSIS
             server     => 'localhost:4730,otherhost:4731',
             interval   => 60,
         );
+        
+    #or should save all config into a YAML config file, then read config from it.
+        my $driver = Gearman::Driver->new(configfile => '/etc/gearman-driver/config.yml');
 
         $driver->run;
 
@@ -216,6 +219,72 @@ ATTRIBUTES
             'queue'   => 6,
             'running' => 0
         };
+
+  worker_options
+    You can pass runtime options to the worker module, these will pass to
+    the worker constructor.
+
+    Example:
+
+        has worker_options => (
+            default => sub {
+                {
+                    'My::App::Worker::MysqlPing'  => {
+                    'dsn' => 'DBI:mysql:database=test;host=localhost;mysql_auto_reconnect=1;mysql_enable_utf8=1;mysql_server_prepare=1;',
+                    },
+                    'My::App::Worker::ImageThumbnail' => {
+                        'default_format' => 'jpeg',
+                        'default_size => '133x100',
+                    }
+                }
+            }
+        );
+
+    You should define these in a runtime config(See also "configfile"),
+    might be:
+
+        ---
+        worker_options:
+            'My::App::Worker::MysqlPing':
+                'dsn': 'DBI:mysql:database=test;host=localhost;mysql_auto_reconnect=1;mysql_enable_utf8=1;mysql_server_prepare=1;'
+                'user': 'root'
+                'password:': ''
+            'My::App::Worker::ImageThumbnail':
+                'default_format': 'jpeg'
+                'default_size': '133x100'
+
+  Job runtime attributes
+    You can override a job attribute by its name here. This help to tuning
+    job some runtime-related options(like MinProcesses,MaxProcesses) handy.
+    You just change the options in a config file, no need to modify the
+    worker code anymore.
+
+    Currently only 'MaxProcesses','MinProcesses' make sense.
+
+        #in your config file: /etc/gearman-driver.yml (YAML)
+        ---
+        job_runtime_attributes:
+            'My::App::Worker::job1':
+                MaxProcesses: 25
+                MinProcesses: 2
+            'My::App::Worker::ConvertImage':
+                MaxProcesses: 10
+                MinProcesses: 2
+        #then run as:
+        gearman_driver.pl -configfile /etc/gearman_driver.yml
+
+  configfile
+    Runtime config file path, You can provide a default configfile pathname
+    like so:
+
+        has +configfile ( default => '/etc/gearman-driver.yaml' );
+
+    You can pass an array of filenames if you want, like:
+
+        has +configfile ( default => sub { [ '/etc/gearman-driver.yaml','/opt/my-app/etc/config.yml' ] });
+
+    defaul will search this file as: '/etc/gearman-driver.yaml',
+    '/usr/local/etc/gearman-driver.yml','/opt/gearman-driver/etc/config.yml'
 
 INTERNAL ATTRIBUTES
     This might be interesting for subclassing Gearman::Driver.
@@ -420,6 +489,7 @@ SCRIPT
                 --interval          Interval in seconds (see Gearman::Driver::Observer)
                 --loglayout         Log message layout (default: [%d] %p %m%n)
                 --namespaces        Example: --namespaces My::Workers --namespaces My::OtherWorkers
+                --configfile        Read options from this file. Example: --configfile ./etc/gearman-driver-config.yml
 
 AUTHOR
     Johannes Plunien <plu@cpan.org>

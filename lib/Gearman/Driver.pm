@@ -10,9 +10,9 @@ use Gearman::Driver::Job::Method;
 use Log::Log4perl qw(:easy);
 use MooseX::Types::Path::Class;
 use POE;
-with qw(MooseX::Log::Log4perl MooseX::Getopt Gearman::Driver::Loader);
+with qw(MooseX::Log::Log4perl MooseX::SimpleConfig MooseX::Getopt Gearman::Driver::Loader);
 
-our $VERSION = '0.02003';
+our $VERSION = '0.02004';
 
 =head1 NAME
 
@@ -68,6 +68,9 @@ Gearman::Driver - Manages Gearman workers
         server     => 'localhost:4730,otherhost:4731',
         interval   => 60,
     );
+    
+    #or should save all config into a YAML config file, then read config from it.
+    my $driver = Gearman::Driver->new(configfile => '/etc/gearman-driver/config.yml');
 
     $driver->run;
 
@@ -359,6 +362,101 @@ has 'unknown_job_callback' => (
     traits => [qw(NoGetopt)],
 );
 
+=head2 worker_options
+
+You can pass runtime options to the worker module, these will pass to the worker constructor. 
+
+Example:
+
+    has worker_options => (
+        default => sub {
+            {
+                'My::App::Worker::MysqlPing'  => {
+                'dsn' => 'DBI:mysql:database=test;host=localhost;mysql_auto_reconnect=1;mysql_enable_utf8=1;mysql_server_prepare=1;',
+                },
+                'My::App::Worker::ImageThumbnail' => {
+                    'default_format' => 'jpeg',
+                    'default_size => '133x100',
+                }
+            }
+        }
+    );
+
+You should define these in a runtime config(See also L</configfile>), might be:
+
+    ---
+    worker_options:
+        'My::App::Worker::MysqlPing':
+            'dsn': 'DBI:mysql:database=test;host=localhost;mysql_auto_reconnect=1;mysql_enable_utf8=1;mysql_server_prepare=1;'
+            'user': 'root'
+            'password:': ''
+        'My::App::Worker::ImageThumbnail':
+            'default_format': 'jpeg'
+            'default_size': '133x100'
+
+=cut
+
+has 'worker_options' => (   
+    isa => 'HashRef',   
+    is  => 'rw',
+    default  => sub { {} },
+    traits => [qw(Hash NoGetopt)],
+);
+
+=head2 Job runtime attributes
+
+You can override a job attribute by its name here. This help to tuning job some runtime-related options(like max_processes,min_processes) handy.
+You just change the options in a config file, no need to modify the worker code anymore.
+
+Currently only 'max_processes','min_processes' make sense. The hash key is "worker_module::job_key", job_key is ProcessGroup attribute or 
+job method name.
+
+    #in your config file: /etc/gearman-driver.yml (YAML)
+    ---
+    job_runtime_attributes:
+        'My::App::Worker::job1':
+            max_processes: 25
+            min_processes: 2
+        #job has a ProcessGroup attribute named 'group1'
+        'My::App::Worker::group1':
+            max_processes: 10
+            min_processes: 2
+    #then run as:
+    gearman_driver.pl -configfile /etc/gearman_driver.yml
+
+=cut
+
+has 'job_runtime_attributes' => (
+    isa => 'HashRef',
+    is  => 'rw',    
+    default  => sub { {} },
+    traits => [qw(Hash NoGetopt)],
+);
+
+sub _build_property {
+    my ($self) = @_;
+
+    #body
+}
+
+=head2 configfile
+
+Runtime config file path, You can provide a default configfile pathname like so:
+
+    has +configfile ( default => '/etc/gearman-driver.yaml' );
+    
+You can pass an array of filenames if you want, like:
+
+    has +configfile ( default => sub { [ '/etc/gearman-driver.yaml','/opt/my-app/etc/config.yml' ] });
+
+=cut
+
+has '+configfile' =>  (
+    documentation => 'Gearman-driver runtime config path', 
+);
+
+
+
 =head1 INTERNAL ATTRIBUTES
 
 This might be interesting for subclassing L<Gearman::Driver>.
@@ -458,6 +556,7 @@ has 'pid' => (
     is      => 'ro',
     isa     => 'Int',
 );
+
 
 has '+logger'  => ( traits => [qw(NoGetopt)] );
 has '+wanted'  => ( traits => [qw(NoGetopt)] );
@@ -845,10 +944,13 @@ sub _start {
 
 sub _add_jobs {
     my ($self) = @_;
+    my $worker_options = $self->worker_options;
+    my $job_runtime_attributes = $self->job_runtime_attributes;
 
     foreach my $module ( $self->get_modules ) {
-        my $worker = $module->new( server => $self->server );
-
+        my $module_options = $worker_options->{$module} || {};
+        $module_options->{server} = $self->server;
+        my $worker = $module->new( $module_options );
         my %methods = ();
         foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
             apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
@@ -886,6 +988,15 @@ sub _add_jobs {
                     decode => $method->get_attribute('Decode'),
                     encode => $method->get_attribute('Encode'),
                   };
+            }
+            
+            my $job_runtime_attributes = $self->job_runtime_attributes->{$module.'::'.$name} || {};
+            if (defined $job_runtime_attributes->{min_processes} ) {
+                $min_processes = $job_runtime_attributes->{min_processes} ;
+            }
+            
+            if (defined $job_runtime_attributes->{max_processes}) {
+                $max_processes = $job_runtime_attributes->{max_processes};
             }
 
             $self->add_job(
@@ -943,6 +1054,7 @@ line using L<MooseX::Getopt>.
             --interval          Interval in seconds (see Gearman::Driver::Observer)
             --loglayout         Log message layout (default: [%d] %p %m%n)
             --namespaces        Example: --namespaces My::Workers --namespaces My::OtherWorkers
+            --configfile        Read options from this file. Example: --configfile ./etc/gearman-driver-config.yml
 
 =head1 AUTHOR
 

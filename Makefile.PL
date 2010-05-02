@@ -8,6 +8,7 @@ requires(
     'Gearman::Client'            => '1.11',
     'Module::Find'               => '0.08',
     'Moose'                      => '0.90',
+    'MooseX::SimpleConfig'       => '0.05',
     'MooseX::Getopt'             => '0.24',
     'MooseX::Log::Log4perl'      => '0.40',
     'MooseX::MethodAttributes'   => '0.18',

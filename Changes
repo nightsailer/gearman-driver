@@ -1,5 +1,10 @@
 Revision history for Gearman-Driver
-
+0.02004     Sun May 1 2010
+            - Implement --configfile to gearman-driver.pl, allow defined runtime options in this
+              file and applied when startup.
+            - Implement 'worker_options' attribute to Gearman::Driver, initialize worker handy.
+            - Implement 'job_runtime_attributes' attribute, allow define job min_processes,max_processes handy.
+              
 0.02003     Sat Apr 24 2010
             - Fix race condition when using ProcessGroup
 
