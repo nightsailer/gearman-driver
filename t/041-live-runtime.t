@@ -24,7 +24,6 @@ my $job1 = 'Gearman::Driver::Test::Live::RuntimeOption::job1';
     my $telnet = $test->telnet_client;
     $telnet->print("status");
     while ( my $line = $telnet->getline() ) {
-        diag('status:'.$line);
         last if $line eq ".\n";
         chomp $line;
         like( $line, qr/^$job1  2  10  2 .*$/,'job runtime attributes' );

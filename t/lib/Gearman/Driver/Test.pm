@@ -10,7 +10,6 @@ use Gearman::Client;
 use Gearman::Server;
 use Danga::Socket;
 use IO::Socket::INET;
-use Data::Dumper;
 
 BEGIN {
     $ENV{GEARMAN_DRIVER_ADAPTOR} = 'Gearman::Driver::Adaptor::PP';

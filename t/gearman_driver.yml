@@ -1,5 +1,5 @@
 ---
-worker_options: 
+worker_options:
   'Gearman::Driver::Test::Live::RuntimeOption':
     foo: 'Test'
 job_runtime_attributes:

@@ -382,7 +382,7 @@ Example:
         }
     );
 
-You should define these in a runtime config(See also L</configfile>), might be:
+You should define these in a runtime config (See also L</configfile>), might be:
 
     ---
     worker_options:
@@ -405,10 +405,10 @@ has 'worker_options' => (
 
 =head2 Job runtime attributes
 
-You can override a job attribute by its name here. This help to tuning job some runtime-related options(like max_processes,min_processes) handy.
+You can override a job attribute by its name here. This help to tuning job some runtime-related options (like max_processes, min_processes) handy.
 You just change the options in a config file, no need to modify the worker code anymore.
 
-Currently only 'max_processes','min_processes' make sense. The hash key is "worker_module::job_key", job_key is ProcessGroup attribute or
+Currently only 'max_processes', 'min_processes' make sense. The hash key is "worker_module::job_key", job_key is ProcessGroup attribute or
 job method name.
 
     #in your config file: /etc/gearman-driver.yml (YAML)
@@ -422,7 +422,7 @@ job method name.
             max_processes: 10
             min_processes: 2
     #then run as:
-    gearman_driver.pl -configfile /etc/gearman_driver.yml
+    gearman_driver.pl --configfile /etc/gearman_driver.yml
 
 =cut
 
@@ -432,12 +432,6 @@ has 'job_runtime_attributes' => (
     default  => sub { {} },
     traits => [qw(Hash NoGetopt)],
 );
-
-sub _build_property {
-    my ($self) = @_;
-
-    #body
-}
 
 =head2 configfile
 
@@ -454,8 +448,6 @@ You can pass an array of filenames if you want, like:
 has '+configfile' =>  (
     documentation => 'Gearman-driver runtime config path',
 );
-
-
 
 =head1 INTERNAL ATTRIBUTES
 
@@ -1063,6 +1055,7 @@ Johannes Plunien E<lt>plu@cpan.orgE<gt>
 =head1 CONTRIBUTORS
 
 Uwe Voelker, <uwe.voelker@gmx.de>
+
 Night Sailer <nightsailer@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
