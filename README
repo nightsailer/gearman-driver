@@ -50,8 +50,8 @@ SYNOPSIS
             server     => 'localhost:4730,otherhost:4731',
             interval   => 60,
         );
-        
-    #or should save all config into a YAML config file, then read config from it.
+    
+        #or should save all config into a YAML config file, then read config from it.
         my $driver = Gearman::Driver->new(configfile => '/etc/gearman-driver/config.yml');
 
         $driver->run;
