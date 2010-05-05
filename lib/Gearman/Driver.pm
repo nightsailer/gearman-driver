@@ -68,7 +68,7 @@ Gearman::Driver - Manages Gearman workers
         server     => 'localhost:4730,otherhost:4731',
         interval   => 60,
     );
-    
+
     #or should save all config into a YAML config file, then read config from it.
     my $driver = Gearman::Driver->new(configfile => '/etc/gearman-driver/config.yml');
 
@@ -364,7 +364,7 @@ has 'unknown_job_callback' => (
 
 =head2 worker_options
 
-You can pass runtime options to the worker module, these will pass to the worker constructor. 
+You can pass runtime options to the worker module, these will pass to the worker constructor.
 
 Example:
 
@@ -396,8 +396,8 @@ You should define these in a runtime config(See also L</configfile>), might be:
 
 =cut
 
-has 'worker_options' => (   
-    isa => 'HashRef',   
+has 'worker_options' => (
+    isa => 'HashRef',
     is  => 'rw',
     default  => sub { {} },
     traits => [qw(Hash NoGetopt)],
@@ -408,7 +408,7 @@ has 'worker_options' => (
 You can override a job attribute by its name here. This help to tuning job some runtime-related options(like max_processes,min_processes) handy.
 You just change the options in a config file, no need to modify the worker code anymore.
 
-Currently only 'max_processes','min_processes' make sense. The hash key is "worker_module::job_key", job_key is ProcessGroup attribute or 
+Currently only 'max_processes','min_processes' make sense. The hash key is "worker_module::job_key", job_key is ProcessGroup attribute or
 job method name.
 
     #in your config file: /etc/gearman-driver.yml (YAML)
@@ -428,7 +428,7 @@ job method name.
 
 has 'job_runtime_attributes' => (
     isa => 'HashRef',
-    is  => 'rw',    
+    is  => 'rw',
     default  => sub { {} },
     traits => [qw(Hash NoGetopt)],
 );
@@ -444,7 +444,7 @@ sub _build_property {
 Runtime config file path, You can provide a default configfile pathname like so:
 
     has +configfile ( default => '/etc/gearman-driver.yaml' );
-    
+
 You can pass an array of filenames if you want, like:
 
     has +configfile ( default => sub { [ '/etc/gearman-driver.yaml','/opt/my-app/etc/config.yml' ] });
@@ -452,7 +452,7 @@ You can pass an array of filenames if you want, like:
 =cut
 
 has '+configfile' =>  (
-    documentation => 'Gearman-driver runtime config path', 
+    documentation => 'Gearman-driver runtime config path',
 );
 
 
@@ -989,12 +989,12 @@ sub _add_jobs {
                     encode => $method->get_attribute('Encode'),
                   };
             }
-            
+
             my $job_runtime_attributes = $self->job_runtime_attributes->{$module.'::'.$name} || {};
             if (defined $job_runtime_attributes->{min_processes} ) {
                 $min_processes = $job_runtime_attributes->{min_processes} ;
             }
-            
+
             if (defined $job_runtime_attributes->{max_processes}) {
                 $max_processes = $job_runtime_attributes->{max_processes};
             }
