@@ -286,6 +286,9 @@ ATTRIBUTES
 
         has +configfile ( default => sub { [ '/etc/gearman-driver.yaml','/opt/my-app/etc/config.yml' ] });
 
+  daemonize
+    Detach self and run as a daemon.
+
 INTERNAL ATTRIBUTES
     This might be interesting for subclassing Gearman::Driver.
 

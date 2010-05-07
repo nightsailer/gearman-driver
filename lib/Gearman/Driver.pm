@@ -449,6 +449,19 @@ has '+configfile' =>  (
     documentation => 'Gearman-driver runtime config path',
 );
 
+=head2 daemonize
+
+Detach self and run as a daemon.
+
+=cut
+
+has 'daemonize' =>  (
+    isa => 'Bool',
+    is  => 'rw',
+    default  => 0,
+    documentation => 'Let Gearman-driver run as a daemon'
+);
+
 =head1 INTERNAL ATTRIBUTES
 
 This might be interesting for subclassing L<Gearman::Driver>.
@@ -756,6 +769,9 @@ sub run {
     my ($self) = @_;
     push @INC, @{ $self->lib };
     $self->load_namespaces;
+    
+    $self->_daemonize if $self->daemonize;
+    
     $self->_start_observer;
     $self->_start_console;
     $self->_start_session;
@@ -1024,6 +1040,24 @@ sub _monitor_processes {
         }
     }
     $_[KERNEL]->delay( monitor_processes => 5 );
+}
+
+
+sub _daemonize {
+    require POSIX;
+    fork && exit;
+    ## Detach ourselves from the terminal
+    croak "Cannot detach from controlling terminal" unless POSIX::setsid();
+    fork && exit;
+    chdir "/";
+    umask 0;
+    close(STDIN);
+    close(STDOUT);
+    close(STDERR);
+    ## Reopen stderr, stdout, stdin to /dev/null
+    open(STDIN,  "+>/dev/null");
+    open(STDOUT, "+>&STDIN");
+    open(STDERR, "+>&STDIN");
 }
 
 no Moose;
