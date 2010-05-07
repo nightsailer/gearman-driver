@@ -1081,6 +1081,7 @@ line using L<MooseX::Getopt>.
             --loglayout         Log message layout (default: [%d] %p %m%n)
             --namespaces        Example: --namespaces My::Workers --namespaces My::OtherWorkers
             --configfile        Read options from this file. Example: --configfile ./etc/gearman-driver-config.yml
+            --daemonize         Run as daemon.
 
 =head1 AUTHOR
 
