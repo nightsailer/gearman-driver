@@ -1,5 +1,9 @@
 Revision history for Gearman-Driver
 
+0.02005     Mon May 10 2010
+            - Add missing YAML dependency required for running the
+              testsuite
+
 0.02004     Wed May 05 2010
             - Implement --configfile to gearman-driver.pl, allow defined runtime options in this
               file and applied when startup.

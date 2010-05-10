@@ -28,6 +28,7 @@ test_requires(
     'Test::Differences' => 0,
     'Test::Exception'   => 0,
     'Test::More'        => 0,
+    'YAML'              => 0,
 );
 
 feature 'Gearman::XS',
