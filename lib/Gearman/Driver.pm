@@ -1044,20 +1044,24 @@ sub _monitor_processes {
 
 
 sub _daemonize {
+    my $self = shift;
+    my $logfile = $self->logfile || '/dev/null';
+    # fallback to /dev/null
+    $logfile = '/dev/null' unless -w $logfile;
     require POSIX;
     fork && exit;
     ## Detach ourselves from the terminal
     croak "Cannot detach from controlling terminal" unless POSIX::setsid();
     fork && exit;
-    chdir "/";
     umask 0;
     close(STDIN);
     close(STDOUT);
     close(STDERR);
-    ## Reopen stderr, stdout, stdin to /dev/null
-    open(STDIN,  "+>/dev/null");
+    ## Reopen stderr, stdout, stdin to $logfile
+    open(STDIN,  "+>$logfile");
     open(STDOUT, "+>&STDIN");
     open(STDERR, "+>&STDIN");
+    chdir "/";
 }
 
 no Moose;
