@@ -1,6 +1,6 @@
 Revision history for Gearman-Driver
 
-0.02006     Mon May 10 2010
+TBD. to make shipit work properly
             - Add --daemonize , let gearman-driver run as daemon
             - Gearman::XS worker run in non-blocking I/O mode, reduce CPU resource a bit.
             - Don't use Gearman::XS 0.9, this will broken compatible with PHP client.

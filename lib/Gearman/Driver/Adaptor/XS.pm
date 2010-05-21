@@ -24,9 +24,9 @@ sub add_function {
 
 sub work {
     my ($self) = @_;
-    
+
     $self->worker->add_options(GEARMAN_WORKER_NON_BLOCKING);
-    
+
     while (1) {
         my $ret = $self->worker->work;
         if ($ret == GEARMAN_IO_WAIT || $ret == GEARMAN_NO_JOBS ) {

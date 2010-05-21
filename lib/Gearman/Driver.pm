@@ -769,9 +769,9 @@ sub run {
     my ($self) = @_;
     push @INC, @{ $self->lib };
     $self->load_namespaces;
-    
+
     $self->_daemonize if $self->daemonize;
-    
+
     $self->_start_observer;
     $self->_start_console;
     $self->_start_session;
