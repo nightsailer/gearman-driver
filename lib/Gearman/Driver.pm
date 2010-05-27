@@ -875,7 +875,7 @@ sub _observer_callback {
 
             elsif ( $job->count_processes && $job->count_processes > $job->min_processes && $row->{queue} == 0 ) {
                 my $idle = time - $job->lastrun;
-                if ( $idle >= $self->max_idle_time ) {
+                if ( $job->lastrun && ($idle >= $self->max_idle_time) ) {
                     my $stop = $job->count_processes - $job->min_processes;
                     $self->log->debug( sprintf "Stopping %d process(es) of type %s (idle: %d)",
                         $stop, $job->name, $idle );
