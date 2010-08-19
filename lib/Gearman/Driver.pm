@@ -364,20 +364,30 @@ has 'unknown_job_callback' => (
 
 =head2 worker_options
 
-You can pass runtime options to the worker module, these will pass to the worker constructor.
+You can pass runtime options to the worker module, these will merged with 'GLOBAL' and pass to the worker constructor. ( worker options override globals )
+
+=over 4
+
+=item * default: C<{}>
+
+=item * isa: C<HashRef>
+
+=back
 
 Example:
 
-    has worker_options => (
-        default => sub {
-            {
-                'My::App::Worker::MysqlPing'  => {
+    my $driver = Gearman::Driver->new(
+        namespaces     => [qw(My::Workers)],
+        worker_options => {
+            'GLOBAL' => {
+                'config' => $config,
+            },
+            'My::Workers::MysqlPing' => {
                 'dsn' => 'DBI:mysql:database=test;host=localhost;mysql_auto_reconnect=1;mysql_enable_utf8=1;mysql_server_prepare=1;',
-                },
-                'My::App::Worker::ImageThumbnail' => {
-                    'default_format' => 'jpeg',
-                    'default_size => '133x100',
-                }
+            },
+            'My::Workers::ImageThumbnail' => {
+                'default_format' => 'jpeg',
+                'default_size => ' 133 x 100 ',
             }
         }
     );
@@ -956,9 +966,12 @@ sub _add_jobs {
     my $job_runtime_attributes = $self->job_runtime_attributes;
 
     foreach my $module ( $self->get_modules ) {
-        my $module_options = $worker_options->{$module} || {};
-        $module_options->{server} = $self->server;
-        my $worker = $module->new( $module_options );
+        my %module_options = (
+            %{ $worker_options->{GLOBAL}  || {} },
+            %{ $worker_options->{$module} || {} },
+        );
+        $module_options{server} = $self->server;
+        my $worker = $module->new( %module_options );
         my %methods = ();
         foreach my $method ( $module->meta->get_nearest_methods_with_attributes ) {
             apply_all_roles( $method => 'Gearman::Driver::Worker::AttributeParser' );
@@ -1096,6 +1109,8 @@ Johannes Plunien E<lt>plu@cpan.orgE<gt>
 Uwe Voelker, <uwe.voelker@gmx.de>
 
 Night Sailer <nightsailer@gmail.com>
+
+Robert Bohne, <rbo@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
