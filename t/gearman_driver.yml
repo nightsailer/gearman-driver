@@ -1,5 +1,8 @@
 ---
 worker_options:
+  'GLOBAL':
+    foo: 'GlobalTest'
+    global_foo: 'GlobalTest'
   'Gearman::Driver::Test::Live::RuntimeOption':
     foo: 'Test'
 job_runtime_attributes:

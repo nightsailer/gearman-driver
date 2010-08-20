@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More tests => 4;
 use FindBin;
 use lib "$FindBin::Bin/lib";
 use Gearman::Driver::Test;
@@ -20,13 +20,27 @@ my $job1 = 'Gearman::Driver::Test::Live::RuntimeOption::job1';
     is( ${$result_ref}, "Test", 'worker attribute Foo runtime changed to Test' );
 }
 
+my $job2 = 'Gearman::Driver::Test::Live::RuntimeOption::job2';
+{
+    # my ( $fh, $filename ) = tempfile( CLEANUP => 1 );
+    my $result_ref = $gc->do_task( $job2 );
+    # my $text = read_file($filename);
+    is( ${$result_ref}, "GlobalTest", 'GLOBAL worker attribute global_foo runtime changed to GlobalTest' );
+}
+
 {
     my $telnet = $test->telnet_client;
     $telnet->print("status");
     while ( my $line = $telnet->getline() ) {
         last if $line eq ".\n";
         chomp $line;
-        like( $line, qr/^$job1  2  10  2 .*$/,'job runtime attributes' );
+        if  ( $line =~ qr/^$job1/ ) {
+            like( $line, qr/^$job1  2  10  2 .*$/,'job runtime attributes job1' );
+        }elsif ( $line =~ qr/^$job2/ ){
+            like( $line, qr/^$job2  1   1  1 .*$/,'job runtime attributes job2' );
+        }else{
+            fail("Unknown job: $line");
+        }
     }
 }
 $test->shutdown;
