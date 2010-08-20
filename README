@@ -221,21 +221,28 @@ ATTRIBUTES
         };
 
   worker_options
-    You can pass runtime options to the worker module, these will pass to
-    the worker constructor.
+    You can pass runtime options to the worker module, these will merged
+    with 'GLOBAL' and pass to the worker constructor. ( worker options
+    override globals )
+
+    *   default: "{}"
+
+    *   isa: "HashRef"
 
     Example:
 
-        has worker_options => (
-            default => sub {
-                {
-                    'My::App::Worker::MysqlPing'  => {
+        my $driver = Gearman::Driver->new(
+            namespaces     => [qw(My::Workers)],
+            worker_options => {
+                'GLOBAL' => {
+                    'config' => $config,
+                },
+                'My::Workers::MysqlPing' => {
                     'dsn' => 'DBI:mysql:database=test;host=localhost;mysql_auto_reconnect=1;mysql_enable_utf8=1;mysql_server_prepare=1;',
-                    },
-                    'My::App::Worker::ImageThumbnail' => {
-                        'default_format' => 'jpeg',
-                        'default_size => '133x100',
-                    }
+                },
+                'My::Workers::ImageThumbnail' => {
+                    'default_format' => 'jpeg',
+                    'default_size => ' 133 x 100 ',
                 }
             }
         );
@@ -502,6 +509,8 @@ CONTRIBUTORS
     Uwe Voelker, <uwe.voelker@gmx.de>
 
     Night Sailer <nightsailer@gmail.com>
+
+    Robert Bohne, <rbo@cpan.org>
 
 COPYRIGHT AND LICENSE
     Copyright 2009 by Johannes Plunien
