@@ -1170,7 +1170,6 @@ it under the same terms as Perl itself.
 =head1 REPOSITORY
 
 L<http://github.com/plu/gearman-driver/>
-L<http://github.com/nightsailer/gearman-driver/>
 
 =cut
 
