@@ -4,8 +4,8 @@ package    # hide from PAUSE
 use base qw(Gearman::Driver::Test::Base::All);
 use Moose;
 
-has 'foo' => (   
-    isa => 'Str',   
+has 'foo' => (
+    isa => 'Str',
     is  => 'rw',
     default => 'foo' 
 );
